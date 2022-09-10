@@ -1,0 +1,15 @@
+{
+  "name": "chronicles-electron",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "^20.1.3"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ciaanh",
+  "license": "MIT"
+}
