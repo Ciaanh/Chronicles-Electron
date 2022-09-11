@@ -1,6 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { ApiPaths } from "../constants";
-import database from "../data/database";
 
 export const dbnamesSlice = createSlice({
     name: "dbnames",
@@ -76,7 +75,7 @@ export default dbnamesSlice.reducer;
 const dbnames_load = () => (dispatch) => {
     let url = ApiPaths.dbnames;
 
-    var dbNames = database.getAll(database.tableNames.dbnames);
+    var dbNames = window.database.getAll(database.tableNames.dbnames);
     if (dbNames) {
         dispatch(dbnames_loaded(dbnames));
     }
@@ -96,7 +95,7 @@ const dbnames_load = () => (dispatch) => {
 const dbnames_create = (name) => (dispatch) => {
     let url = ApiPaths.dbnames;
 
-    var dbName = database.create(database.tableNames.dbnames, {
+    var dbName = window.database.create(database.tableNames.dbnames, {
         name: name,
     });
     if (dbName) {

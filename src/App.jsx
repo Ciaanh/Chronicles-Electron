@@ -59,7 +59,7 @@ const App = () => {
     const dispatch = useDispatch();
 
     // eslint-disable-next-line
-    // useEffect(() => dispatch(refreshUser()), [history]);
+    useEffect(() => dispatch(window.database.initDB()), []);
 
     return (
         <ThemeProvider theme={theme}>

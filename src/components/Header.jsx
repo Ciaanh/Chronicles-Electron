@@ -61,7 +61,7 @@ const Header = () => {
                                 color: "inherit",
                             }}
                         >
-                            Chronicles DB{" "}
+                            Chronicles DB{" "}{window.database.test}
                         </NavLink>
                         <Button
                             sx={{

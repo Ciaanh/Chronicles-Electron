@@ -1,25 +1,22 @@
-// https://www.npmjs.com/package/electron-db
-import db from "./electron-db";
+const { contextBridge } = require("electron");
+const db = require("electron-db");
 
-const service = {};
-
-service.tableNames = {
+const database = {};
+database.tableNames = {
     events: "events",
     characters: "characters",
     factions: "factions",
     dbnames: "dbnames",
     timelines: "timelines",
 };
-
-const tables = [
-    { name: service.tableNames.events },
-    { name: service.tableNames.characters },
-    { name: service.tableNames.factions },
-    { name: service.tableNames.dbnames },
-    { name: service.tableNames.timelines },
-];
-
-service.initDB = function() {
+database.initDB = function() {
+    let tables = [
+        { name: database.tableNames.events },
+        { name: database.tableNames.characters },
+        { name: database.tableNames.factions },
+        { name: database.tableNames.dbnames },
+        { name: database.tableNames.timelines },
+    ];
     tables.forEach((element) => {
         db.createTable(element.name, (succ, msg) => {
             if (succ) {
@@ -30,8 +27,7 @@ service.initDB = function() {
         });
     });
 };
-
-service.getAll = function(dbName) {
+database.getAll = function(dbName) {
     if (db.valid(dbName)) {
         db.getAll(dbName, (succ, data) => {
             // succ - boolean, tells if the call is successful
@@ -39,8 +35,7 @@ service.getAll = function(dbName) {
         });
     }
 };
-
-service.get = function(dbName, id) {
+database.get = function(dbName, id) {
     if (db.valid(dbName)) {
         let where = {
             uniqueId: id,
@@ -52,8 +47,7 @@ service.get = function(dbName, id) {
         });
     }
 };
-
-service.add = function(dbName, obj) {
+database.add = function(dbName, obj) {
     if (db.valid(dbName)) {
         db.insertTableContent(dbName, obj, (succ, msg) => {
             // succ - boolean, tells if the call is successful
@@ -62,8 +56,7 @@ service.add = function(dbName, obj) {
         });
     }
 };
-
-service.edit = function(dbName, id, set) {
+database.edit = function(dbName, id, set) {
     if (db.valid(dbName)) {
         let where = {
             uniqueId: id,
@@ -76,8 +69,7 @@ service.edit = function(dbName, id, set) {
         });
     }
 };
-
-service.remove = function(dbName, id) {
+database.remove = function(dbName, id) {
     if (db.valid(dbName)) {
         db.deleteRow(dbName, { uniqueId: id }, (succ, msg) => {
             console.log(msg);
@@ -85,4 +77,13 @@ service.remove = function(dbName, id) {
     }
 };
 
-export default service;
+contextBridge.exposeInMainWorld("database", {
+    test: "test toto yoyo",
+    tableNames: database.tableNames,
+    initDB: database.initDB,
+    getAll: database.getAll,
+    get: database.get,
+    add: database.add,
+    edit: database.edit,
+    remove: database.remove,
+});
