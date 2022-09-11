@@ -1,16 +1,26 @@
 // https://www.npmjs.com/package/electron-db
-const db = require("electron-db");
+import db from "./electron-db";
 
-const dbs = [
-    { name: "events" },
-    { name: "characters" },
-    { name: "factions" },
-    { name: "dbnames" },
-    { name: "timelines" },
+const service = {};
+
+service.tableNames = {
+    events: "events",
+    characters: "characters",
+    factions: "factions",
+    dbnames: "dbnames",
+    timelines: "timelines",
+};
+
+const tables = [
+    { name: service.tableNames.events },
+    { name: service.tableNames.characters },
+    { name: service.tableNames.factions },
+    { name: service.tableNames.dbnames },
+    { name: service.tableNames.timelines },
 ];
 
-export function initDB() {
-    dbs.forEach((element) => {
+service.initDB = function() {
+    tables.forEach((element) => {
         db.createTable(element.name, (succ, msg) => {
             if (succ) {
                 console.log("Created table " + element.name);
@@ -19,17 +29,18 @@ export function initDB() {
             }
         });
     });
-}
+};
 
-export function getAll(dbName) {
+service.getAll = function(dbName) {
     if (db.valid(dbName)) {
         db.getAll(dbName, (succ, data) => {
             // succ - boolean, tells if the call is successful
             // data - array of objects that represents the rows.
         });
     }
-}
-export function get(dbName, id) {
+};
+
+service.get = function(dbName, id) {
     if (db.valid(dbName)) {
         let where = {
             uniqueId: id,
@@ -40,8 +51,9 @@ export function get(dbName, id) {
             console.log(result);
         });
     }
-}
-export function add(dbName, obj) {
+};
+
+service.add = function(dbName, obj) {
     if (db.valid(dbName)) {
         db.insertTableContent(dbName, obj, (succ, msg) => {
             // succ - boolean, tells if the call is successful
@@ -49,8 +61,9 @@ export function add(dbName, obj) {
             console.log("Message: " + msg);
         });
     }
-}
-export function edit(dbName, id, set) {
+};
+
+service.edit = function(dbName, id, set) {
     if (db.valid(dbName)) {
         let where = {
             uniqueId: id,
@@ -62,11 +75,14 @@ export function edit(dbName, id, set) {
             console.log("Message: " + msg);
         });
     }
-}
-export function remove(dbName, id) {
+};
+
+service.remove = function(dbName, id) {
     if (db.valid(dbName)) {
         db.deleteRow(dbName, { uniqueId: id }, (succ, msg) => {
             console.log(msg);
         });
     }
-}
+};
+
+export default service;

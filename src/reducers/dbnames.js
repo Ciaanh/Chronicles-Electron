@@ -1,7 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
-
 import { ApiPaths } from "../constants";
+import database from "../data/database";
 
 export const dbnamesSlice = createSlice({
     name: "dbnames",
@@ -76,34 +75,48 @@ export default dbnamesSlice.reducer;
 
 const dbnames_load = () => (dispatch) => {
     let url = ApiPaths.dbnames;
-    axios
-        .get(url)
-        .then((response) => {
-            return response.data;
-        })
-        .then((dbnames) => {
-            if (dbnames) {
-                dispatch(dbnames_loaded(dbnames));
-            }
-        });
+
+    var dbNames = database.getAll(database.tableNames.dbnames);
+    if (dbNames) {
+        dispatch(dbnames_loaded(dbnames));
+    }
+
+    // axios
+    //     .get(url)
+    //     .then((response) => {
+    //         return response.data;
+    //     })
+    //     .then((dbnames) => {
+    //         if (dbnames) {
+    //             dispatch(dbnames_loaded(dbnames));
+    //         }
+    //     });
 };
 
 const dbnames_create = (name) => (dispatch) => {
     let url = ApiPaths.dbnames;
-    axios
-        .post(url, {
-            dbname: {
-                name: name,
-            },
-        })
-        .then((response) => {
-            return response.data;
-        })
-        .then((created_dbname) => {
-            if (created_dbname) {
-                dispatch(dbnames_created(created_dbname));
-            }
-        });
+
+    var dbName = database.create(database.tableNames.dbnames, {
+        name: name,
+    });
+    if (dbName) {
+        dispatch(dbnames_created(dbnames));
+    }
+
+    // axios
+    //     .post(url, {
+    //         dbname: {
+    //             name: name,
+    //         },
+    //     })
+    //     .then((response) => {
+    //         return response.data;
+    //     })
+    //     .then((created_dbname) => {
+    //         if (created_dbname) {
+    //             dispatch(dbnames_created(created_dbname));
+    //         }
+    //     });
 };
 
 const dbnames_save = (dbname) => (dispatch) => {
