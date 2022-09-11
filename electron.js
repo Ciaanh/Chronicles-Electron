@@ -32,3 +32,4 @@ app.on("activate", () => {
 });
 
 // https://medium.com/@devesu/how-to-build-a-react-based-electron-app-d0f27413f17f
+// https://medium.com/@kitze/%EF%B8%8F-from-react-to-an-electron-app-ready-for-production-a0468ecb1da3
