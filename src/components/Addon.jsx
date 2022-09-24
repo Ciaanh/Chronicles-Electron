@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 
 import {
     Alert,
+    Box,
     Button,
     Checkbox,
     List,
@@ -34,8 +35,28 @@ const Addon = () => {
     });
 
     return (
-        <React.Fragment>
-            <h2>Addon </h2>
+        <Box sx={{ flexGrow: 1 }}>
+            <AppBar position="static">
+                <Toolbar>
+                    <IconButton
+                        size="large"
+                        edge="start"
+                        color="inherit"
+                        aria-label="menu"
+                        sx={{ mr: 2 }}
+                    >
+                        <MenuIcon />
+                    </IconButton>
+                    <Typography
+                        variant="h6"
+                        component="div"
+                        sx={{ flexGrow: 1 }}
+                    >
+                        Addon
+                    </Typography>
+                    <Button color="inherit">Login</Button>
+                </Toolbar>
+            </AppBar>
             <List>
                 {addonState.dbnames.map((dbname) => {
                     const labelId = `checkbox-list-label-${dbname._id}`;
@@ -113,7 +134,7 @@ const Addon = () => {
                     {addonState.error}
                 </Alert>
             </Snackbar>
-        </React.Fragment>
+        </Box>
     );
 };
 

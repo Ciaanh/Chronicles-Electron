@@ -78,7 +78,6 @@ database.remove = function(dbName, id) {
 };
 
 contextBridge.exposeInMainWorld("database", {
-    test: "test toto yoyo",
     tableNames: database.tableNames,
     initDB: database.initDB,
     getAll: database.getAll,

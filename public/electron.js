@@ -8,8 +8,12 @@ let mainWindow;
 
 function createWindow() {
     mainWindow = new BrowserWindow({
-        width: 900,
-        height: 680,
+        width: 1200,
+        height: 900,
+        darkTheme: true,
+        maximizable: false,
+        resizable: false,
+        icon: path.join(__dirname, "public/favicon.ico"),
         webPreferences: {
             preload: path.join(__dirname, "preload.js"),
             sandbox: false,

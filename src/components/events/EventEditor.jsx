@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 
-import Locale from "../Locale";
+import Locale from "../locales/Locale";
 
 import { Timelines, EventTypes } from "../../constants";
 import Grid from "@mui/material/Unstable_Grid2";

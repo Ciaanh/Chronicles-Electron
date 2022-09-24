@@ -8,7 +8,6 @@ import { Box, CssBaseline, Toolbar } from "@mui/material";
 
 import { history } from "./store";
 
-import Header from "./components/Header";
 import NavBar from "./components/NavBar";
 import Home from "./components/Home";
 import TimelinesView from "./components/timelines/TimelinesView";
@@ -59,7 +58,7 @@ const App = () => {
     const dispatch = useDispatch();
 
     // eslint-disable-next-line
-    useEffect(() => dispatch(window.database.initDB()), []);
+    useEffect(() => window.database.initDB(), []);
 
     return (
         <ThemeProvider theme={theme}>
@@ -70,8 +69,6 @@ const App = () => {
             >
                 <CssBaseline />
 
-                <Header />
-
                 <NavBar location={history.location} />
 
                 <Box
@@ -81,34 +78,26 @@ const App = () => {
                         padding: theme.spacing(3),
                     }}
                 >
-                    <Toolbar />
+                    <Routes>
+                        <Route exact path="/" element={<Home />} />
 
-                    <React.Fragment>
-                        <Routes>
-                            <Route exact path="/" element={<Home />} />
+                        <Route
+                            exact
+                            path="/timelines"
+                            element={<TimelinesView />}
+                        />
 
-                            <Route
-                                exact
-                                path="/timelines"
-                                element={<TimelinesView />}
-                            />
+                        <Route exact path="/events" element={<Events />} />
+                        <Route
+                            exact
+                            path="/characters"
+                            element={<Characters />}
+                        />
+                        <Route exact path="/factions" element={<Factions />} />
+                        <Route exact path="/dbname" element={<DBNames />} />
 
-                            <Route exact path="/events" element={<Events />} />
-                            <Route
-                                exact
-                                path="/characters"
-                                element={<Characters />}
-                            />
-                            <Route
-                                exact
-                                path="/factions"
-                                element={<Factions />}
-                            />
-                            <Route exact path="/dbname" element={<DBNames />} />
-
-                            <Route exact path="/addon" element={<Addon />} />
-                        </Routes>
-                    </React.Fragment>
+                        <Route exact path="/addon" element={<Addon />} />
+                    </Routes>
                 </Box>
             </Box>
         </ThemeProvider>

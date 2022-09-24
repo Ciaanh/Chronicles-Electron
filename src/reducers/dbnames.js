@@ -95,7 +95,7 @@ const dbnames_load = () => (dispatch) => {
 const dbnames_create = (name) => (dispatch) => {
     let url = ApiPaths.dbnames;
 
-    var dbName = window.database.create(database.tableNames.dbnames, {
+    var dbName = window.database.add(database.tableNames.dbnames, {
         name: name,
     });
     if (dbName) {

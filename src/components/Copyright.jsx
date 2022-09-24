@@ -1,6 +1,10 @@
 import React from "react";
 
-import { Typography, Link } from "@mui/material";
+import { IconButton, Typography, Link } from "@mui/material";
+
+import GetAppIcon from "@mui/icons-material/GetApp";
+
+import { AddonDownloadUrl } from "../constants";
 
 const Copyright = (props) => {
     return (
@@ -10,6 +14,10 @@ const Copyright = (props) => {
             align="center"
             {...props}
         >
+            {" "}
+            <IconButton color="inherit" href={AddonDownloadUrl} target="_blank">
+                <GetAppIcon />
+            </IconButton>
             {"Copyright © "}
             <Link color="inherit" href="https://github.com/Ciaanh">
                 Ciaanh
