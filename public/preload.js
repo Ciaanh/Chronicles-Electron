@@ -75,6 +75,8 @@ database.remove = function(dbName, id) {
             console.log(msg);
         });
     }
+
+    return id;
 };
 
 contextBridge.exposeInMainWorld("database", {

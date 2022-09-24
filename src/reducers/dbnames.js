@@ -7,7 +7,7 @@ export const dbnamesSlice = createSlice({
         list: [],
         creatingDbName: {
             create: false,
-            name: null,
+            name: "",
         },
     },
     reducers: {
@@ -16,7 +16,7 @@ export const dbnamesSlice = createSlice({
         },
         dbnames_displayCreate: (state, action) => {
             state.creatingDbName.create = true;
-            state.creatingDbName.name = null;
+            state.creatingDbName.name = "";
         },
         dbnames_created: (state, action) => {
             state.list.push(action.payload);
@@ -73,77 +73,41 @@ export const {
 export default dbnamesSlice.reducer;
 
 const dbnames_load = () => (dispatch) => {
-    let url = ApiPaths.dbnames;
-
     var dbNames = window.database.getAll(database.tableNames.dbnames);
     if (dbNames) {
         dispatch(dbnames_loaded(dbnames));
     }
-
-    // axios
-    //     .get(url)
-    //     .then((response) => {
-    //         return response.data;
-    //     })
-    //     .then((dbnames) => {
-    //         if (dbnames) {
-    //             dispatch(dbnames_loaded(dbnames));
-    //         }
-    //     });
 };
 
 const dbnames_create = (name) => (dispatch) => {
-    let url = ApiPaths.dbnames;
-
     var dbName = window.database.add(database.tableNames.dbnames, {
         name: name,
     });
     if (dbName) {
         dispatch(dbnames_created(dbnames));
     }
-
-    // axios
-    //     .post(url, {
-    //         dbname: {
-    //             name: name,
-    //         },
-    //     })
-    //     .then((response) => {
-    //         return response.data;
-    //     })
-    //     .then((created_dbname) => {
-    //         if (created_dbname) {
-    //             dispatch(dbnames_created(created_dbname));
-    //         }
-    //     });
 };
 
 const dbnames_save = (dbname) => (dispatch) => {
-    let url = ApiPaths.dbnames + `/${dbname._id}`;
-    axios
-        .put(url, { dbname })
-        .then((response) => {
-            return response.data;
-        })
-        .then((saved_dbname) => {
-            if (saved_dbname) {
-                dispatch(dbnames_saved(saved_dbname));
-            }
-        });
+    var saved_dbname = window.database.edit(
+        database.tableNames.dbnames,
+        dbname._id, {
+            name: name,
+        }
+    );
+    if (saved_dbname) {
+        dispatch(dbnames_saved(saved_dbname));
+    }
 };
 
 const dbnames_delete = (id) => (dispatch) => {
-    let url = ApiPaths.dbnames + `/${id}`;
-    axios
-        .delete(url)
-        .then((response) => {
-            return response.data;
-        })
-        .then((deleted_id) => {
-            if (deleted_id) {
-                dispatch(dbnames_deleted(deleted_id));
-            }
-        });
+    var deleted_id = window.database.remove(
+        database.tableNames.dbnames,
+        dbname._id
+    );
+    if (deleted_id) {
+        dispatch(dbnames_deleted(deleted_id));
+    }
 };
 
 export { dbnames_load, dbnames_create, dbnames_save, dbnames_delete };
