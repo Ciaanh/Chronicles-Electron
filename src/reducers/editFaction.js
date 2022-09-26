@@ -1,7 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
 
-import { ApiPaths, getEmptyLocale, cleanString } from "../constants";
+import { getEmptyLocale, cleanString } from "../constants";
 
 import { factions_created, factions_saved, factions_deleted } from "./factions";
 
@@ -9,9 +8,8 @@ import { factions_created, factions_saved, factions_deleted } from "./factions";
 
 function mapFaction(state, faction) {
     state.faction.isCreate = faction.isCreate;
-    state.faction._id = faction._id;
+    state.faction.id = faction.id;
     state.faction.name = faction.name;
-    state.faction.uniqueId = faction.uniqueId;
     state.faction.label = faction.label;
     state.faction.description = faction.description;
     state.faction.timeline = faction.timeline;
@@ -21,8 +19,7 @@ function mapFaction(state, faction) {
 
 function getEmptyFaction() {
     return {
-        _id: null,
-        uniqueId: null,
+        id: null,
 
         name: "",
         label: getEmptyLocale(undefined),
@@ -49,8 +46,7 @@ export const editFactionSlice = createSlice({
                 state.isCreate = false;
 
                 mapFaction(state, {
-                    _id: action.payload._id,
-                    uniqueId: action.payload.uniqueId,
+                    id: action.payload.id,
                     name: action.payload.name,
                     description: action.payload.description,
                     timeline: action.payload.timeline,
@@ -60,7 +56,7 @@ export const editFactionSlice = createSlice({
         },
         editFaction_new: (state) => {
             state.openDialog = true;
-            state.isCreate = TextTrackCue;
+            state.isCreate = true;
 
             mapFaction(state, getEmptyFaction());
         },
@@ -73,14 +69,14 @@ export const editFactionSlice = createSlice({
         editFaction_factions_loaded: (state, action) => {
             state.factions = action.payload.map((faction) => {
                 return {
-                    _id: faction._id,
+                    id: faction.id,
                     name: faction.name,
                 };
             });
         },
         editFaction_faction_add: (state, action) => {
             let faction = state.faction.factions.find(
-                (f) => f._id === action.payload._id
+                (f) => f.id === action.payload.id
             );
             if (faction) {
                 return;
@@ -90,7 +86,7 @@ export const editFactionSlice = createSlice({
         },
         editFaction_faction_remove: (state, action) => {
             let factionIndex = state.faction.factions.findIndex(
-                (f) => f._id === action.payload
+                (f) => f.id === action.payload
             );
             if (factionIndex > -1) {
                 state.faction.factions.splice(factionIndex, 1);
@@ -99,13 +95,13 @@ export const editFactionSlice = createSlice({
         editFaction_dbnames_loaded: (state, action) => {
             state.dbnames = action.payload.map((dbname) => {
                 return {
-                    _id: dbname._id,
+                    id: dbname.id,
                     name: dbname.name,
                 };
             });
         },
         editFaction_changeDbName: (state, action) => {
-            let dbname = state.dbnames.find((f) => f._id === action.payload);
+            let dbname = state.dbnames.find((f) => f.id === action.payload);
             if (dbname) {
                 state.faction.dbname = dbname;
             }
@@ -119,8 +115,7 @@ export const editFactionSlice = createSlice({
                 cleanString(state.faction.name) + "_label";
         },
         editFaction_changeLabel: (state, action) => {
-            state.faction.label[action.payload.locale] =
-                action.payload.value;
+            state.faction.label[action.payload.locale] = action.payload.value;
         },
         editFaction_changeDescription: (state, action) => {
             state.faction.description[action.payload.locale] =
@@ -130,7 +125,7 @@ export const editFactionSlice = createSlice({
             state.faction.timeline = action.payload;
         },
 
-        editFaction_errorWhileSaving: (state, action) => {
+        editFaction_error: (state, action) => {
             state.error = action.payload.message;
             state.openError = true;
         },
@@ -155,127 +150,60 @@ export const {
     editFaction_changeLabel,
     editFaction_changeDescription,
     editFaction_changeTimeline,
-    editFaction_errorWhileSaving,
+    editFaction_error,
     editFaction_closeError,
 } = editFactionSlice.actions;
 export default editFactionSlice.reducer;
 
 const editFaction_save = (faction) => (dispatch) => {
-    let url = ApiPaths.factions + `/${faction._id}`;
-    axios
-        .put(url, { faction })
-        .then((response) => {
-            return response.data;
-        })
-        .then((saved_faction) => {
-            if (saved_faction) {
-                dispatch(editFaction_close());
-                dispatch(factions_saved(saved_faction));
-            }
-        })
-        .catch((error) => {
-            if (error.response) {
-                dispatch(editFaction_errorWhileSaving(error.response.data));
-            } else if (error.request) {
-                console.log(error.request);
-            } else {
-                console.log("Error", error.message);
-            }
-        });
+    window.database.edit(
+        database.tableNames.factions,
+        faction.id,
+        faction,
+        (saved_faction) => {
+            dispatch(editFaction_close());
+            dispatch(factions_saved(saved_faction));
+        },
+        (error) => dispatch(editFaction_error(error))
+    );
 };
 
 const editFaction_create = (faction) => (dispatch) => {
-    // call api to create new then dispatch faction_created
-    let url = ApiPaths.factions;
-    axios
-        .post(url, {
-            faction: {
-                name: faction.name,
-                description: faction.description,
-                timeline: faction.timeline,
-                dbname: faction.dbname,
-            },
-        })
-        .then((response) => {
-            return response.data;
-        })
-        .then((created_faction) => {
-            if (created_faction) {
-                dispatch(editFaction_close());
-                dispatch(factions_created(created_faction));
-            }
-        })
-        .catch((error) => {
-            if (error.response) {
-                dispatch(editFaction_errorWhileSaving(error.response.data));
-            } else if (error.request) {
-                console.log(error.request);
-            } else {
-                console.log("Error", error.message);
-            }
-        });
+    window.database.add(
+        database.tableNames.factions, {
+            name: faction.name,
+            description: faction.description,
+            timeline: faction.timeline,
+            dbname: faction.dbname,
+        },
+        (created_faction) => {
+            dispatch(editFaction_close());
+            dispatch(factions_created(created_faction));
+        },
+        (error) => dispatch(editFaction_error(error))
+    );
 };
 
 const editFaction_delete = (id) => (dispatch) => {
-    // call api to delete faction then dispatch faction_deleted _id
-    let url = ApiPaths.factions + `/${id}`;
-    axios
-        .delete(url)
-        .then((response) => {
-            return response.data;
-        })
-        .then((deleted_id) => {
-            if (deleted_id) {
-                dispatch(factions_deleted(deleted_id));
-            }
-        });
+    window.database.remove(
+        database.tableNames.factions,
+        id,
+        (deletedid) => dispatch(factions_deleted(deletedid)),
+        (error) => dispatch(editFaction_error(error))
+    );
 };
 
-const editFaction_validate = (id) => (dispatch) => {
-    let url = ApiPaths.factionValidate + `/${id}`;
-    axios
-        .post(url)
-        .then((response) => {
-            let saved_faction = response.data;
-            if (saved_faction) {
-                dispatch(editFaction_close());
-                dispatch(factions_saved(saved_faction));
-            }
-        })
-        .catch((error) => {
-            if (error.response) {
-                dispatch(editFaction_errorWhileSaving(error.response.data));
-            } else if (error.request) {
-                // The request was made but no response was received
-                // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-                // http.ClientRequest in node.js
-                console.log(error.request);
-            } else {
-                // Something happened in setting up the request that triggered an Error
-                console.log("Error", error.message);
-            }
-            //console.log(error.config);
-        });
-};
-
-const editFaction_load = (faction) => (dispatch) => {
-    let urlDBNames = ApiPaths.dbnames;
-    axios
-        .get(urlDBNames)
-        .then((response) => {
-            return response.data;
-        })
-        .then((dbnames) => {
-            if (dbnames) {
-                dispatch(editFaction_dbnames_loaded(dbnames));
-            }
-        });
+const editFaction_load = () => (dispatch) => {
+    window.database.getAll(
+        database.tableNames.dbnames,
+        (dbnames) => dispatch(editFaction_dbnames_loaded(dbnames)),
+        (error) => dispatch(editFaction_error(error))
+    );
 };
 
 export {
     editFaction_save,
     editFaction_create,
     editFaction_delete,
-    editFaction_validate,
     editFaction_load,
 };

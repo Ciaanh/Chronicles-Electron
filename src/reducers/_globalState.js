@@ -10,7 +10,6 @@ import factionsReducer from "./factions";
 import editFactionReducer from "./editFaction";
 
 import dbnamesReducer from "./dbnames";
-import editDBNameReducer from "./editDBName";
 
 import addonReducer from "./addon";
 
@@ -25,7 +24,6 @@ const createRootReducer = (history) =>
         factions: factionsReducer,
         editFaction: editFactionReducer,
         dbnames: dbnamesReducer,
-        editDBName: editDBNameReducer,
 
         addon: addonReducer,
 

@@ -1,5 +1,6 @@
 const { contextBridge } = require("electron");
 const db = require("electron-db");
+const path = require("path");
 
 const database = {};
 database.tableNames = {
@@ -9,6 +10,8 @@ database.tableNames = {
     dbnames: "dbnames",
     timelines: "timelines",
 };
+database.location = path.join(__dirname, "database");
+
 database.initDB = function() {
     let tables = [
         { name: database.tableNames.events },
@@ -17,63 +20,83 @@ database.initDB = function() {
         { name: database.tableNames.dbnames },
         { name: database.tableNames.timelines },
     ];
+
     tables.forEach((element) => {
-        db.createTable(element.name, (succ, msg) => {
+        db.createTable(element.name, database.location, (succ, msg) => {
             if (succ) {
                 console.log("Created table " + element.name);
             } else {
-                console.log("Failed to create table " + element.name);
+                console.log(
+                    "Failed to create table " + element.name + " : " + msg
+                );
             }
         });
     });
 };
-database.getAll = function(dbName) {
+database.getAll = function(dbName, success, error) {
     if (db.valid(dbName)) {
-        db.getAll(dbName, (succ, data) => {
-            // succ - boolean, tells if the call is successful
-            // data - array of objects that represents the rows.
+        db.getAll(dbName, database.location, (succ, data) => {
+            if (succ) {
+                success(data);
+            } else {
+                error();
+            }
         });
     }
 };
-database.get = function(dbName, id) {
+database.get = function(dbName, id, success, error) {
     if (db.valid(dbName)) {
         let where = {
-            uniqueId: id,
+            id: id,
         };
-        db.getRows(dbName, where, (succ, result) => {
-            // succ - boolean, tells if the call is successful
-            console.log("Success: " + succ);
-            console.log(result);
+        db.getRows(dbName, database.location, where, (succ, result) => {
+            if (succ) {
+                success(result);
+            } else {
+                error();
+            }
         });
     }
 };
-database.add = function(dbName, obj) {
+database.add = function(dbName, obj, success, error) {
     if (db.valid(dbName)) {
-        db.insertTableContent(dbName, obj, (succ, msg) => {
-            // succ - boolean, tells if the call is successful
-            console.log("Success: " + succ);
-            console.log("Message: " + msg);
+        db.insertTableContent(dbName, database.location, obj, (succ, msg) => {
+            if (succ) {
+                success(result);
+            } else {
+                error(msg);
+            }
         });
     }
 };
-database.edit = function(dbName, id, set) {
+database.edit = function(dbName, id, set, success, error) {
     if (db.valid(dbName)) {
         let where = {
-            uniqueId: id,
+            id: id,
         };
 
-        db.updateRow("customers", where, set, (succ, msg) => {
-            // succ - boolean, tells if the call is successful
-            console.log("Success: " + succ);
-            console.log("Message: " + msg);
+        db.updateRow(dbName, database.location, where, set, (succ, msg) => {
+            if (succ) {
+                success(set);
+            } else {
+                error(msg);
+            }
         });
     }
 };
-database.remove = function(dbName, id) {
+database.remove = function(dbName, id, success, error) {
     if (db.valid(dbName)) {
-        db.deleteRow(dbName, { uniqueId: id }, (succ, msg) => {
-            console.log(msg);
-        });
+        db.deleteRow(
+            dbName,
+            database.location, { id: id },
+            (succ, msg) => {
+                if (succ) {
+                    success(id);
+                } else {
+                    error(msg);
+                }
+            }
+        );
     }
 
     return id;

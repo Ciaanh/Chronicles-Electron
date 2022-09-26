@@ -28,7 +28,7 @@ const Events = () => {
         <React.Fragment>
             {events.length === 0 && <NoData />}
             {events.map((event) => (
-                <EventRow key={event._id} row={event} />
+                <EventRow key={event.id} row={event} />
             ))}
 
             <React.Fragment>

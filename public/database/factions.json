@@ -1,0 +1,16 @@
+{
+  "factions": [
+    {
+      "name": "TestFaction",
+      "description": {
+        "key": "testfaction_label"
+      },
+      "timeline": 0,
+      "dbname": {
+        "id": 1664140407086,
+        "name": "sdfdsgdf"
+      },
+      "id": 1664226010758
+    }
+  ]
+}

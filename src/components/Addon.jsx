@@ -59,16 +59,16 @@ const Addon = () => {
             </AppBar>
             <List>
                 {addonState.dbnames.map((dbname) => {
-                    const labelId = `checkbox-list-label-${dbname._id}`;
+                    const labelId = `checkbox-list-label-${dbname.id}`;
                     return (
                         <ListItem
-                            key={dbname._id}
+                            key={dbname.id}
                             value={dbname.name}
                             secondaryAction={
                                 <Button
                                     variant="contained"
                                     onClick={() =>
-                                        dispatch(addon_generate(dbname._id))
+                                        dispatch(addon_generate(dbname.id))
                                     }
                                 >
                                     Generate
@@ -80,7 +80,7 @@ const Addon = () => {
                                 role={undefined}
                                 onClick={() => {
                                     dispatch(
-                                        addon_checkDbName_toggle(dbname._id)
+                                        addon_checkDbName_toggle(dbname.id)
                                     );
                                 }}
                                 dense
@@ -112,7 +112,7 @@ const Addon = () => {
                             addonState.dbnames
                                 .filter((dbname) => dbname.checked)
                                 .map((dbname) => {
-                                    return dbname._id;
+                                    return dbname.id;
                                 })
                         )
                     )

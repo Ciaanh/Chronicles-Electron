@@ -35,7 +35,6 @@ import {
     editFaction_closeError,
     editFaction_save,
     editFaction_create,
-    editFaction_validate,
     editFaction_load,
 } from "../../reducers/editFaction";
 
@@ -89,21 +88,7 @@ const FactionEditor = () => {
                             </Grid>
 
                             <Grid xs={2}>
-                                <IconButton
-                                    edge="start"
-                                    color="inherit"
-                                    onClick={() =>
-                                        dispatch(
-                                            editFaction_validate(faction._id)
-                                        )
-                                    }
-                                    aria-label="close"
-                                >
-                                    <Typography variant="h6">
-                                        Validate
-                                    </Typography>{" "}
-                                    <CheckCircleIcon />
-                                </IconButton>
+                                
                             </Grid>
                             <Grid xs={1}>
                                 <IconButton
@@ -145,7 +130,7 @@ const FactionEditor = () => {
                                     name="dbname"
                                     value={
                                         faction.dbname
-                                            ? faction.dbname._id ?? "undefined"
+                                            ? faction.dbname.id ?? "undefined"
                                             : "undefined"
                                     }
                                     onChange={(dbname) => {
@@ -161,8 +146,8 @@ const FactionEditor = () => {
                                     </MenuItem>
                                     {dbnames.map((dbname) => (
                                         <MenuItem
-                                            key={dbname._id}
-                                            value={dbname._id}
+                                            key={dbname.id}
+                                            value={dbname.id}
                                         >
                                             {dbname.name}
                                         </MenuItem>
@@ -207,7 +192,7 @@ const FactionEditor = () => {
                                     disabled
                                     label="Unique Id"
                                     margin="dense"
-                                    value={faction.uniqueId}
+                                    value={faction.id}
                                 />
                             )}
                         </Grid>

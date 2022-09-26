@@ -71,7 +71,7 @@ const TimelinesView = () => {
 
             <Timeline position="right">
                 {timelines.eventList.map((event) => (
-                    <TimelineItem key={event.uniqueId}>
+                    <TimelineItem key={event.id}>
                         <TimelineOppositeContent
                             sx={{ m: "auto 0" }}
                             align="right"

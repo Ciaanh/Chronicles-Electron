@@ -1,14 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
 
-import { ApiPaths, getEmptyLocale, cleanString } from "../constants";
+import { getEmptyLocale, cleanString } from "../constants";
 
 import { events_created, events_saved, events_deleted } from "./events";
 
 function mapEvent(state, event) {
     state.event.isCreate = event.isCreate;
-    state.event._id = event._id;
-    state.event.uniqueId = event.uniqueId;
+    state.event.id = event.id;
 
     state.event.name = event.name;
     state.event.yearStart = event.yearStart;
@@ -26,8 +24,7 @@ function mapEvent(state, event) {
 
 function getEmptyEvent() {
     return {
-        _id: undefined,
-        uniqueId: undefined,
+        id: undefined,
 
         name: "",
         yearStart: "",
@@ -62,9 +59,8 @@ export const editEventSlice = createSlice({
                 state.isCreate = false;
 
                 mapEvent(state, {
-                    _id: action.payload._id,
+                    id: action.payload.id,
 
-                    uniqueId: action.payload.uniqueId,
                     name: action.payload.name,
                     yearStart: action.payload.yearStart,
                     yearEnd: action.payload.yearEnd,
@@ -93,13 +89,13 @@ export const editEventSlice = createSlice({
         editEvent_dbnames_loaded: (state, action) => {
             state.dbnames = action.payload.map((dbname) => {
                 return {
-                    _id: dbname._id,
+                    id: dbname.id,
                     name: dbname.name,
                 };
             });
         },
         editEvent_changeDbName: (state, action) => {
-            let dbname = state.dbnames.find((f) => f._id === action.payload);
+            let dbname = state.dbnames.find((f) => f.id === action.payload);
             if (dbname) {
                 state.event.dbname = dbname;
             }
@@ -108,7 +104,7 @@ export const editEventSlice = createSlice({
         editEvent_characters_loaded: (state, action) => {
             state.characters = action.payload.map((character) => {
                 return {
-                    _id: character._id,
+                    id: character.id,
                     name: character.name,
                     dbname: character.dbname,
                 };
@@ -116,7 +112,7 @@ export const editEventSlice = createSlice({
         },
         editEvent_character_add: (state, action) => {
             let character = state.event.characters.find(
-                (f) => f._id === action.payload._id
+                (f) => f.id === action.payload.id
             );
             if (character) {
                 return;
@@ -126,7 +122,7 @@ export const editEventSlice = createSlice({
         },
         editEvent_character_remove: (state, action) => {
             let characterIndex = state.event.characters.findIndex(
-                (f) => f._id === action.payload
+                (f) => f.id === action.payload
             );
             if (characterIndex > -1) {
                 state.event.characters.splice(characterIndex, 1);
@@ -136,7 +132,7 @@ export const editEventSlice = createSlice({
         editEvent_factions_loaded: (state, action) => {
             state.factions = action.payload.map((faction) => {
                 return {
-                    _id: faction._id,
+                    id: faction.id,
                     name: faction.name,
                     dbname: faction.dbname,
                 };
@@ -144,7 +140,7 @@ export const editEventSlice = createSlice({
         },
         editEvent_faction_add: (state, action) => {
             let faction = state.event.factions.find(
-                (f) => f._id === action.payload._id
+                (f) => f.id === action.payload.id
             );
             if (faction) {
                 return;
@@ -154,7 +150,7 @@ export const editEventSlice = createSlice({
         },
         editEvent_faction_remove: (state, action) => {
             let factionIndex = state.event.factions.findIndex(
-                (f) => f._id === action.payload
+                (f) => f.id === action.payload
             );
             if (factionIndex > -1) {
                 state.event.factions.splice(factionIndex, 1);
@@ -239,7 +235,7 @@ export const editEventSlice = createSlice({
             }
         },
 
-        editEvent_errorWhileSaving: (state, action) => {
+        editEvent_error: (state, action) => {
             state.error = action.payload.message;
             state.openError = true;
         },
@@ -278,150 +274,74 @@ export const {
     editEvent_description_remove,
     editEvent_description_change,
 
-    editEvent_errorWhileSaving,
+    editEvent_error,
     editEvent_closeError,
 } = editEventSlice.actions;
 export default editEventSlice.reducer;
 
 const editEvent_save = (event) => (dispatch) => {
-    let url = ApiPaths.events + `/${event._id}`;
-    axios
-        .put(url, { event })
-        .then((response) => {
-            let saved_event = response.data;
-            if (saved_event) {
-                dispatch(editEvent_close());
-                dispatch(events_saved(saved_event));
-            }
-        })
-        .catch((error) => {
-            if (error.response) {
-                dispatch(editEvent_errorWhileSaving(error.response.data));
-            } else if (error.request) {
-                console.log(error.request);
-            } else {
-                console.log("Error", error.message);
-            }
-        });
+    window.database.edit(
+        database.tableNames.events,
+        event.id,
+        event,
+        (saved_event) => {
+            dispatch(editEvent_close());
+            dispatch(events_saved(saved_event));
+        },
+        (error) => dispatch(editEvent_error(error))
+    );
 };
 
 const editEvent_create = (event) => (dispatch) => {
-    // call api to create new then dispatch event_created
-    let url = ApiPaths.events;
-    axios
-        .post(url, {
-            event: {
-                name: event.name,
-                uniqueId: event.uniqueId,
-                yearStart: event.yearStart,
-                yearEnd: event.yearEnd,
-                eventType: event.eventType,
-                timeline: event.timeline,
-                link: event.link,
-                factions: event.factions,
-                characters: event.characters,
-                label: event.label,
-                description: event.description,
-                dbname: event.dbname,
-            },
-        })
-        .then((response) => {
-            let created_event = response.data;
-            if (created_event) {
-                dispatch(editEvent_close());
-                dispatch(events_created(created_event));
-            }
-        })
-        .catch((error) => {
-            if (error.response) {
-                dispatch(editEvent_errorWhileSaving(error.response.data));
-            } else if (error.request) {
-                console.log(error.request);
-            } else {
-                console.log("Error", error.message);
-            }
-        });
+    window.database.add(
+        database.tableNames.events, {
+            name: event.name,
+            yearStart: event.yearStart,
+            yearEnd: event.yearEnd,
+            eventType: event.eventType,
+            timeline: event.timeline,
+            link: event.link,
+            factions: event.factions,
+            characters: event.characters,
+            label: event.label,
+            description: event.description,
+            dbname: event.dbname,
+        },
+        (created_event) => {
+            dispatch(editEvent_close());
+            dispatch(events_created(created_event));
+        },
+        (error) => dispatch(editEvent_error(error))
+    );
 };
 
 const editEvent_delete = (id) => (dispatch) => {
-    // call api to delete event then dispatch event_deleted _id
-    let url = ApiPaths.events + `/${id}`;
-    axios
-        .delete(url)
-        .then((response) => {
-            return response.data;
-        })
-        .then((deleted_id) => {
-            if (deleted_id) {
-                dispatch(events_deleted(deleted_id));
-            }
-        });
+    window.database.remove(
+        database.tableNames.events,
+        id,
+        (deletedid) => dispatch(events_deleted(deletedid)),
+        (error) => dispatch(editEvent_error(error))
+    );
 };
 
 const editEvent_load = (event) => (dispatch) => {
-    let urlFactions = ApiPaths.factions;
-    axios
-        .get(urlFactions)
-        .then((response) => {
-            return response.data;
-        })
-        .then((factions) => {
-            if (factions) {
-                dispatch(editEvent_factions_loaded(factions));
-            }
-        });
+    window.database.getAll(
+        database.tableNames.factions,
+        (factions) => dispatch(editEvent_factions_loaded(factions)),
+        (error) => dispatch(editEvent_error(error))
+    );
 
-    let urlCharacters = ApiPaths.characters;
-    axios
-        .get(urlCharacters)
-        .then((response) => {
-            return response.data;
-        })
-        .then((characters) => {
-            if (characters) {
-                dispatch(editEvent_characters_loaded(characters));
-            }
-        });
+    window.database.getAll(
+        database.tableNames.characters,
+        (characters) => dispatch(editEvent_characters_loaded(characters)),
+        (error) => dispatch(editEvent_error(error))
+    );
 
-    let urlDBNames = ApiPaths.dbnames;
-    axios
-        .get(urlDBNames)
-        .then((response) => {
-            return response.data;
-        })
-        .then((dbnames) => {
-            if (dbnames) {
-                dispatch(editEvent_dbnames_loaded(dbnames));
-            }
-        });
+    window.database.getAll(
+        database.tableNames.dbnames,
+        (dbNames) => dispatch(editEvent_dbnames_loaded(dbNames)),
+        (error) => dispatch(editEvent_error(error))
+    );
 };
 
-const editEvent_validate = (id) => (dispatch) => {
-    let url = ApiPaths.eventValidate + `/${id}`;
-    axios
-        .post(url)
-        .then((response) => {
-            let saved_event = response.data;
-            if (saved_event) {
-                dispatch(editEvent_close());
-                dispatch(events_saved(saved_event));
-            }
-        })
-        .catch((error) => {
-            if (error.response) {
-                dispatch(editEvent_errorWhileSaving(error.response.data));
-            } else if (error.request) {
-                console.log(error.request);
-            } else {
-                console.log("Error", error.message);
-            }
-        });
-};
-
-export {
-    editEvent_save,
-    editEvent_create,
-    editEvent_delete,
-    editEvent_load,
-    editEvent_validate,
-};
+export { editEvent_save, editEvent_create, editEvent_delete, editEvent_load };

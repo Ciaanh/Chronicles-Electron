@@ -31,7 +31,7 @@ const CharacterRow = (props) => {
     return (
         <Accordion
             expanded={row.open}
-            onChange={() => dispatch(characters_show_details(row._id))}
+            onChange={() => dispatch(characters_show_details(row.id))}
         >
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Typography
@@ -47,7 +47,7 @@ const CharacterRow = (props) => {
                             size="small"
                             onClick={(event) => {
                                 event.stopPropagation();
-                                dispatch(editCharacter_delete(row._id));
+                                dispatch(editCharacter_delete(row.id));
                             }}
                         >
                             <HighlightOffIcon />
@@ -72,8 +72,7 @@ const CharacterRow = (props) => {
                         color: (theme) => theme.palette.text.secondary,
                     }}
                 >
-                    Unique Id :{" "}
-                    {row.uniqueId ? row.uniqueId : "not yet validated"}
+                    Unique Id :{row.id}
                 </Typography>
             </AccordionSummary>
             <AccordionDetails>
@@ -113,7 +112,7 @@ const CharacterRow = (props) => {
                         </Typography>
                         <List dense={true}>
                             {row.factions.map((faction) => (
-                                <ListItem key={faction._id}>
+                                <ListItem key={faction.id}>
                                     <ListItemText
                                         sx={{
                                             fontSize: (theme) =>

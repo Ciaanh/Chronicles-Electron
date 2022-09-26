@@ -40,14 +40,14 @@ const DBNames = () => {
         <React.Fragment>
             <List>
                 {dbnamesState.list.map((dbname) => (
-                    <ListItem key={dbname._id}>
+                    <ListItem key={dbname.id}>
                         <React.Fragment>
                             <IconButton
                                 aria-label="delete"
                                 size="small"
                                 onClick={(event) => {
                                     event.stopPropagation();
-                                    dispatch(dbnames_delete(dbname._id));
+                                    dispatch(dbnames_delete(dbname.id));
                                 }}
                             >
                                 <HighlightOffIcon />
@@ -72,7 +72,7 @@ const DBNames = () => {
                                     onChange={(event) => {
                                         dispatch(
                                             dbnames_changeName({
-                                                _id: dbname._id,
+                                                id: dbname.id,
                                                 name: event.target.value,
                                             })
                                         );

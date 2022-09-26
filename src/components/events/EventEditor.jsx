@@ -56,7 +56,6 @@ import {
     editEvent_save,
     editEvent_create,
     editEvent_load,
-    editEvent_validate,
 } from "../../reducers/editEvent";
 
 const ITEM_HEIGHT = 48;
@@ -137,19 +136,7 @@ const EventEditor = () => {
                             </Grid>
 
                             <Grid xs={2}>
-                                <IconButton
-                                    edge="start"
-                                    color="inherit"
-                                    onClick={() =>
-                                        dispatch(editEvent_validate(event._id))
-                                    }
-                                    aria-label="close"
-                                >
-                                    <Typography variant="h6">
-                                        Validate
-                                    </Typography>{" "}
-                                    <CheckCircleIcon />
-                                </IconButton>
+                                
                             </Grid>
                             <Grid xs={1}>
                                 <IconButton
@@ -189,7 +176,7 @@ const EventEditor = () => {
                                     Event details{" "}
                                     {isCreate
                                         ? null
-                                        : "- Unique Id : " + event.uniqueId}
+                                        : "- Unique Id : " + event.id}
                                 </Typography>
                                 <Grid
                                     container
@@ -212,7 +199,7 @@ const EventEditor = () => {
                                                 name="dbname"
                                                 value={
                                                     event.dbname
-                                                        ? event.dbname._id ??
+                                                        ? event.dbname.id ??
                                                           "undefined"
                                                         : "undefined"
                                                 }
@@ -229,8 +216,8 @@ const EventEditor = () => {
                                                 </MenuItem>
                                                 {dbnames.map((dbname) => (
                                                     <MenuItem
-                                                        key={dbname._id}
-                                                        value={dbname._id}
+                                                        key={dbname.id}
+                                                        value={dbname.id}
                                                     >
                                                         {dbname.name}
                                                     </MenuItem>
@@ -440,21 +427,21 @@ const EventEditor = () => {
                                                             return (
                                                                 event.dbname &&
                                                                 character.dbname
-                                                                    ._id ===
+                                                                    .id ===
                                                                     event.dbname
-                                                                        ._id
+                                                                        .id
                                                             );
                                                         })
                                                         .map((character) => (
                                                             <MenuItem
                                                                 key={
-                                                                    character._id
+                                                                    character.id
                                                                 }
                                                                 selected={
                                                                     event.characters.find(
                                                                         (f) =>
-                                                                            f._id ===
-                                                                            character._id
+                                                                            f.id ===
+                                                                            character.id
                                                                     ) !==
                                                                     undefined
                                                                 }
@@ -490,7 +477,7 @@ const EventEditor = () => {
                                                         (character) => (
                                                             <ListItem
                                                                 key={
-                                                                    character._id
+                                                                    character.id
                                                                 }
                                                             >
                                                                 <ListItemText
@@ -502,7 +489,7 @@ const EventEditor = () => {
                                                                     onClick={() => {
                                                                         dispatch(
                                                                             editEvent_character_remove(
-                                                                                character._id
+                                                                                character.id
                                                                             )
                                                                         );
                                                                         setAnchorElCharacter(
@@ -553,21 +540,21 @@ const EventEditor = () => {
                                                             return (
                                                                 event.dbname &&
                                                                 faction.dbname
-                                                                    ._id ===
+                                                                    .id ===
                                                                     event.dbname
-                                                                        ._id
+                                                                        .id
                                                             );
                                                         })
                                                         .map((faction) => (
                                                             <MenuItem
                                                                 key={
-                                                                    faction._id
+                                                                    faction.id
                                                                 }
                                                                 selected={
                                                                     event.factions.find(
                                                                         (f) =>
-                                                                            f._id ===
-                                                                            faction._id
+                                                                            f.id ===
+                                                                            faction.id
                                                                     ) !==
                                                                     undefined
                                                                 }
@@ -603,7 +590,7 @@ const EventEditor = () => {
                                                         (faction) => (
                                                             <ListItem
                                                                 key={
-                                                                    faction._id
+                                                                    faction.id
                                                                 }
                                                             >
                                                                 <ListItemText
@@ -615,7 +602,7 @@ const EventEditor = () => {
                                                                     onClick={() => {
                                                                         dispatch(
                                                                             editEvent_faction_remove(
-                                                                                faction._id
+                                                                                faction.id
                                                                             )
                                                                         );
                                                                         setAnchorElFaction(

@@ -1,7 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
-
-import { ApiPaths } from "../constants";
 
 export const timelinesSlice = createSlice({
     name: "timelines",
@@ -26,17 +23,11 @@ timelinesSlice.actions;
 export default timelinesSlice.reducer;
 
 const timelines_load = () => (dispatch) => {
-    let urlEvents = ApiPaths.events;
-    axios
-        .get(urlEvents)
-        .then((response) => {
-            return response.data;
-        })
-        .then((events) => {
-            if (events) {
-                dispatch(timelines_loaded(events));
-            }
-        });
+    window.database.getAll(
+        database.tableNames.events,
+        (events) => dispatch(timelines_loaded(events)),
+        (error) => console.log("Error", error)
+    );
 };
 
 export { timelines_load };

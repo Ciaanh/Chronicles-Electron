@@ -68,7 +68,7 @@ const Locale = (props) => {
     let selectedLocale = {
         selected: false,
         key: null,
-        value: null,
+        value: "",
         locale: null,
     };
 

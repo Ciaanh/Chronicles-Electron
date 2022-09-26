@@ -1,7 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
 
-import { ApiPaths, getEmptyLocale, cleanString } from "../constants";
+import { getEmptyLocale, cleanString } from "../constants";
 
 import {
     characters_created,
@@ -10,9 +9,8 @@ import {
 } from "./characters";
 
 function mapCharacter(state, character) {
-    state.character._id = character._id;
+    state.character.id = character.id;
     state.character.name = character.name;
-    state.character.uniqueId = character.uniqueId;
     state.character.label = character.label;
     state.character.biography = character.biography;
     state.character.timeline = character.timeline;
@@ -23,8 +21,7 @@ function mapCharacter(state, character) {
 
 function getEmptyCharacter() {
     return {
-        _id: null,
-        uniqueId: null,
+        id: null,
 
         name: "",
         biography: getEmptyLocale(undefined),
@@ -53,9 +50,8 @@ export const editCharacterSlice = createSlice({
                 state.isCreate = false;
 
                 mapCharacter(state, {
-                    _id: action.payload._id,
+                    id: action.payload.id,
                     name: action.payload.name,
-                    uniqueId: action.payload.uniqueId,
                     biography: action.payload.biography,
                     timeline: action.payload.timeline,
                     factions: action.payload.factions,
@@ -78,7 +74,7 @@ export const editCharacterSlice = createSlice({
         editCharacter_factions_loaded: (state, action) => {
             state.factions = action.payload.map((faction) => {
                 return {
-                    _id: faction._id,
+                    id: faction.id,
                     name: faction.name,
                     dbname: faction.dbname,
                 };
@@ -86,7 +82,7 @@ export const editCharacterSlice = createSlice({
         },
         editCharacter_faction_add: (state, action) => {
             let faction = state.character.factions.find(
-                (f) => f._id === action.payload._id
+                (f) => f.id === action.payload.id
             );
             if (faction) {
                 return;
@@ -96,7 +92,7 @@ export const editCharacterSlice = createSlice({
         },
         editCharacter_faction_remove: (state, action) => {
             let factionIndex = state.character.factions.findIndex(
-                (f) => f._id === action.payload
+                (f) => f.id === action.payload
             );
             if (factionIndex > -1) {
                 state.character.factions.splice(factionIndex, 1);
@@ -105,13 +101,13 @@ export const editCharacterSlice = createSlice({
         editCharacter_dbnames_loaded: (state, action) => {
             state.dbnames = action.payload.map((dbname) => {
                 return {
-                    _id: dbname._id,
+                    id: dbname.id,
                     name: dbname.name,
                 };
             });
         },
         editCharacter_changeDbName: (state, action) => {
-            let dbname = state.dbnames.find((f) => f._id === action.payload);
+            let dbname = state.dbnames.find((f) => f.id === action.payload);
             if (dbname) {
                 state.character.dbname = dbname;
             }
@@ -132,7 +128,7 @@ export const editCharacterSlice = createSlice({
             state.character.timeline = action.payload;
         },
 
-        editCharacter_errorWhileSaving: (state, action) => {
+        editCharacter_error: (state, action) => {
             state.error = action.payload.message;
             state.openError = true;
         },
@@ -157,134 +153,62 @@ export const {
     editCharacter_changeLabel,
     editCharacter_changeBiography,
     editCharacter_changeTimeline,
-    editCharacter_errorWhileSaving,
+    editCharacter_error,
     editCharacter_closeError,
 } = editCharacterSlice.actions;
 export default editCharacterSlice.reducer;
 
 const editCharacter_load = () => (dispatch) => {
-    let urlFactions = ApiPaths.factions;
-    axios
-        .get(urlFactions)
-        .then((response) => {
-            return response.data;
-        })
-        .then((factions) => {
-            if (factions) {
-                dispatch(editCharacter_factions_loaded(factions));
-            }
-        });
+    window.database.getAll(
+        database.tableNames.factions,
+        (factions) => dispatch(editCharacter_factions_loaded(factions)),
+        (error) => dispatch(editCharacter_error(error))
+    );
 
-    let urlDBNames = ApiPaths.dbnames;
-    axios
-        .get(urlDBNames)
-        .then((response) => {
-            return response.data;
-        })
-        .then((dbnames) => {
-            if (dbnames) {
-                dispatch(editCharacter_dbnames_loaded(dbnames));
-            }
-        });
+    window.database.getAll(
+        database.tableNames.dbnames,
+        (dbNames) => dispatch(editCharacter_dbnames_loaded(dbNames)),
+        (error) => dispatch(editCharacter_error(error))
+    );
 };
 
 const editCharacter_save = (character) => (dispatch) => {
-    let url = ApiPaths.characters + `/${character._id}`;
-    axios
-        .put(url, { character })
-        .then((response) => {
-            return response.data;
-        })
-        .then((saved_character) => {
-            if (saved_character) {
-                dispatch(editCharacter_close());
-                dispatch(characters_saved(saved_character));
-            }
-        })
-        .catch((error) => {
-            if (error.response) {
-                dispatch(editCharacter_errorWhileSaving(error.response.data));
-            } else if (error.request) {
-                console.log(error.request);
-            } else {
-                console.log("Error", error.message);
-            }
-        });
+    window.database.edit(
+        database.tableNames.characters,
+        character.id,
+        character,
+        (saved_character) => {
+            dispatch(editCharacter_close());
+            dispatch(characters_saved(saved_character));
+        },
+        (error) => dispatch(editCharacter_error(error))
+    );
 };
 
 const editCharacter_create = (character) => (dispatch) => {
-    // call api to create new then dispatch character_created
-    let url = ApiPaths.characters;
-    axios
-        .post(url, {
-            character: {
-                name: character.name,
-                biography: character.biography,
-                timeline: character.timeline,
-                factions: character.factions,
-                dbname: character.dbname,
-            },
-        })
-        .then((response) => {
-            return response.data;
-        })
-        .then((created_character) => {
-            if (created_character) {
-                dispatch(editCharacter_close());
-                dispatch(characters_created(created_character));
-            }
-        })
-        .catch((error) => {
-            if (error.response) {
-                dispatch(editCharacter_errorWhileSaving(error.response.data));
-            } else if (error.request) {
-                console.log(error.request);
-            } else {
-                console.log("Error", error.message);
-            }
-        });
+    window.database.add(
+        database.tableNames.characters, {
+            name: character.name,
+            biography: character.biography,
+            timeline: character.timeline,
+            factions: character.factions,
+            dbname: character.dbname,
+        },
+        (created_character) => {
+            dispatch(editCharacter_close());
+            dispatch(characters_created(created_character));
+        },
+        (error) => dispatch(editCharacter_error(error))
+    );
 };
 
 const editCharacter_delete = (id) => (dispatch) => {
-    // call api to delete character then dispatch character_deleted _id
-    let url = ApiPaths.characters + `/${id}`;
-    axios
-        .delete(url)
-        .then((response) => {
-            return response.data;
-        })
-        .then((deleted_id) => {
-            if (deleted_id) {
-                dispatch(characters_deleted(deleted_id));
-            }
-        });
-};
-
-const editCharacter_validate = (id) => (dispatch) => {
-    let url = ApiPaths.characterValidate + `/${id}`;
-    axios
-        .post(url)
-        .then((response) => {
-            let saved_character = response.data;
-            if (saved_character) {
-                dispatch(editCharacter_close());
-                dispatch(characters_saved(saved_character));
-            }
-        })
-        .catch((error) => {
-            if (error.response) {
-                dispatch(editCharacter_errorWhileSaving(error.response.data));
-            } else if (error.request) {
-                // The request was made but no response was received
-                // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-                // http.ClientRequest in node.js
-                console.log(error.request);
-            } else {
-                // Something happened in setting up the request that triggered an Error
-                console.log("Error", error.message);
-            }
-            //console.log(error.config);
-        });
+    window.database.remove(
+        database.tableNames.characters,
+        id,
+        (deletedid) => dispatch(characters_deleted(deletedid)),
+        (error) => dispatch(editCharacter_error(error))
+    );
 };
 
 export {
@@ -292,5 +216,4 @@ export {
     editCharacter_save,
     editCharacter_create,
     editCharacter_delete,
-    editCharacter_validate,
 };

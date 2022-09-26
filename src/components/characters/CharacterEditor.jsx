@@ -45,7 +45,6 @@ import {
     editCharacter_load,
     editCharacter_save,
     editCharacter_create,
-    editCharacter_validate,
 } from "../../reducers/editCharacter";
 
 const ITEM_HEIGHT = 48;
@@ -118,23 +117,7 @@ const CharacterEditor = () => {
                             </Grid>
 
                             <Grid xs={2}>
-                                <IconButton
-                                    edge="start"
-                                    color="inherit"
-                                    onClick={() =>
-                                        dispatch(
-                                            editCharacter_validate(
-                                                character._id
-                                            )
-                                        )
-                                    }
-                                    aria-label="close"
-                                >
-                                    <Typography variant="h6">
-                                        Validate
-                                    </Typography>{" "}
-                                    <CheckCircleIcon />
-                                </IconButton>
+                                
                             </Grid>
                             <Grid xs={1}>
                                 <IconButton
@@ -179,7 +162,7 @@ const CharacterEditor = () => {
                                         name="dbname"
                                         value={
                                             character.dbname
-                                                ? character.dbname._id ??
+                                                ? character.dbname.id ??
                                                   "undefined"
                                                 : "undefined"
                                         }
@@ -196,8 +179,8 @@ const CharacterEditor = () => {
                                         </MenuItem>
                                         {dbnames.map((dbname) => (
                                             <MenuItem
-                                                key={dbname._id}
-                                                value={dbname._id}
+                                                key={dbname.id}
+                                                value={dbname.id}
                                             >
                                                 {dbname.name}
                                             </MenuItem>
@@ -242,7 +225,7 @@ const CharacterEditor = () => {
                                         disabled
                                         label="Unique Id"
                                         margin="dense"
-                                        value={character.uniqueId}
+                                        value={character.id}
                                     />
                                 )}
                             </Grid>
@@ -349,18 +332,18 @@ const CharacterEditor = () => {
                                         .filter((faction) => {
                                             return (
                                                 character.dbname &&
-                                                faction.dbname._id ===
-                                                    character.dbname._id
+                                                faction.dbname.id ===
+                                                    character.dbname.id
                                             );
                                         })
                                         .map((faction) => (
                                             <MenuItem
-                                                key={faction._id}
+                                                key={faction.id}
                                                 selected={
                                                     character.factions.find(
                                                         (f) =>
-                                                            f._id ===
-                                                            faction._id
+                                                            f.id ===
+                                                            faction.id
                                                     ) !== undefined
                                                 }
                                                 onClick={() => {
@@ -387,7 +370,7 @@ const CharacterEditor = () => {
                             >
                                 <List dense={true}>
                                     {character.factions.map((faction) => (
-                                        <ListItem key={faction._id}>
+                                        <ListItem key={faction.id}>
                                             <ListItemText
                                                 primary={faction.name}
                                             />
@@ -395,7 +378,7 @@ const CharacterEditor = () => {
                                                 onClick={() => {
                                                     dispatch(
                                                         editCharacter_faction_remove(
-                                                            faction._id
+                                                            faction.id
                                                         )
                                                     );
                                                     setAnchorEl(null);

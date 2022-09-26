@@ -27,14 +27,14 @@ service.localesIndex = function(dbnames, events, factions, characters) {
     var indexes = dbnames
         .map((dbname) => {
             var filteredEvents = events.filter(
-                (event) => String(event.dbname._id) == String(dbname._id)
+                (event) => String(event.dbname.id) == String(dbname.id)
             );
             var filteredFactions = factions.filter(
-                (faction) => String(faction.dbname._id) == String(dbname._id)
+                (faction) => String(faction.dbname.id) == String(dbname.id)
             );
             var filteredCharacters = characters.filter(
                 (character) =>
-                String(character.dbname._id) == String(dbname._id)
+                String(character.dbname.id) == String(dbname.id)
             );
 
             var dbnameLocales = languages

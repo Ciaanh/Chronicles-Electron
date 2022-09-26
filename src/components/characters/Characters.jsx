@@ -27,7 +27,7 @@ const Characters = () => {
         <React.Fragment>
             {characters.length === 0 && <NoData />}
             {characters.map((character) => (
-                <CharacterRow key={character._id} row={character} />
+                <CharacterRow key={character.id} row={character} />
             ))}
 
             <React.Fragment>

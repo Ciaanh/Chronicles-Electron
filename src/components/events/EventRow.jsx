@@ -25,7 +25,7 @@ const EventRow = (props) => {
     return (
         <Accordion
             expanded={row.open}
-            onChange={() => dispatch(events_show_details(row._id))}
+            onChange={() => dispatch(events_show_details(row.id))}
         >
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Typography
@@ -41,7 +41,7 @@ const EventRow = (props) => {
                             size="small"
                             onClick={(event) => {
                                 event.stopPropagation();
-                                dispatch(editEvent_delete(row._id));
+                                dispatch(editEvent_delete(row.id));
                             }}
                         >
                             <HighlightOffIcon />
@@ -65,8 +65,7 @@ const EventRow = (props) => {
                         color: (theme) => theme.palette.text.secondary,
                     }}
                 >
-                    Unique Id :{" "}
-                    {row.uniqueId ? row.uniqueId : "not yet validated"}
+                    Unique Id : {row.id}
                 </Typography>
             </AccordionSummary>
             <AccordionDetails>

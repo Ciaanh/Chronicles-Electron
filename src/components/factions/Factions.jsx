@@ -27,7 +27,7 @@ const Factions = () => {
         <React.Fragment>
             {factions.length === 0 && <NoData />}
             {factions.map((faction) => (
-                <FactionRow key={faction._id} row={faction} />
+                <FactionRow key={faction.id} row={faction} />
             ))}
 
             <React.Fragment>

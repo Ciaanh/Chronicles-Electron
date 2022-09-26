@@ -28,7 +28,7 @@ const FactionRow = (props) => {
     return (
         <Accordion
             expanded={row.open}
-            onChange={() => dispatch(factions_show_details(row._id))}
+            onChange={() => dispatch(factions_show_details(row.id))}
         >
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Typography
@@ -44,7 +44,7 @@ const FactionRow = (props) => {
                             size="small"
                             onClick={(event) => {
                                 event.stopPropagation();
-                                dispatch(editFaction_delete(row._id));
+                                dispatch(editFaction_delete(row.id));
                             }}
                         >
                             <HighlightOffIcon />
@@ -69,8 +69,7 @@ const FactionRow = (props) => {
                         color: (theme) => theme.palette.text.secondary,
                     }}
                 >
-                    Unique Id :{" "}
-                    {row.uniqueId ? row.uniqueId : "not yet validated"}
+                    Unique Id : {row.id}
                 </Typography>
             </AccordionSummary>
             <AccordionDetails>

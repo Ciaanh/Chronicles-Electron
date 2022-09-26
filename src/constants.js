@@ -1,26 +1,6 @@
 export const AddonDownloadUrl =
     "https://www.curseforge.com/wow/addons/chronicles";
 
-export const ApiPaths = {
-    user: "/auth/user",
-    signIn: "/auth/signin",
-    signOut: "/auth/signout",
-
-    events: "/api/events",
-    eventValidate: "/api/events/validate",
-
-    characters: "/api/characters",
-    characterValidate: "/api/characters/validate",
-
-    factions: "/api/factions",
-    factionValidate: "/api/factions/validate",
-
-    addons: "/api/addon",
-    addonGenerate: "/api/addon/generate",
-
-    dbnames: "/api/dbnames",
-};
-
 export const Timelines = [
     { name: "Main", value: 0 },
     { name: "Alternate Dreanor", value: 1 },
