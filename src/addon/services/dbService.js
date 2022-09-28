@@ -1,4 +1,4 @@
-const service = {};
+const dbService = {};
 
 /*
     01_Mythos
@@ -20,21 +20,21 @@ local Chronicles = private.Core
 local modules = Chronicles.Custom.Modules
 local Locale = LibStub("AceLocale-3.0"):GetLocale(private.addon_name)`;
 
-service.FormatDbName = function(dbname) {
+dbService.FormatDbName = function(dbname) {
     return dbname.replace(/\w+/g, function(w) {
         return w[0].toUpperCase() + w.slice(1).toLowerCase();
     });
 };
 
-service.FormatDeclaration = function(dbname, typeName) {
+dbService.FormatDeclaration = function(dbname, typeName) {
     var lowerName = dbname.toLowerCase();
-    var formatedName = service.FormatDbName(dbname);
+    var formatedName = dbService.FormatDbName(dbname);
     var formatedTypeName = typeName.toLowerCase();
     return `\tChronicles.DB:Register${formatedTypeName}DB(Chronicles.Custom.Modules.${lowerName}, ${formatedName}${formatedTypeName}sDB)`;
 };
 
 // ChroniclesDB.lua
-service.dbsDeclaration = function(dbnames, events, factions, characters) {
+dbService.dbsDeclaration = function(dbnames, events, factions, characters) {
     // name like => mythos = "mythos",
     var names = dbnames
         .map((dbname) => {
@@ -64,19 +64,19 @@ service.dbsDeclaration = function(dbnames, events, factions, characters) {
             var characterDeclaration = "";
 
             if (filteredEvents.length > 0) {
-                eventDeclaration = service.FormatDeclaration(
+                eventDeclaration = dbService.FormatDeclaration(
                     dbname.name,
                     "Event"
                 );
             }
             if (filteredFactions.length > 0) {
-                factionDeclaration = service.FormatDeclaration(
+                factionDeclaration = dbService.FormatDeclaration(
                     dbname.name,
                     "Faction"
                 );
             }
             if (filteredCharacters.length > 0) {
-                characterDeclaration = service.FormatDeclaration(
+                characterDeclaration = dbService.FormatDeclaration(
                     dbname.name,
                     "Character"
                 );
@@ -105,13 +105,13 @@ end`;
     };
 };
 
-service.FormatIndex = function(index, dbname, typeName) {
-    var formatedName = service.FormatDbName(dbname);
+dbService.FormatIndex = function(index, dbname, typeName) {
+    var formatedName = dbService.FormatDbName(dbname);
     return `\t<Script file="${index}_${formatedName}\\${formatedName}${typeName}sDB.lua" />`;
 };
 
 // ChroniclesDB.xml
-service.dbsIndex = function(dbnames, events, factions, characters) {
+dbService.dbsIndex = function(dbnames, events, factions, characters) {
     // <Script file="01_Mythos\MythosEventsDB.lua" />
     // <Script file="01_Mythos\MythosFactionsDB.lua" />
     // <Script file="01_Mythos\MythosCharactersDB.lua" />
@@ -134,21 +134,21 @@ service.dbsIndex = function(dbnames, events, factions, characters) {
             var characterIndex = "";
 
             if (filteredEvents.length > 0) {
-                eventIndex = service.FormatIndex(
+                eventIndex = dbService.FormatIndex(
                     dbname.index,
                     dbname.name,
                     "Event"
                 );
             }
             if (filteredFactions.length > 0) {
-                factionIndex = service.FormatIndex(
+                factionIndex = dbService.FormatIndex(
                     dbname.index,
                     dbname.name,
                     "Faction"
                 );
             }
             if (filteredCharacters.length > 0) {
-                characterIndex = service.FormatIndex(
+                characterIndex = dbService.FormatIndex(
                     dbname.index,
                     dbname.name,
                     "Character"
@@ -174,8 +174,8 @@ ${indexes}
     };
 };
 
-service.GenerateDBs = function(dbnames, events, factions, characters, files) {
-    var dbDeclaration = service.dbsDeclaration(
+dbService.GenerateDBs = function(dbnames, events, factions, characters, files) {
+    var dbDeclaration = dbService.dbsDeclaration(
         dbnames,
         events,
         factions,
@@ -183,8 +183,8 @@ service.GenerateDBs = function(dbnames, events, factions, characters, files) {
     );
     files.push(dbDeclaration);
 
-    var dbIndex = service.dbsIndex(dbnames, events, factions, characters);
+    var dbIndex = dbService.dbsIndex(dbnames, events, factions, characters);
     files.push(dbIndex);
 };
 
-export default service;
+export default dbService;

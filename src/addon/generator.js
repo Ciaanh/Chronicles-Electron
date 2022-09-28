@@ -3,9 +3,9 @@ import archiver from "archiver";
 import dbService from "./db-service";
 import localeService from "./locale-service";
 
-const service = {};
+const generator = {};
 
-service.CreateArchive = function(res, files) {
+generator.CreateArchive = function(res, files) {
     const archive = archiver("zip", {
         zlib: { level: 9 }, // Sets the compression level.
     });
@@ -31,8 +31,8 @@ service.CreateArchive = function(res, files) {
     archive.finalize();
 };
 
-const service = {};
-service.GenerateFiles = function(data, res) {
+const generator = {};
+generator.GenerateFiles = function(data, res) {
     // {
     //     addonDBNames[],
     //     events[],
@@ -67,8 +67,8 @@ service.GenerateFiles = function(data, res) {
             files
         );
 
-        service.CreateArchive(res, files);
+        generator.CreateArchive(res, files);
     }
 };
 
-export default service;
+export default generator;
