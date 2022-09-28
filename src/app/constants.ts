@@ -1,3 +1,5 @@
+import { Locale } from "./models/locale";
+
 export const AddonDownloadUrl =
     "https://www.curseforge.com/wow/addons/chronicles";
 
@@ -30,26 +32,27 @@ export const Locales = {
     zhTW: "zhTW",
 };
 
-export function getEmptyLocale(key) {
+export function getEmptyLocale(key: string): Locale {
     return {
+        id: -1,
         key: key,
-        enUS: undefined,
+        enUS: null,
 
-        deDE: undefined,
-        esES: undefined,
-        esMX: undefined,
-        frFR: undefined,
-        itIT: undefined,
-        ptBR: undefined,
-        ruRU: undefined,
-        koKR: undefined,
-        zhCN: undefined,
-        zhTW: undefined,
+        deDE: null,
+        esES: null,
+        esMX: null,
+        frFR: null,
+        itIT: null,
+        ptBR: null,
+        ruRU: null,
+        koKR: null,
+        zhCN: null,
+        zhTW: null,
     };
 }
 
-export function cleanString(value) {
-    var cleaned = value
+export function cleanString(value: string): string {
+    const cleaned = value
         .replace(" ", "_")
         .toLowerCase()
         .trim()

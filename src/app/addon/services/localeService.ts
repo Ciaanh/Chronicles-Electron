@@ -1,17 +1,22 @@
-const localeService = {};
+const localeService: any = {};
 
 const localeHeader = `local AceLocale = LibStub:GetLibrary("AceLocale-3.0")
 local L = AceLocale:NewLocale("Chronicles", "enUS", true, true)`;
 
 const languages = ["enUS", "frFR"];
 
-localeService.FormatDbName = function(dbname) {
-    return dbname.replace(/\w+/g, function(w) {
+localeService.FormatDbName = function (dbname: string) {
+    return dbname.replace(/\w+/g, function (w) {
         return w[0].toUpperCase() + w.slice(1).toLowerCase();
     });
 };
 
-localeService.FormatIndex = function(index, dbname, language, typeName) {
+localeService.FormatIndex = function (
+    index: string,
+    dbname: string,
+    language: string,
+    typeName: string
+) {
     var lowerName = dbname.toLowerCase();
     var formatedName = localeService.FormatDbName(dbname);
     var lowerTypeName = typeName.toLowerCase();
@@ -19,22 +24,27 @@ localeService.FormatIndex = function(index, dbname, language, typeName) {
 };
 
 // Locales.xml
-localeService.localesIndex = function(dbnames, events, factions, characters) {
+localeService.localesIndex = function (
+    dbnames: Array<any>,
+    events: Array<any>,
+    factions: Array<any>,
+    characters: Array<any>
+) {
     // <Script file="01_Mythos\mythos_events_enUS.lua" />
     // <Script file="01_Mythos\mythos_factions_enUS.lua" />
     // <Script file="01_Mythos\mythos_characters_enUS.lua" />
 
     var indexes = dbnames
-        .map((dbname) => {
+        .map((dbname: any) => {
             var filteredEvents = events.filter(
-                (event) => String(event.dbname.id) == String(dbname.id)
+                (event: any) => String(event.dbname.id) == String(dbname.id)
             );
             var filteredFactions = factions.filter(
-                (faction) => String(faction.dbname.id) == String(dbname.id)
+                (faction: any) => String(faction.dbname.id) == String(dbname.id)
             );
             var filteredCharacters = characters.filter(
-                (character) =>
-                String(character.dbname.id) == String(dbname.id)
+                (character: any) =>
+                    String(character.dbname.id) == String(dbname.id)
             );
 
             var dbnameLocales = languages
@@ -91,12 +101,12 @@ ${indexes}
     };
 };
 
-localeService.GenerateLocales = function(
-    dbnames,
-    events,
-    factions,
-    characters,
-    files
+localeService.GenerateLocales = function (
+    dbnames: Array<any>,
+    events: Array<any>,
+    factions: Array<any>,
+    characters: Array<any>,
+    files: Array<any>
 ) {
     var localesIndex = localeService.localesIndex(
         dbnames,

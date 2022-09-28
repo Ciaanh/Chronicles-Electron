@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-function getFileName(contentDisposition) {
+function getFileName(contentDisposition:string) {
     if (!contentDisposition) return null;
     const match = contentDisposition.match(/filename="?([^"]+)"?/);
 

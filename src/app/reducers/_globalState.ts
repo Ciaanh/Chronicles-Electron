@@ -15,7 +15,7 @@ import addonReducer from "./addon";
 
 import timelinesReducer from "./timelines";
 
-const createRootReducer = (history) =>
+const createRootReducer = () =>
     combineReducers({
         events: eventsReducer,
         editEvent: editEventReducer,

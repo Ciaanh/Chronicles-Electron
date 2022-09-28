@@ -1,18 +1,14 @@
 import React, { useEffect } from "react";
 
-import {
-    Route,
-    Routes,
-    unstable_HistoryRouter as HistoryRouter,
-} from "react-router-dom";
+import { Route, HashRouter } from "react-router-dom";
 
 import { Provider, useDispatch } from "react-redux";
 
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 
-import { Box, CssBaseline } from "@mui/material";
+import { Box, CssBaseline, ThemeOptions } from "@mui/material";
 
-import initializeStore, { history } from "./store";
+import initializeStore from "./store";
 
 import NavBar from "./components/NavBar";
 import Home from "./components/Home";
@@ -23,9 +19,9 @@ import Characters from "./components/characters/Characters";
 import Factions from "./components/factions/Factions";
 import DBNames from "./components/dbnames/DBNames";
 
-const store = initializeStore(null);
+const store = initializeStore();
 
-const themeOptions = {
+const themeOptions: ThemeOptions = {
     palette: { mode: "dark" },
     // palette: {
     //     primary: { main: Provider.color },
@@ -78,8 +74,8 @@ const App = () => {
                 >
                     <CssBaseline />
 
-                    <HistoryRouter history={history}>
-                        <NavBar location={history.location} />
+                    <HashRouter >
+                        <NavBar location={window.location} />
 
                         <Box
                             component="main"
@@ -88,44 +84,24 @@ const App = () => {
                                 padding: theme.spacing(3),
                             }}
                         >
-                            <Routes>
-                                <Route exact path="/" element={<Home />} />
+                            <Route path="/" element={<Home />} />
 
-                                <Route
-                                    exact
-                                    path="/timelines"
-                                    element={<TimelinesView />}
-                                />
+                            <Route
+                                path="/timelines"
+                                element={<TimelinesView />}
+                            />
 
-                                <Route
-                                    exact
-                                    path="/events"
-                                    element={<Events />}
-                                />
-                                <Route
-                                    exact
-                                    path="/characters"
-                                    element={<Characters />}
-                                />
-                                <Route
-                                    exact
-                                    path="/factions"
-                                    element={<Factions />}
-                                />
-                                <Route
-                                    exact
-                                    path="/dbname"
-                                    element={<DBNames />}
-                                />
+                            <Route path="/events" element={<Events />} />
+                            <Route
+                                path="/characters"
+                                element={<Characters />}
+                            />
+                            <Route path="/factions" element={<Factions />} />
+                            <Route path="/dbname" element={<DBNames />} />
 
-                                <Route
-                                    exact
-                                    path="/addon"
-                                    element={<Addon />}
-                                />
-                            </Routes>
+                            <Route path="/addon" element={<Addon />} />
                         </Box>
-                    </HistoryRouter>
+                    </HashRouter>
                 </Box>
             </ThemeProvider>
         </Provider>

@@ -1,13 +1,9 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { createBrowserHistory } from "history";
 import createRootReducer from "./reducers/_globalState";
 
-export const history = createBrowserHistory({ window });
-
-export default function initializeStore(preloadedState) {
+export default function initializeStore() {
     const store = configureStore({
-        reducer: createRootReducer(history),
-        preloadedState: preloadedState,
+        reducer: createRootReducer(),
         middleware: (getDefaultMiddleware) =>
             getDefaultMiddleware({
                 serializableCheck: {

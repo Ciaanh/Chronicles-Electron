@@ -1,4 +1,4 @@
-const dbService = {};
+const dbService: any = {};
 
 /*
     01_Mythos
@@ -20,13 +20,13 @@ local Chronicles = private.Core
 local modules = Chronicles.Custom.Modules
 local Locale = LibStub("AceLocale-3.0"):GetLocale(private.addon_name)`;
 
-dbService.FormatDbName = function(dbname) {
-    return dbname.replace(/\w+/g, function(w) {
+dbService.FormatDbName = function (dbname: string) {
+    return dbname.replace(/\w+/g, function (w) {
         return w[0].toUpperCase() + w.slice(1).toLowerCase();
     });
 };
 
-dbService.FormatDeclaration = function(dbname, typeName) {
+dbService.FormatDeclaration = function (dbname: string, typeName: string) {
     var lowerName = dbname.toLowerCase();
     var formatedName = dbService.FormatDbName(dbname);
     var formatedTypeName = typeName.toLowerCase();
@@ -34,10 +34,15 @@ dbService.FormatDeclaration = function(dbname, typeName) {
 };
 
 // ChroniclesDB.lua
-dbService.dbsDeclaration = function(dbnames, events, factions, characters) {
+dbService.dbsDeclaration = function (
+    dbnames: Array<any>,
+    events: Array<any>,
+    factions: Array<any>,
+    characters: Array<any>
+) {
     // name like => mythos = "mythos",
     var names = dbnames
-        .map((dbname) => {
+        .map((dbname: any) => {
             var lowerDbName = dbname.name.toLowerCase();
             return `\t${lowerDbName} = "${lowerDbName}"`;
         })
@@ -47,16 +52,16 @@ dbService.dbsDeclaration = function(dbnames, events, factions, characters) {
     // factionDB declaration => Chronicles.DB:RegisterFactionDB(Chronicles.Custom.Modules.mythos, MythosFactionsDB)
     // characterDB declaration => Chronicles.DB:RegisterCharacterDB(Chronicles.Custom.Modules.mythos, MythosCharactersDB)
     var declarations = dbnames
-        .map((dbname) => {
+        .map((dbname: any) => {
             var filteredEvents = events.filter(
-                (event) => String(event.dbname.id) == String(dbname.id)
+                (event: any) => String(event.dbname.id) == String(dbname.id)
             );
             var filteredFactions = factions.filter(
-                (faction) => String(faction.dbname.id) == String(dbname.id)
+                (faction: any) => String(faction.dbname.id) == String(dbname.id)
             );
             var filteredCharacters = characters.filter(
-                (character) =>
-                String(character.dbname.id) == String(dbname.id)
+                (character: any) =>
+                    String(character.dbname.id) == String(dbname.id)
             );
 
             var eventDeclaration = "";
@@ -85,7 +90,7 @@ dbService.dbsDeclaration = function(dbnames, events, factions, characters) {
                 .filter((value) => value.length > 0)
                 .join("\n");
         })
-        .filter((value) => value.length > 0)
+        .filter((value: any) => value.length > 0)
         .join("\n");
 
     let content = `local FOLDER_NAME, private = ...
@@ -105,28 +110,37 @@ end`;
     };
 };
 
-dbService.FormatIndex = function(index, dbname, typeName) {
+dbService.FormatIndex = function (
+    index: string,
+    dbname: string,
+    typeName: string
+) {
     var formatedName = dbService.FormatDbName(dbname);
     return `\t<Script file="${index}_${formatedName}\\${formatedName}${typeName}sDB.lua" />`;
 };
 
 // ChroniclesDB.xml
-dbService.dbsIndex = function(dbnames, events, factions, characters) {
+dbService.dbsIndex = function (
+    dbnames: Array<any>,
+    events: Array<any>,
+    factions: Array<any>,
+    characters: Array<any>
+) {
     // <Script file="01_Mythos\MythosEventsDB.lua" />
     // <Script file="01_Mythos\MythosFactionsDB.lua" />
     // <Script file="01_Mythos\MythosCharactersDB.lua" />
 
     var indexes = dbnames
-        .map((dbname) => {
+        .map((dbname: any) => {
             var filteredEvents = events.filter(
-                (event) => String(event.dbname.id) == String(dbname.id)
+                (event: any) => String(event.dbname.id) == String(dbname.id)
             );
             var filteredFactions = factions.filter(
-                (faction) => String(faction.dbname.id) == String(dbname.id)
+                (faction: any) => String(faction.dbname.id) == String(dbname.id)
             );
             var filteredCharacters = characters.filter(
-                (character) =>
-                String(character.dbname.id) == String(dbname.id)
+                (character: any) =>
+                    String(character.dbname.id) == String(dbname.id)
             );
 
             var eventIndex = "";
@@ -158,7 +172,7 @@ dbService.dbsIndex = function(dbnames, events, factions, characters) {
                 .filter((value) => value.length > 0)
                 .join("\n");
         })
-        .filter((value) => value.length > 0)
+        .filter((value: any) => value.length > 0)
         .join("\n");
 
     let content = `<Ui xmlns="http://www.blizzard.com/wow/ui/"
@@ -174,7 +188,13 @@ ${indexes}
     };
 };
 
-dbService.GenerateDBs = function(dbnames, events, factions, characters, files) {
+dbService.GenerateDBs = function (
+    dbnames: any,
+    events: any,
+    factions: any,
+    characters: any,
+    files: any
+) {
     var dbDeclaration = dbService.dbsDeclaration(
         dbnames,
         events,

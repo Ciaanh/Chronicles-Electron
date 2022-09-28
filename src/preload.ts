@@ -1,145 +1,192 @@
-const { contextBridge } = require("electron");
-const db = require("electron-db");
-const path = require("path");
+import { contextBridge } from "electron";
+import db from "electron-db";
+import path from "path";
+import { DBobject } from "./app/models/DBobject";
 
-const database: any = {};
-database.tableNames = {
-    events: "events",
-    characters: "characters",
-    factions: "factions",
-    dbnames: "dbnames",
-    timelines: "timelines",
+export type TablesList = {
+    events: string;
+    characters: string;
+    factions: string;
+    dbnames: string;
+    timelines: string;
 };
-database.location = path.join(__dirname, "database");
+export type ContextBridgeApi = {
+    tableNames: TablesList;
+    location: string;
+    initDB: () => void;
+    getAll: <T extends DBobject>(
+        dbName: string,
+        success: (data: Array<T>) => void,
+        error: (error: string | null) => void
+    ) => void;
+    get: <T extends DBobject>(
+        dbName: string,
+        id: number,
+        success: (data: T) => void,
+        error: (error: string | null) => void
+    ) => void;
+    add: <T extends DBobject>(
+        dbName: string,
+        obj: T,
+        success: () => void,
+        error: (error: string | null) => void
+    ) => void;
+    edit: (
+        dbName: string,
+        id: number,
+        set: () => void,
+        success: () => void,
+        error: (error: string | null) => void
+    ) => void;
+    remove: (
+        dbName: string,
+        id: number,
+        success: (removedId: number) => void,
+        error: (error: string | null) => void
+    ) => void;
+};
 
-database.initDB = function () {
-    let tables = [
-        { name: database.tableNames.events },
-        { name: database.tableNames.characters },
-        { name: database.tableNames.factions },
-        { name: database.tableNames.dbnames },
-        { name: database.tableNames.timelines },
-    ];
+const exposedApi: ContextBridgeApi = {
+    tableNames: {
+        events: "events",
+        characters: "characters",
+        factions: "factions",
+        dbnames: "dbnames",
+        timelines: "timelines",
+    },
+    location: path.join(__dirname, "database"),
 
-    tables.forEach((element) => {
-        db.createTable(
-            element.name,
-            database.location,
-            (succ: any, msg: any) => {
-                if (succ) {
-                    console.log("Created table " + element.name);
-                } else {
-                    console.log(
-                        "Failed to create table " + element.name + " : " + msg
-                    );
+    initDB: () => {
+        const tables = [
+            { name: exposedApi.tableNames.events },
+            { name: exposedApi.tableNames.characters },
+            { name: exposedApi.tableNames.factions },
+            { name: exposedApi.tableNames.dbnames },
+            { name: exposedApi.tableNames.timelines },
+        ];
+
+        tables.forEach((element) => {
+            db.createTable(
+                element.name,
+                exposedApi.location,
+                (succ: boolean, msg: string) => {
+                    if (succ) {
+                        console.log("Created table " + element.name);
+                    } else {
+                        console.log(
+                            "Failed to create table " +
+                                element.name +
+                                " : " +
+                                msg
+                        );
+                    }
                 }
-            }
-        );
-    });
-};
-database.getAll = function (dbName: string, success: any, error: any) {
-    if (db.valid(dbName)) {
-        db.getAll(dbName, database.location, (succ: any, data: any) => {
-            if (succ) {
-                success(data);
-            } else {
-                error();
-            }
+            );
         });
-    }
-};
-database.get = function (dbName: string, id: number, success: any, error: any) {
-    if (db.valid(dbName)) {
-        let where = {
-            id: id,
-        };
-        db.getRows(
-            dbName,
-            database.location,
-            where,
-            (succ: any, result: any) => {
-                if (succ) {
-                    success(result);
-                } else {
-                    error();
-                }
-            }
-        );
-    }
-};
-database.add = function (dbName: string, obj: any, success: any, error: any) {
-    if (db.valid(dbName)) {
-        db.insertTableContent(
-            dbName,
-            database.location,
-            obj,
-            (succ: any, msg: any) => {
-                if (succ) {
-                    this.get(dbName, obj.id, success, error);
-                } else {
-                    error(msg);
-                }
-            }
-        );
-    }
-};
-database.edit = function (
-    dbName: string,
-    id: number,
-    set: any,
-    success: any,
-    error: any
-) {
-    if (db.valid(dbName)) {
-        let where = {
-            id: id,
-        };
+    },
 
-        db.updateRow(
-            dbName,
-            database.location,
-            where,
-            set,
-            (succ: any, msg: any) => {
-                if (succ) {
-                    this.get(dbName, id, success, error);
-                } else {
-                    error(msg);
+    getAll: <T extends DBobject>(
+        dbName: string,
+        success: (data: Array<T>) => void,
+        error: (error: string | null) => void
+    ) => {
+        if (db.valid(dbName)) {
+            db.getAll(
+                dbName,
+                exposedApi.location,
+                (succ: boolean, data: Array<T>) => {
+                    if (succ) {
+                        success(data);
+                    } else {
+                        error(null);
+                    }
                 }
-            }
-        );
-    }
-};
-database.remove = function (
-    dbName: string,
-    id: number,
-    success: any,
-    error: any
-) {
-    if (db.valid(dbName)) {
-        db.deleteRow(
-            dbName,
-            database.location,
-            { id: id },
-            (succ: any, msg: any) => {
-                if (succ) {
-                    success(id);
-                } else {
-                    error(msg);
+            );
+        }
+    },
+
+    get: <T extends DBobject>(
+        dbName: string,
+        id: number,
+        success: (data: T) => void,
+        error: (error: string | null) => void
+    ) => {
+        if (db.valid(dbName)) {
+            const where = {
+                id: id,
+            };
+            db.getRows(
+                dbName,
+                exposedApi.location,
+                where,
+                (succ: boolean, data: T) => {
+                    if (succ) {
+                        success(data);
+                    } else {
+                        error(null);
+                    }
                 }
-            }
-        );
-    }
+            );
+        }
+    },
 
-    return id;
+    add: (dbName, obj, success, error) => {
+        if (db.valid(dbName)) {
+            db.insertTableContent(
+                dbName,
+                exposedApi.location,
+                obj,
+                (succ: boolean, msg: string) => {
+                    if (succ) {
+                        exposedApi.get(dbName, obj.id, success, error);
+                    } else {
+                        error(msg);
+                    }
+                }
+            );
+        }
+    },
+
+    edit: (dbName, id, set, success, error) => {
+        if (db.valid(dbName)) {
+            const where = {
+                id: id,
+            };
+
+            db.updateRow(
+                dbName,
+                exposedApi.location,
+                where,
+                set,
+                (succ: boolean, msg: string) => {
+                    if (succ) {
+                        exposedApi.get(dbName, id, success, error);
+                    } else {
+                        error(msg);
+                    }
+                }
+            );
+        }
+    },
+
+    remove: (dbName, id, success, error) => {
+        if (db.valid(dbName)) {
+            db.deleteRow(
+                dbName,
+                exposedApi.location,
+                { id: id },
+                (succ: boolean, msg: string) => {
+                    if (succ) {
+                        success(id);
+                    } else {
+                        error(msg);
+                    }
+                }
+            );
+        }
+
+        return id;
+    },
 };
 
-contextBridge.exposeInMainWorld("database", {
-    tableNames: database.tableNames,
-    initDB: database.initDB,
-    getAll: database.getAll,
-    get: database.get,
-    add: database.add,
-    edit: database.edit,
-    remove: database.remove,
-});
+contextBridge.exposeInMainWorld("database", exposedApi);
