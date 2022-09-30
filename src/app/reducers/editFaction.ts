@@ -157,7 +157,7 @@ export default editFactionSlice.reducer;
 
 const editFaction_save = (faction) => (dispatch) => {
     window.database.edit(
-        database.tableNames.factions,
+        window.database.tableNames.factions,
         faction.id,
         faction,
         (saved_faction) => {
@@ -170,7 +170,7 @@ const editFaction_save = (faction) => (dispatch) => {
 
 const editFaction_create = (faction) => (dispatch) => {
     window.database.add(
-        database.tableNames.factions, {
+        window.database.tableNames.factions, {
             name: faction.name,
             description: faction.description,
             timeline: faction.timeline,
@@ -186,7 +186,7 @@ const editFaction_create = (faction) => (dispatch) => {
 
 const editFaction_delete = (id) => (dispatch) => {
     window.database.remove(
-        database.tableNames.factions,
+        window.database.tableNames.factions,
         id,
         (deletedid) => dispatch(factions_deleted(deletedid)),
         (error) => dispatch(editFaction_error(error))
@@ -195,7 +195,7 @@ const editFaction_delete = (id) => (dispatch) => {
 
 const editFaction_load = () => (dispatch) => {
     window.database.getAll(
-        database.tableNames.dbnames,
+        window.database.tableNames.dbnames,
         (dbnames) => dispatch(editFaction_dbnames_loaded(dbnames)),
         (error) => dispatch(editFaction_error(error))
     );

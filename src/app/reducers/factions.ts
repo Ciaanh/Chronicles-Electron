@@ -46,7 +46,7 @@ export default factionsSlice.reducer;
 
 const factions_load = () => (dispatch) => {
     window.database.getAll(
-        database.tableNames.factions,
+        window.database.tableNames.factions,
         (factions) => dispatch(factions_loaded(factions)),
         (error) => console.log("Error", error)
     );

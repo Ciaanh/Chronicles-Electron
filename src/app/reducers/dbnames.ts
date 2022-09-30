@@ -65,7 +65,7 @@ export default dbnamesSlice.reducer;
 
 const dbnames_load = () => (dispatch) => {
     window.database.getAll(
-        database.tableNames.dbnames,
+        window.database.tableNames.dbnames,
         (dbNames) => dispatch(dbnames_loaded(dbNames)),
         (error) => console.log("Error", error)
     );
@@ -73,7 +73,7 @@ const dbnames_load = () => (dispatch) => {
 
 const dbnames_create = (name) => (dispatch) => {
     window.database.add(
-        database.tableNames.dbnames, { name: name },
+        window.database.tableNames.dbnames, { name: name },
         (dbName) => dispatch(dbnames_created(dbName)),
         (error) => console.log("Error", error)
     );
@@ -81,7 +81,7 @@ const dbnames_create = (name) => (dispatch) => {
 
 const dbnames_save = (dbname) => (dispatch) => {
     window.database.edit(
-        database.tableNames.dbnames,
+        window.database.tableNames.dbnames,
         dbname.id,
         dbname,
         (saved_dbname) => dispatch(dbnames_saved(saved_dbname)),
@@ -91,7 +91,7 @@ const dbnames_save = (dbname) => (dispatch) => {
 
 const dbnames_delete = (id) => (dispatch) => {
     window.database.remove(
-        database.tableNames.dbnames,
+        window.database.tableNames.dbnames,
         id,
         (deletedid) => dispatch(dbnames_deleted(deletedid)),
         (error) => console.log("Error", error)

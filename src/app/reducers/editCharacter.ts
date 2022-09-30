@@ -160,13 +160,13 @@ export default editCharacterSlice.reducer;
 
 const editCharacter_load = () => (dispatch) => {
     window.database.getAll(
-        database.tableNames.factions,
+        window.database.tableNames.factions,
         (factions) => dispatch(editCharacter_factions_loaded(factions)),
         (error) => dispatch(editCharacter_error(error))
     );
 
     window.database.getAll(
-        database.tableNames.dbnames,
+        window.database.tableNames.dbnames,
         (dbNames) => dispatch(editCharacter_dbnames_loaded(dbNames)),
         (error) => dispatch(editCharacter_error(error))
     );
@@ -174,7 +174,7 @@ const editCharacter_load = () => (dispatch) => {
 
 const editCharacter_save = (character) => (dispatch) => {
     window.database.edit(
-        database.tableNames.characters,
+        window.database.tableNames.characters,
         character.id,
         character,
         (saved_character) => {
@@ -187,7 +187,7 @@ const editCharacter_save = (character) => (dispatch) => {
 
 const editCharacter_create = (character) => (dispatch) => {
     window.database.add(
-        database.tableNames.characters, {
+        window.database.tableNames.characters, {
             name: character.name,
             biography: character.biography,
             timeline: character.timeline,
@@ -204,7 +204,7 @@ const editCharacter_create = (character) => (dispatch) => {
 
 const editCharacter_delete = (id) => (dispatch) => {
     window.database.remove(
-        database.tableNames.characters,
+        window.database.tableNames.characters,
         id,
         (deletedid) => dispatch(characters_deleted(deletedid)),
         (error) => dispatch(editCharacter_error(error))

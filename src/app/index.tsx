@@ -61,6 +61,7 @@ const theme = createTheme(themeOptions);
 const App = () => {
     const dispatch = useDispatch();
 
+    // https://blog.totominc.io/blog/how-to-handle-electron-ipc-events-with-typescript
     // eslint-disable-next-line
     useEffect(() => window.database.initDB(), []);
 

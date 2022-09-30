@@ -10,7 +10,7 @@ export type TablesList = {
     dbnames: string;
     timelines: string;
 };
-export type ContextBridgeApi = {
+export type DatabaseApi = {
     tableNames: TablesList;
     location: string;
     initDB: () => void;
@@ -46,7 +46,7 @@ export type ContextBridgeApi = {
     ) => void;
 };
 
-const exposedApi: ContextBridgeApi = {
+const exposedApi: DatabaseApi = {
     tableNames: {
         events: "events",
         characters: "characters",

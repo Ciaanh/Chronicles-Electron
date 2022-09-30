@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { DbName } from "../models/dbname";
 
-function getFileName(contentDisposition:string) {
+function getFileName(contentDisposition: string) {
     if (!contentDisposition) return null;
     const match = contentDisposition.match(/filename="?([^"]+)"?/);
 
@@ -16,7 +17,7 @@ export const addonSlice = createSlice({
     },
     reducers: {
         addon_dbnames_loaded: (state, action) => {
-            state.dbnames = action.payload.map((dbname) => {
+            state.dbnames = action.payload.map((dbname: DbName) => {
                 return {
                     id: dbname.id,
                     name: dbname.name,
@@ -26,7 +27,7 @@ export const addonSlice = createSlice({
         },
 
         addon_data_loaded: (state, action) => {
-            let res = action.payload;
+            const res = action.payload;
             const url = window.URL.createObjectURL(
                 new Blob([res.data], {
                     type: res.headers["content-type"],
@@ -46,11 +47,12 @@ export const addonSlice = createSlice({
         },
 
         addon_checkDbName_toggle: (state, action) => {
-            let dbnameIndex = state.dbnames.findIndex(
+            const dbnameIndex = state.dbnames.findIndex(
                 (db) => db.id === action.payload
             );
             if (dbnameIndex !== -1) {
-                state.dbnames[dbnameIndex].checked = !state.dbnames[dbnameIndex].checked;
+                state.dbnames[dbnameIndex].checked =
+                    !state.dbnames[dbnameIndex].checked;
             }
         },
 
@@ -75,23 +77,46 @@ export const {
 } = addonSlice.actions;
 export default addonSlice.reducer;
 
-const addon_load = () => (dispatch) => {
+const addon_load = () => (dispatch: any) => {
     window.database.getAll(
-        database.tableNames.dbnames,
+        window.database.tableNames.dbnames,
         (dbNames) => dispatch(addon_dbnames_loaded(dbNames)),
-        (error) => {
-            if (error.response) {
-                dispatch(addon_errorWhileGenerating(error.response.data));
-            } else if (error.request) {
-                console.log(error.request);
-            } else {
-                console.log("Error", error.message);
-            }
-        }
+        (error) => dispatch(addon_errorWhileGenerating(error))
     );
 };
 
-const addon_generate_selected = (dbs) => (dispatch) => {
+const addon_generate_selected = (dbids) => (dispatch) => {
+    
+
+    var addonDBNames = await service
+        .getDBNames(dbids)
+        .then((foundDBName) => {
+            return foundDBName;
+        });
+    var events = await service.getEvents(dbids).then((foundEvents) => {
+        return foundEvents;
+    });
+    var factions = await service
+        .getFactions(dbids)
+        .then((foundFactions) => {
+            return foundFactions;
+        });
+    var characters = await service
+        .getCharacters(dbids)
+        .then((foundCharacters) => {
+            return foundCharacters;
+        });
+
+    var result = {
+        addonDBNames,
+        events,
+        factions,
+        characters,
+    };
+
+    addonService.GenerateFiles(result, res);
+
+
     // let url = ApiPaths.addonGenerate;
     // var data = {
     //     dbids: dbs,
@@ -116,7 +141,38 @@ const addon_generate_selected = (dbs) => (dispatch) => {
     //     });
 };
 
-const addon_generate = (dbid) => (dispatch) => {
+const addon_generate = (dbnameid) => (dispatch) => {
+    
+    var addonDBNames = await service
+        .getDBNames([dbnameid])
+        .then((foundDBName) => {
+            return foundDBName;
+        });
+    var events = await service.getEvents([dbnameid]).then((foundEvents) => {
+        return foundEvents;
+    });
+    var factions = await service
+        .getFactions([dbnameid])
+        .then((foundFactions) => {
+            return foundFactions;
+        });
+    var characters = await service
+        .getCharacters([dbnameid])
+        .then((foundCharacters) => {
+            return foundCharacters;
+        });
+
+    var result = {
+        addonDBNames,
+        events,
+        factions,
+        characters,
+    };
+
+    addonService.GenerateFiles(result, res);
+
+
+
     // let url = ApiPaths.addonGenerate + `/${dbid}`;
     // axios
     //     .get(url, { responseType: "arraybuffer" })

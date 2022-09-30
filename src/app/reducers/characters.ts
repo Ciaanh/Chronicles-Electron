@@ -46,7 +46,7 @@ export default charactersSlice.reducer;
 
 const characters_load = () => (dispatch) => {
     window.database.getAll(
-        database.tableNames.characters,
+        window.database.tableNames.characters,
         (characters) => dispatch(characters_loaded(characters)),
         (error) => console.log("Error", error)
     );

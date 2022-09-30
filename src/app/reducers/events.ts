@@ -52,7 +52,7 @@ export default eventsSlice.reducer;
 
 const events_load = () => (dispatch) => {
     window.database.getAll(
-        database.tableNames.events,
+        window.database.tableNames.events,
         (events) => dispatch(events_loaded(events)),
         (error) => console.log("Error", error)
     );

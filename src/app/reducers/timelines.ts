@@ -24,7 +24,7 @@ export default timelinesSlice.reducer;
 
 const timelines_load = () => (dispatch) => {
     window.database.getAll(
-        database.tableNames.events,
+        window.database.tableNames.events,
         (events) => dispatch(timelines_loaded(events)),
         (error) => console.log("Error", error)
     );

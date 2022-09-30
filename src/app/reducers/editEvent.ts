@@ -281,7 +281,7 @@ export default editEventSlice.reducer;
 
 const editEvent_save = (event) => (dispatch) => {
     window.database.edit(
-        database.tableNames.events,
+        window.database.tableNames.events,
         event.id,
         event,
         (saved_event) => {
@@ -294,7 +294,7 @@ const editEvent_save = (event) => (dispatch) => {
 
 const editEvent_create = (event) => (dispatch) => {
     window.database.add(
-        database.tableNames.events, {
+        window.database.tableNames.events, {
             name: event.name,
             yearStart: event.yearStart,
             yearEnd: event.yearEnd,
@@ -317,7 +317,7 @@ const editEvent_create = (event) => (dispatch) => {
 
 const editEvent_delete = (id) => (dispatch) => {
     window.database.remove(
-        database.tableNames.events,
+        window.database.tableNames.events,
         id,
         (deletedid) => dispatch(events_deleted(deletedid)),
         (error) => dispatch(editEvent_error(error))
@@ -326,19 +326,19 @@ const editEvent_delete = (id) => (dispatch) => {
 
 const editEvent_load = (event) => (dispatch) => {
     window.database.getAll(
-        database.tableNames.factions,
+        window.database.tableNames.factions,
         (factions) => dispatch(editEvent_factions_loaded(factions)),
         (error) => dispatch(editEvent_error(error))
     );
 
     window.database.getAll(
-        database.tableNames.characters,
+        window.database.tableNames.characters,
         (characters) => dispatch(editEvent_characters_loaded(characters)),
         (error) => dispatch(editEvent_error(error))
     );
 
     window.database.getAll(
-        database.tableNames.dbnames,
+        window.database.tableNames.dbnames,
         (dbNames) => dispatch(editEvent_dbnames_loaded(dbNames)),
         (error) => dispatch(editEvent_error(error))
     );
