@@ -8,6 +8,7 @@ export type TablesList = {
     characters: string;
     factions: string;
     dbnames: string;
+    locales: string;
     timelines: string;
 };
 export type DatabaseApi = {
@@ -31,14 +32,14 @@ export type DatabaseApi = {
         success: () => void,
         error: (error: string | null) => void
     ) => void;
-    edit: (
+    update: <T extends DBobject>(
         dbName: string,
         id: number,
-        set: () => void,
-        success: () => void,
+        obj: T,
+        success: (result: T) => void,
         error: (error: string | null) => void
     ) => void;
-    remove: (
+    delete: (
         dbName: string,
         id: number,
         success: (removedId: number) => void,
@@ -53,6 +54,7 @@ const exposedApi: DatabaseApi = {
         factions: "factions",
         dbnames: "dbnames",
         timelines: "timelines",
+        locales: "locales",
     },
     location: path.join(__dirname, "database"),
 
@@ -63,6 +65,7 @@ const exposedApi: DatabaseApi = {
             { name: exposedApi.tableNames.factions },
             { name: exposedApi.tableNames.dbnames },
             { name: exposedApi.tableNames.timelines },
+            { name: exposedApi.tableNames.locales },
         ];
 
         tables.forEach((element) => {
@@ -147,7 +150,7 @@ const exposedApi: DatabaseApi = {
         }
     },
 
-    edit: (dbName, id, set, success, error) => {
+    update: (dbName, id, set, success, error) => {
         if (db.valid(dbName)) {
             const where = {
                 id: id,
@@ -169,7 +172,7 @@ const exposedApi: DatabaseApi = {
         }
     },
 
-    remove: (dbName, id, success, error) => {
+    delete: (dbName, id, success, error) => {
         if (db.valid(dbName)) {
             db.deleteRow(
                 dbName,

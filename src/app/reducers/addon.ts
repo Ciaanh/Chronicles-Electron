@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import dbContext from "../dbContext";
 import { DbName } from "../models/dbname";
 
 function getFileName(contentDisposition: string) {
@@ -86,21 +87,15 @@ const addon_load = () => (dispatch: any) => {
 };
 
 const addon_generate_selected = (dbids) => (dispatch) => {
-    
-
-    var addonDBNames = await service
-        .getDBNames(dbids)
-        .then((foundDBName) => {
-            return foundDBName;
-        });
+    var addonDBNames = await service.getDBNames(dbids).then((foundDBName) => {
+        return foundDBName;
+    });
     var events = await service.getEvents(dbids).then((foundEvents) => {
         return foundEvents;
     });
-    var factions = await service
-        .getFactions(dbids)
-        .then((foundFactions) => {
-            return foundFactions;
-        });
+    var factions = await service.getFactions(dbids).then((foundFactions) => {
+        return foundFactions;
+    });
     var characters = await service
         .getCharacters(dbids)
         .then((foundCharacters) => {
@@ -115,7 +110,6 @@ const addon_generate_selected = (dbids) => (dispatch) => {
     };
 
     addonService.GenerateFiles(result, res);
-
 
     // let url = ApiPaths.addonGenerate;
     // var data = {
@@ -141,16 +135,29 @@ const addon_generate_selected = (dbids) => (dispatch) => {
     //     });
 };
 
-const addon_generate = (dbnameid) => (dispatch) => {
-    
-    var addonDBNames = await service
-        .getDBNames([dbnameid])
-        .then((foundDBName) => {
+const addon_generate = async (dbnameid: number) => async (dispatch) => {
+    const addonDBName = await dbContext.DBNames.getDBName(dbnameid).then(
+        (foundDBName) => {
             return foundDBName;
-        });
+        }
+    );
+
+
+
+
+
+    const events = await dbContext.Events.getEventsByDB(dbnameid).then(
+        (foundEvents) => {
+            return foundEvents;
+        }
+    );
     var events = await service.getEvents([dbnameid]).then((foundEvents) => {
         return foundEvents;
     });
+
+
+
+
     var factions = await service
         .getFactions([dbnameid])
         .then((foundFactions) => {
@@ -170,8 +177,6 @@ const addon_generate = (dbnameid) => (dispatch) => {
     };
 
     addonService.GenerateFiles(result, res);
-
-
 
     // let url = ApiPaths.addonGenerate + `/${dbid}`;
     // axios
