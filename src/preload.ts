@@ -1,7 +1,7 @@
 import { contextBridge } from "electron";
 import db from "electron-db";
 import path from "path";
-import { DBobject } from "./app/models/DBobject";
+import { DbObject } from "./app/models/object_interfaces";
 
 export type TablesList = {
     events: string;
@@ -15,24 +15,24 @@ export type DatabaseApi = {
     tableNames: TablesList;
     location: string;
     initDB: () => void;
-    getAll: <T extends DBobject>(
+    getAll: <T extends DbObject>(
         dbName: string,
         success: (data: Array<T>) => void,
         error: (error: string | null) => void
     ) => void;
-    get: <T extends DBobject>(
+    get: <T extends DbObject>(
         dbName: string,
         id: number,
         success: (data: T) => void,
         error: (error: string | null) => void
     ) => void;
-    add: <T extends DBobject>(
+    add: <T extends DbObject>(
         dbName: string,
         obj: T,
-        success: () => void,
+        success: (result: T) => void,
         error: (error: string | null) => void
     ) => void;
-    update: <T extends DBobject>(
+    update: <T extends DbObject>(
         dbName: string,
         id: number,
         obj: T,
@@ -88,7 +88,7 @@ const exposedApi: DatabaseApi = {
         });
     },
 
-    getAll: <T extends DBobject>(
+    getAll: <T extends DbObject>(
         dbName: string,
         success: (data: Array<T>) => void,
         error: (error: string | null) => void
@@ -108,7 +108,7 @@ const exposedApi: DatabaseApi = {
         }
     },
 
-    get: <T extends DBobject>(
+    get: <T extends DbObject>(
         dbName: string,
         id: number,
         success: (data: T) => void,

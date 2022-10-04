@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import dbContext from "../dbContext";
+import dbContext from "../dbContext/dbContext";
 import { DbName } from "../models/dbname";
 
 function getFileName(contentDisposition: string) {
@@ -20,7 +20,7 @@ export const addonSlice = createSlice({
         addon_dbnames_loaded: (state, action) => {
             state.dbnames = action.payload.map((dbname: DbName) => {
                 return {
-                    id: dbname.id,
+                    id: dbname._id,
                     name: dbname.name,
                     checked: false,
                 };

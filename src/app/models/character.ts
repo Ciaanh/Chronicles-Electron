@@ -1,10 +1,10 @@
 import { DbName } from "./dbname";
-import type { DBobject } from "./DBobject";
+import type { DbObject, Dto } from "./object_interfaces";
 import { Faction } from "./faction";
 import { Locale } from "./locale";
 import { Timeline } from "./timeline";
 
-export interface Character extends DBobject {
+export interface Character extends Dto {
     name: string;
     biography: Locale;
     timeline: Timeline;
@@ -12,10 +12,10 @@ export interface Character extends DBobject {
     dbname: DbName;
 }
 
-export interface DB_Character extends DBobject {
+export interface DB_Character extends DbObject {
     name: string;
-    biography: number;
-    timeline: number;
-    factions: Array<number>;
-    dbname: number;
+    biographyId: number;
+    timelineId: number;
+    factionIds: Array<number>;
+    dbnameId: number;
 }

@@ -1,9 +1,9 @@
 import { DbName } from "./dbname";
-import type { DBobject } from "./DBobject";
+import type { DbObject, Dto } from "./object_interfaces";
 import { Locale } from "./locale";
 import { Timeline } from "./timeline";
 
-export interface Faction extends DBobject {
+export interface Faction extends Dto {
     name: string;
     label: Locale;
     description: Locale;
@@ -11,10 +11,10 @@ export interface Faction extends DBobject {
     dbname: DbName;
 }
 
-export interface DB_Faction extends DBobject {
+export interface DB_Faction extends DbObject {
     name: string;
-    label: number;
-    description: number;
-    timeline: number;
-    dbname: number;
+    labelId: number;
+    descriptionId: number;
+    timelineId: number;
+    dbnameId: number;
 }

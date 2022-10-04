@@ -1,11 +1,11 @@
 import { Character } from "./character";
 import { DbName } from "./dbname";
-import { DBobject } from "./DBobject";
+import { DbObject, Dto } from "./object_interfaces";
 import { Faction } from "./faction";
 import { Locale } from "./locale";
 import { Timeline } from "./timeline";
 
-export interface Event extends DBobject {
+export interface Event extends Dto {
     name: string;
     yearStart: number;
     yearEnd: number;
@@ -19,16 +19,16 @@ export interface Event extends DBobject {
     dbname: DbName;
 }
 
-export interface DB_Event extends DBobject {
+export interface DB_Event extends DbObject {
     name: string;
     yearStart: number;
     yearEnd: number;
     eventType: string;
-    timeline: number;
+    timelineId: number;
     link: string;
-    factions: Array<number>;
-    characters: Array<number>;
-    label: number;
-    description: Array<number>;
-    dbname: number;
+    factionIds: Array<number>;
+    characterIds: Array<number>;
+    labelId: number;
+    descriptionIds: Array<number>;
+    dbnameId: number;
 }
