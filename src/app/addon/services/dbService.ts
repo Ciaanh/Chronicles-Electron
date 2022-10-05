@@ -1,4 +1,5 @@
 import { FileContent } from "../fileContent";
+import { FileGenerationRequest } from "../generator";
 
 export class DBService {
     /*
@@ -16,23 +17,13 @@ export class DBService {
         12_Shadowlands 
     */
 
-    Generate(dbnames: any, events: any, factions: any, characters: any) {
+    Generate(request: FileGenerationRequest) {
         const files: Array<FileContent> = [];
 
-        const declarationFile = this.CreateDeclarationFile(
-            dbnames,
-            events,
-            factions,
-            characters
-        );
+        const declarationFile = this.CreateDeclarationFile(request);
         files.push(declarationFile);
 
-        const indexFile = this.CreateIndexFile(
-            dbnames,
-            events,
-            factions,
-            characters
-        );
+        const indexFile = this.CreateIndexFile(request);
         files.push(indexFile);
 
         return files;
@@ -57,14 +48,9 @@ local Locale = LibStub("AceLocale-3.0"):GetLocale(private.addon_name)`;
     };
 
     // ChroniclesDB.lua
-    private CreateDeclarationFile = function (
-        dbnames: Array<any>,
-        events: Array<any>,
-        factions: Array<any>,
-        characters: Array<any>
-    ) {
+    private CreateDeclarationFile = function (request: FileGenerationRequest) {
         // name like => mythos = "mythos",
-        const names = dbnames
+        const names = request.dbnames
             .map((dbname: any) => {
                 const lowerDbName = dbname.name.toLowerCase();
                 return `\t${lowerDbName} = "${lowerDbName}"`;
@@ -74,16 +60,16 @@ local Locale = LibStub("AceLocale-3.0"):GetLocale(private.addon_name)`;
         // eventDB declaration => Chronicles.DB:RegisterEventDB(Chronicles.Custom.Modules.mythos, MythosEventsDB)
         // factionDB declaration => Chronicles.DB:RegisterFactionDB(Chronicles.Custom.Modules.mythos, MythosFactionsDB)
         // characterDB declaration => Chronicles.DB:RegisterCharacterDB(Chronicles.Custom.Modules.mythos, MythosCharactersDB)
-        const declarations = dbnames
+        const declarations = request.dbnames
             .map((dbname: any) => {
-                const filteredEvents = events.filter(
+                const filteredEvents = request.events.filter(
                     (event: any) => String(event.dbname.id) == String(dbname.id)
                 );
-                const filteredFactions = factions.filter(
+                const filteredFactions = request.factions.filter(
                     (faction: any) =>
                         String(faction.dbname.id) == String(dbname.id)
                 );
-                const filteredCharacters = characters.filter(
+                const filteredCharacters = request.characters.filter(
                     (character: any) =>
                         String(character.dbname.id) == String(dbname.id)
                 );
@@ -149,26 +135,21 @@ end`;
     };
 
     // ChroniclesDB.xml
-    private CreateIndexFile = function (
-        dbnames: Array<any>,
-        events: Array<any>,
-        factions: Array<any>,
-        characters: Array<any>
-    ) {
+    private CreateIndexFile = function (request: FileGenerationRequest) {
         // <Script file="01_Mythos\MythosEventsDB.lua" />
         // <Script file="01_Mythos\MythosFactionsDB.lua" />
         // <Script file="01_Mythos\MythosCharactersDB.lua" />
 
-        const indexes = dbnames
+        const indexes = request.dbnames
             .map((dbname: any) => {
-                const filteredEvents = events.filter(
+                const filteredEvents = request.events.filter(
                     (event: any) => String(event.dbname.id) == String(dbname.id)
                 );
-                const filteredFactions = factions.filter(
+                const filteredFactions = request.factions.filter(
                     (faction: any) =>
                         String(faction.dbname.id) == String(dbname.id)
                 );
-                const filteredCharacters = characters.filter(
+                const filteredCharacters = request.characters.filter(
                     (character: any) =>
                         String(character.dbname.id) == String(dbname.id)
                 );

@@ -1,4 +1,5 @@
 import { AnyAction, createSlice, Dispatch } from "@reduxjs/toolkit";
+import dbContext from "../dbContext/dbContext";
 
 export const charactersSlice = createSlice({
     name: "characters",
@@ -21,13 +22,17 @@ export const charactersSlice = createSlice({
             state.list.push(action.payload);
         },
         characters_saved: (state, action) => {
-            const index = state.list.findIndex((c) => c.id === action.payload.id);
+            const index = state.list.findIndex(
+                (c) => c.id === action.payload.id
+            );
             if (index !== -1) {
                 state.list[index] = action.payload;
             }
         },
         characters_deleted: (state, action) => {
-            const index = state.list.findIndex((c) => c.id === action.payload.id);
+            const index = state.list.findIndex(
+                (c) => c.id === action.payload.id
+            );
             if (index !== -1) {
                 state.list.splice(index, 1);
             }
@@ -45,11 +50,13 @@ export const {
 export default charactersSlice.reducer;
 
 const characters_load = () => (dispatch: Dispatch<AnyAction>) => {
-    window.database.getAll(
-        window.database.tableNames.characters,
-        (characters) => dispatch(characters_loaded(characters)),
-        (error) => console.log("Error", error)
-    );
+    dbContext.Characters.getAll()
+        .then((characters) => {
+            dispatch(characters_loaded(characters));
+        })
+        .catch((err) => {
+            console.log("Error", err);
+        });
 };
 
 export { characters_load };

@@ -80,11 +80,13 @@ export const {
 export default addonSlice.reducer;
 
 const addon_load = () => (dispatch: any) => {
-    window.database.getAll(
-        window.database.tableNames.dbnames,
-        (dbNames) => dispatch(addon_dbnames_loaded(dbNames)),
-        (error) => dispatch(addon_errorWhileGenerating(error))
-    );
+    dbContext.DBNames.getAll()
+        .then((dbnames) => {
+            dispatch(addon_dbnames_loaded(dbnames));
+        })
+        .catch((err) => {
+            dispatch(addon_errorWhileGenerating(err));
+        });
 };
 
 const addon_generate_selected = (dbids: number[]) => async (dispatch: any) => {

@@ -1,30 +1,26 @@
 import { Locale } from "../../models/locale";
 import { Character } from "../../models/character";
-import { DbName } from "../../models/dbname";
 import { Event } from "../../models/event";
 import { Faction } from "../../models/faction";
 import { FileContent } from "../fileContent";
-import { GenerationRequest } from "../generator";
+import { FileGenerationRequest, FormatedDbName } from "../generator";
 
 interface localeLine {
     key: string;
     value: string;
 }
 
+interface localeGroup {
+    fileName: string;
+    indexLine: string;
+    localeLines: Array<localeLine>;
+}
+
 export class LocaleService {
-    Generate(request: GenerationRequest) {
-        const files: Array<FileContent> = [];
-
-        const localesIndex = this.CreateIndexFile(request);
-        files.push(localesIndex);
-
-        // generate files content
-
+    Generate(request: FileGenerationRequest) {
+        const files = this.CreateLocaleFiles(request);
         return files;
     }
-
-    private localeHeader: `local AceLocale = LibStub:GetLibrary("AceLocale-3.0")
-    local L = AceLocale:NewLocale("Chronicles", "enUS", true, true)`;
 
     private languages: [
         "enUS",
@@ -52,7 +48,7 @@ export class LocaleService {
     }
 
     private FormatLocaleFileName(
-        index: number,
+        index: string,
         dbname: string,
         language: string,
         typeName: string
@@ -63,88 +59,131 @@ export class LocaleService {
         return `${index}_${formatedName}\\${lowerName}_${lowerTypeName}s_${language}.lua`;
     }
 
-    // Locales.xml
-    private CreateIndexFile(request: GenerationRequest) {
+    private CreateLocaleFiles(request: FileGenerationRequest) {
+        const dbLocaleGroups = request.dbnames.map((dbname: FormatedDbName) => {
+            const filteredEvents = request.events.filter(
+                (event: Event) => String(event.dbname._id) == String(dbname._id)
+            );
+            const filteredFactions = request.factions.filter(
+                (faction: Faction) =>
+                    String(faction.dbname._id) == String(dbname._id)
+            );
+            const filteredCharacters = request.characters.filter(
+                (character: Character) =>
+                    String(character.dbname._id) == String(dbname._id)
+            );
+
+            const localeGroups = this.languages.map((language) => {
+                const localeGroups: Array<localeGroup> = [];
+
+                if (filteredEvents.length > 0) {
+                    const fileName = this.FormatLocaleFileName(
+                        dbname.index,
+                        dbname.name,
+                        language,
+                        "Event"
+                    );
+
+                    const localeGroup: localeGroup = {
+                        fileName: fileName,
+                        indexLine: this.FormatIndex(fileName),
+                        localeLines: this.ExtractEventLocales(
+                            filteredEvents,
+                            language
+                        ),
+                    };
+                    localeGroups.push(localeGroup);
+                }
+                if (filteredFactions.length > 0) {
+                    const fileName = this.FormatLocaleFileName(
+                        dbname.index,
+                        dbname.name,
+                        language,
+                        "Faction"
+                    );
+
+                    const localeGroup: localeGroup = {
+                        fileName: fileName,
+                        indexLine: this.FormatIndex(fileName),
+                        localeLines: this.ExtractFactionLocales(
+                            filteredFactions,
+                            language
+                        ),
+                    };
+                    localeGroups.push(localeGroup);
+                }
+                if (filteredCharacters.length > 0) {
+                    const fileName = this.FormatLocaleFileName(
+                        dbname.index,
+                        dbname.name,
+                        language,
+                        "Character"
+                    );
+
+                    const localeGroup: localeGroup = {
+                        fileName: fileName,
+                        indexLine: this.FormatIndex(fileName),
+                        localeLines: this.ExtractCharacterLocales(
+                            filteredCharacters,
+                            language
+                        ),
+                    };
+                    localeGroups.push(localeGroup);
+                }
+
+                return localeGroups;
+            });
+
+            const locales: Array<localeGroup> = [];
+            localeGroups.forEach((dbLocaleGroup: Array<localeGroup>) => {
+                locales.push(...dbLocaleGroup);
+            });
+            return locales;
+        });
+
+        const dbLocales: Array<localeGroup> = [];
+        dbLocaleGroups.forEach((dbLocaleGroup: Array<localeGroup>) => {
+            dbLocales.push(...dbLocaleGroup);
+        });
+
         // <Script file="01_Mythos\mythos_events_enUS.lua" />
         // <Script file="01_Mythos\mythos_factions_enUS.lua" />
         // <Script file="01_Mythos\mythos_characters_enUS.lua" />
-
-        const indexes = request.dbnames
-            .map((dbname: DbName) => {
-                const filteredEvents = request.events.filter(
-                    (event: Event) =>
-                        String(event.dbname._id) == String(dbname._id)
-                );
-                const filteredFactions = request.factions.filter(
-                    (faction: Faction) =>
-                        String(faction.dbname._id) == String(dbname._id)
-                );
-                const filteredCharacters = request.characters.filter(
-                    (character: Character) =>
-                        String(character.dbname._id) == String(dbname._id)
-                );
-
-                const dbnameLocales = this.languages
-                    .map((language) => {
-                        let eventIndex = "";
-                        let factionIndex = "";
-                        let characterIndex = "";
-
-                        if (filteredEvents.length > 0) {
-                            const fileName = this.FormatLocaleFileName(
-                                dbname.index,
-                                dbname.name,
-                                language,
-                                "Event"
-                            );
-
-                            const eventLocales = this.ExtractEventLocales(
-                                filteredEvents,
-                                language
-                            );
-                            eventIndex = this.FormatIndex(fileName);
-                        }
-                        if (filteredFactions.length > 0) {
-                            const fileName = this.FormatLocaleFileName(
-                                dbname.index,
-                                dbname.name,
-                                language,
-                                "Faction"
-                            );
-                            factionIndex = this.FormatIndex(fileName);
-                        }
-                        if (filteredCharacters.length > 0) {
-                            const fileName = this.FormatLocaleFileName(
-                                dbname.index,
-                                dbname.name,
-                                language,
-                                "Character"
-                            );
-                            characterIndex = this.FormatIndex(fileName);
-                        }
-                        return [eventIndex, factionIndex, characterIndex]
-                            .filter((value) => value.length > 0)
-                            .join("\n");
-                    })
-                    .filter((value) => value.length > 0)
-                    .join("\n");
-
-                return dbnameLocales + "\n";
+        const indexContent = dbLocales
+            .map((localeGroup: localeGroup) => {
+                return localeGroup.indexLine;
             })
             .filter((value) => value.length > 0)
             .join("\n");
-
-        const content = `<Ui xmlns="http://www.blizzard.com/wow/ui/"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
-    ..\\FrameXML\\UI.xsd">
-    ${indexes}
-    </Ui>`;
-
-        const fileContent: FileContent = {
-            content: content,
+        const indexFile: FileContent = {
+            content: `<Ui xmlns="http://www.blizzard.com/wow/ui/"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+        ..\\FrameXML\\UI.xsd">
+        ${indexContent}
+        </Ui>`,
             name: "Custom/Locales/Locales.xml",
         };
-        return fileContent;
+
+        const localeFileContents = dbLocales.map((localeGroup: localeGroup) => {
+            const localeContent = localeGroup.localeLines
+                .map((localeLine: localeLine) => {
+                    return localeLine.value;
+                })
+                .filter((value) => value.length > 0)
+                .join("\n");
+
+            const localeFile: FileContent = {
+                content: `local AceLocale = LibStub:GetLibrary("AceLocale-3.0")
+                local L = AceLocale:NewLocale("Chronicles", "enUS", true, true)
+                
+                ${localeContent}`,
+                name: localeGroup.fileName,
+            };
+            return localeFile;
+        });
+
+        localeFileContents.push(indexFile);
+        return localeFileContents;
     }
 
     private ExtractEventLocales(
@@ -161,6 +200,35 @@ export class LocaleService {
                     this.ExtractLocaleByLanguage(descriptionPage, language)
                 );
             });
+        });
+        return result;
+    }
+
+    private ExtractFactionLocales(
+        factions: Faction[],
+        language: string
+    ): localeLine[] {
+        const result: localeLine[] = [];
+
+        factions.forEach((faction: Faction) => {
+            result.push(this.ExtractLocaleByLanguage(faction.label, language));
+            result.push(
+                this.ExtractLocaleByLanguage(faction.description, language)
+            );
+        });
+        return result;
+    }
+
+    private ExtractCharacterLocales(
+        characters: Character[],
+        language: string
+    ): localeLine[] {
+        const result: localeLine[] = [];
+
+        characters.forEach((character: Character) => {
+            result.push(
+                this.ExtractLocaleByLanguage(character.biography, language)
+            );
         });
         return result;
     }

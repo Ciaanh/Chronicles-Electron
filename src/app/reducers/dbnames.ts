@@ -1,4 +1,6 @@
 import { AnyAction, createSlice, Dispatch } from "@reduxjs/toolkit";
+import dbContext from "../dbContext/dbContext";
+import { DbName } from "../models/dbname";
 
 export const dbnamesSlice = createSlice({
     name: "dbnames",
@@ -22,25 +24,33 @@ export const dbnamesSlice = createSlice({
             state.creatingDbName.create = false;
         },
         dbnames_saved: (state, action) => {
-            const index = state.list.findIndex((c) => c.id === action.payload.id);
+            const index = state.list.findIndex(
+                (c) => c.id === action.payload.id
+            );
             if (index !== -1) {
                 state.list[index] = action.payload;
             }
         },
         dbnames_deleted: (state, action) => {
-            const index = state.list.findIndex((c) => c.id === action.payload.id);
+            const index = state.list.findIndex(
+                (c) => c.id === action.payload.id
+            );
             if (index !== -1) {
                 state.list.splice(index, 1);
             }
         },
         dbnames_edit: (state, action) => {
-            const index = state.list.findIndex((c) => c.id === action.payload.id);
+            const index = state.list.findIndex(
+                (c) => c.id === action.payload.id
+            );
             if (index !== -1) {
                 state.list[index].edit = true;
             }
         },
         dbnames_changeName: (state, action) => {
-            const index = state.list.findIndex((c) => c.id === action.payload.id);
+            const index = state.list.findIndex(
+                (c) => c.id === action.payload.id
+            );
             if (index !== -1) {
                 state.list[index].name = action.payload.name;
             }
@@ -64,38 +74,36 @@ export const {
 export default dbnamesSlice.reducer;
 
 const dbnames_load = () => (dispatch: Dispatch<AnyAction>) => {
-    window.database.getAll(
-        window.database.tableNames.dbnames,
-        (dbNames) => dispatch(dbnames_loaded(dbNames)),
-        (error) => console.log("Error", error)
-    );
+    dbContext.DBNames.getAll()
+        .then((dbnames) => dispatch(dbnames_loaded(dbnames)))
+        .catch((error) => console.log("Error", error));
 };
 
-const dbnames_create = (name) => (dispatch: Dispatch<AnyAction>) => {
-    window.database.add(
-        window.database.tableNames.dbnames, { name: name },
-        (dbName) => dispatch(dbnames_created(dbName)),
-        (error) => console.log("Error", error)
-    );
+const dbnames_create = (name: string) => (dispatch: Dispatch<AnyAction>) => {
+    dbContext.DBNames.addDBName({
+        _id: -1,
+        name: name,
+    })
+        .then((dbname) => {
+            dispatch(dbnames_created(dbname));
+        })
+        .catch((error) => console.log("Error", error));
 };
 
-const dbnames_save = (dbname) => (dispatch: Dispatch<AnyAction>) => {
-    window.database.edit(
-        window.database.tableNames.dbnames,
-        dbname.id,
-        dbname,
-        (saved_dbname) => dispatch(dbnames_saved(saved_dbname)),
-        (error) => console.log("Error", error)
-    );
+const dbnames_save = (dbname: DbName) => (dispatch: Dispatch<AnyAction>) => {
+    dbContext.DBNames.updateDBName(dbname)
+        .then((dbname) => {
+            dispatch(dbnames_saved(dbname));
+        })
+        .catch((error) => console.log("Error", error));
 };
 
-const dbnames_delete = (id) => (dispatch: Dispatch<AnyAction>) => {
-    window.database.remove(
-        window.database.tableNames.dbnames,
-        id,
-        (deletedid) => dispatch(dbnames_deleted(deletedid)),
-        (error) => console.log("Error", error)
-    );
+const dbnames_delete = (id: number) => (dispatch: Dispatch<AnyAction>) => {
+    dbContext.DBNames.deleteDBName(id)
+        .then((deletedid) => {
+            dispatch(dbnames_deleted(deletedid));
+        })
+        .catch((error) => console.log("Error", error));
 };
 
 export { dbnames_load, dbnames_create, dbnames_save, dbnames_delete };

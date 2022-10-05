@@ -16,6 +16,18 @@ export interface GenerationRequest {
     characters: Array<Character>;
 }
 
+export interface FormatedDbName {
+    _id: number;
+    name: string;
+    index: string;
+}
+export interface FileGenerationRequest {
+    dbnames: Array<FormatedDbName>;
+    events: Array<Event>;
+    factions: Array<Faction>;
+    characters: Array<Character>;
+}
+
 export class AddonGenerator {
     private Pack(locale: Array<FileContent>, db: Array<FileContent>) {
         const outputStreamBuffer = new WritableStreamBuffer({
@@ -57,7 +69,7 @@ export class AddonGenerator {
         });
     }
 
-    Create = function (data: any) {
+    Create = function (request: GenerationRequest) {
         // {
         //     addonDBNames[],
         //     events[],
@@ -65,31 +77,30 @@ export class AddonGenerator {
         //     characters[],
         // }
 
-        if (data.addonDBNames.length > 0) {
-            const preparedDbNames = data.addonDBNames.map(
-                (dbname: any, index: number) => {
-                    const correctedIndex = index + 1;
+        if (request.dbnames.length > 0) {
+            const preparedDbNames = request.dbnames.map(
+                (dbname: DbName, zeroBasedIndex: number) => {
+                    const index = zeroBasedIndex + 1;
                     const formatedIndex =
-                        correctedIndex > 9
-                            ? String(correctedIndex)
-                            : `0${correctedIndex}`;
-                    dbname.index = formatedIndex;
-                    return dbname;
+                        index > 9 ? String(index) : `0${index}`;
+
+                    const formatedDbName: FormatedDbName = {
+                        _id: dbname._id,
+                        name: dbname.name,
+                        index: formatedIndex,
+                    };
+                    return formatedDbName;
                 }
             );
 
-            const locale = new LocaleService().Generate(
-                preparedDbNames,
-                data.events,
-                data.factions,
-                data.characters
-            );
-            const db = new DBService().Generate(
-                preparedDbNames,
-                data.events,
-                data.factions,
-                data.characters
-            );
+            const fileGenerationRequest: FileGenerationRequest = {
+                dbnames: preparedDbNames,
+                events: request.events,
+                factions: request.factions,
+                characters: request.characters,
+            };
+            const locale = new LocaleService().Generate(fileGenerationRequest);
+            const db = new DBService().Generate(fileGenerationRequest);
 
             this.Pack(locale, db);
         }
