@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { AnyAction, createSlice, Dispatch } from "@reduxjs/toolkit";
 
 import { getEmptyLocale, cleanString } from "../constants";
 
@@ -81,7 +81,7 @@ export const editCharacterSlice = createSlice({
             });
         },
         editCharacter_faction_add: (state, action) => {
-            let faction = state.character.factions.find(
+            const faction = state.character.factions.find(
                 (f) => f.id === action.payload.id
             );
             if (faction) {
@@ -91,7 +91,7 @@ export const editCharacterSlice = createSlice({
             state.character.factions.push(action.payload);
         },
         editCharacter_faction_remove: (state, action) => {
-            let factionIndex = state.character.factions.findIndex(
+            const factionIndex = state.character.factions.findIndex(
                 (f) => f.id === action.payload
             );
             if (factionIndex > -1) {
@@ -107,7 +107,7 @@ export const editCharacterSlice = createSlice({
             });
         },
         editCharacter_changeDbName: (state, action) => {
-            let dbname = state.dbnames.find((f) => f.id === action.payload);
+            const dbname = state.dbnames.find((f) => f.id === action.payload);
             if (dbname) {
                 state.character.dbname = dbname;
             }
@@ -158,7 +158,7 @@ export const {
 } = editCharacterSlice.actions;
 export default editCharacterSlice.reducer;
 
-const editCharacter_load = () => (dispatch) => {
+const editCharacter_load = () => (dispatch: Dispatch<AnyAction>) => {
     window.database.getAll(
         window.database.tableNames.factions,
         (factions) => dispatch(editCharacter_factions_loaded(factions)),
@@ -172,7 +172,7 @@ const editCharacter_load = () => (dispatch) => {
     );
 };
 
-const editCharacter_save = (character) => (dispatch) => {
+const editCharacter_save = (character) => (dispatch: Dispatch<AnyAction>) => {
     window.database.edit(
         window.database.tableNames.characters,
         character.id,
@@ -185,7 +185,7 @@ const editCharacter_save = (character) => (dispatch) => {
     );
 };
 
-const editCharacter_create = (character) => (dispatch) => {
+const editCharacter_create = (character) => (dispatch: Dispatch<AnyAction>) => {
     window.database.add(
         window.database.tableNames.characters, {
             name: character.name,
@@ -202,7 +202,7 @@ const editCharacter_create = (character) => (dispatch) => {
     );
 };
 
-const editCharacter_delete = (id) => (dispatch) => {
+const editCharacter_delete = (id) => (dispatch: Dispatch<AnyAction>) => {
     window.database.remove(
         window.database.tableNames.characters,
         id,

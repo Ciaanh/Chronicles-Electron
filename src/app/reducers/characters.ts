@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { AnyAction, createSlice, Dispatch } from "@reduxjs/toolkit";
 
 export const charactersSlice = createSlice({
     name: "characters",
@@ -21,13 +21,13 @@ export const charactersSlice = createSlice({
             state.list.push(action.payload);
         },
         characters_saved: (state, action) => {
-            let index = state.list.findIndex((c) => c.id === action.payload.id);
+            const index = state.list.findIndex((c) => c.id === action.payload.id);
             if (index !== -1) {
                 state.list[index] = action.payload;
             }
         },
         characters_deleted: (state, action) => {
-            let index = state.list.findIndex((c) => c.id === action.payload.id);
+            const index = state.list.findIndex((c) => c.id === action.payload.id);
             if (index !== -1) {
                 state.list.splice(index, 1);
             }
@@ -44,7 +44,7 @@ export const {
 } = charactersSlice.actions;
 export default charactersSlice.reducer;
 
-const characters_load = () => (dispatch) => {
+const characters_load = () => (dispatch: Dispatch<AnyAction>) => {
     window.database.getAll(
         window.database.tableNames.characters,
         (characters) => dispatch(characters_loaded(characters)),

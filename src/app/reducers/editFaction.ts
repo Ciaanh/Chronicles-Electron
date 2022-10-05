@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { AnyAction, createSlice, Dispatch } from "@reduxjs/toolkit";
 
 import { getEmptyLocale, cleanString } from "../constants";
 
@@ -75,7 +75,7 @@ export const editFactionSlice = createSlice({
             });
         },
         editFaction_faction_add: (state, action) => {
-            let faction = state.faction.factions.find(
+            const faction = state.faction.factions.find(
                 (f) => f.id === action.payload.id
             );
             if (faction) {
@@ -85,7 +85,7 @@ export const editFactionSlice = createSlice({
             state.faction.factions.push(action.payload);
         },
         editFaction_faction_remove: (state, action) => {
-            let factionIndex = state.faction.factions.findIndex(
+            const factionIndex = state.faction.factions.findIndex(
                 (f) => f.id === action.payload
             );
             if (factionIndex > -1) {
@@ -101,7 +101,7 @@ export const editFactionSlice = createSlice({
             });
         },
         editFaction_changeDbName: (state, action) => {
-            let dbname = state.dbnames.find((f) => f.id === action.payload);
+            const dbname = state.dbnames.find((f) => f.id === action.payload);
             if (dbname) {
                 state.faction.dbname = dbname;
             }
@@ -155,7 +155,7 @@ export const {
 } = editFactionSlice.actions;
 export default editFactionSlice.reducer;
 
-const editFaction_save = (faction) => (dispatch) => {
+const editFaction_save = (faction) => (dispatch: Dispatch<AnyAction>) => {
     window.database.edit(
         window.database.tableNames.factions,
         faction.id,
@@ -168,7 +168,7 @@ const editFaction_save = (faction) => (dispatch) => {
     );
 };
 
-const editFaction_create = (faction) => (dispatch) => {
+const editFaction_create = (faction) => (dispatch: Dispatch<AnyAction>) => {
     window.database.add(
         window.database.tableNames.factions, {
             name: faction.name,
@@ -184,7 +184,7 @@ const editFaction_create = (faction) => (dispatch) => {
     );
 };
 
-const editFaction_delete = (id) => (dispatch) => {
+const editFaction_delete = (id) => (dispatch: Dispatch<AnyAction>) => {
     window.database.remove(
         window.database.tableNames.factions,
         id,
@@ -193,7 +193,7 @@ const editFaction_delete = (id) => (dispatch) => {
     );
 };
 
-const editFaction_load = () => (dispatch) => {
+const editFaction_load = () => (dispatch: Dispatch<AnyAction>) => {
     window.database.getAll(
         window.database.tableNames.dbnames,
         (dbnames) => dispatch(editFaction_dbnames_loaded(dbnames)),

@@ -2,11 +2,11 @@ import { DbName, DB_DbName } from "../models/dbname";
 
 export interface DBNameContext {
     getAll: () => Promise<DbName[]>;
-    getDBNames(dbids: number[]): Promise<DbName[]>;
-    getDBName(dbid: number): Promise<DbName>;
+    getDBNames(ids: number[]): Promise<DbName[]>;
+    getDBName(id: number): Promise<DbName>;
     addDBName(dbname: DbName): Promise<DbName>;
     updateDBName(dbname: DbName): Promise<DbName>;
-    deleteDBName(dbid: number): Promise<number>;
+    deleteDBName(id: number): Promise<number>;
 }
 
 export const DBNames: DBNameContext = {
@@ -19,13 +19,13 @@ export const DBNames: DBNameContext = {
             );
         });
     },
-    getDBNames: function (dbids) {
+    getDBNames: function (ids) {
         return new Promise(function (resolve, reject) {
             window.database.getAll(
                 window.database.tableNames.dbnames,
                 (dbNames: DB_DbName[]) => {
                     const filteredDBNames = dbNames.filter((dbName) =>
-                        dbids.includes(dbName.id)
+                        ids.includes(dbName.id)
                     );
                     resolve(DbNameMapperFromDBs(filteredDBNames));
                 },
@@ -33,11 +33,11 @@ export const DBNames: DBNameContext = {
             );
         });
     },
-    getDBName: function (dbNameId) {
+    getDBName: function (id) {
         return new Promise(function (resolve, reject) {
             window.database.get(
                 window.database.tableNames.dbnames,
-                dbNameId,
+                id,
                 (dbName: DB_DbName) => resolve(DbNameMapperFromDB(dbName)),
                 (error) => reject(error)
             );
@@ -64,12 +64,12 @@ export const DBNames: DBNameContext = {
             );
         });
     },
-    deleteDBName: function (dbNameId) {
+    deleteDBName: function (id) {
         return new Promise(function (resolve, reject) {
             window.database.delete(
                 window.database.tableNames.dbnames,
-                dbNameId,
-                () => resolve(dbNameId),
+                id,
+                () => resolve(id),
                 (error) => reject(error)
             );
         });
@@ -80,6 +80,7 @@ export const DbNameMapper = (dbname: DbName): DB_DbName => {
     return {
         id: dbname._id,
         name: dbname.name,
+        index: dbname.index,
     };
 };
 
@@ -87,6 +88,7 @@ export const DbNameMapperFromDB = (dbname: DB_DbName): DbName => {
     return {
         _id: dbname.id,
         name: dbname.name,
+        index: dbname.index,
     };
 };
 

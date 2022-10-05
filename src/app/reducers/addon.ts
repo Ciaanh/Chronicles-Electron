@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { AddonGenerator, GenerationRequest } from "../addon/generator";
 import dbContext from "../dbContext/dbContext";
 import { DbName } from "../models/dbname";
 
@@ -86,115 +87,22 @@ const addon_load = () => (dispatch: any) => {
     );
 };
 
-const addon_generate_selected = (dbids) => (dispatch) => {
-    var addonDBNames = await service.getDBNames(dbids).then((foundDBName) => {
-        return foundDBName;
-    });
-    var events = await service.getEvents(dbids).then((foundEvents) => {
-        return foundEvents;
-    });
-    var factions = await service.getFactions(dbids).then((foundFactions) => {
-        return foundFactions;
-    });
-    var characters = await service
-        .getCharacters(dbids)
-        .then((foundCharacters) => {
-            return foundCharacters;
-        });
+const addon_generate_selected = (dbids: number[]) => async (dispatch: any) => {
+    const dbnames = await dbContext.DBNames.getDBNames(dbids);
 
-    var result = {
-        addonDBNames,
+    const events = await dbContext.Events.getEventsByDB(dbids);
+
+    const factions = await dbContext.Factions.getFactionsByDB(dbids);
+
+    const characters = await dbContext.Characters.getCharactersByDB(dbids);
+
+    const request: GenerationRequest = {
+        dbnames,
         events,
         factions,
         characters,
     };
-
-    addonService.GenerateFiles(result, res);
-
-    // let url = ApiPaths.addonGenerate;
-    // var data = {
-    //     dbids: dbs,
-    // };
-    // axios
-    //     .post(url, data, {
-    //         responseType: "arraybuffer",
-    //     })
-    //     .then((response) => {
-    //         if (response.data) {
-    //             dispatch(addon_data_loaded(response));
-    //         }
-    //     })
-    //     .catch((error) => {
-    //         if (error.response) {
-    //             dispatch(addon_errorWhileGenerating(error.response.data));
-    //         } else if (error.request) {
-    //             console.log(error.request);
-    //         } else {
-    //             console.log("Error", error.message);
-    //         }
-    //     });
+    new AddonGenerator().Create(request);
 };
 
-const addon_generate = async (dbnameid: number) => async (dispatch) => {
-    const addonDBName = await dbContext.DBNames.getDBName(dbnameid).then(
-        (foundDBName) => {
-            return foundDBName;
-        }
-    );
-
-
-
-
-
-    const events = await dbContext.Events.getEventsByDB(dbnameid).then(
-        (foundEvents) => {
-            return foundEvents;
-        }
-    );
-    var events = await service.getEvents([dbnameid]).then((foundEvents) => {
-        return foundEvents;
-    });
-
-
-
-
-    var factions = await service
-        .getFactions([dbnameid])
-        .then((foundFactions) => {
-            return foundFactions;
-        });
-    var characters = await service
-        .getCharacters([dbnameid])
-        .then((foundCharacters) => {
-            return foundCharacters;
-        });
-
-    var result = {
-        addonDBNames,
-        events,
-        factions,
-        characters,
-    };
-
-    addonService.GenerateFiles(result, res);
-
-    // let url = ApiPaths.addonGenerate + `/${dbid}`;
-    // axios
-    //     .get(url, { responseType: "arraybuffer" })
-    //     .then((response) => {
-    //         if (response.data) {
-    //             dispatch(addon_data_loaded(response));
-    //         }
-    //     })
-    //     .catch((error) => {
-    //         if (error.response) {
-    //             dispatch(addon_errorWhileGenerating(error.response.data));
-    //         } else if (error.request) {
-    //             console.log(error.request);
-    //         } else {
-    //             console.log("Error", error.message);
-    //         }
-    //     });
-};
-
-export { addon_load, addon_generate_selected, addon_generate };
+export { addon_load, addon_generate_selected };

@@ -5,11 +5,12 @@ import { Timelines } from "./timelineContext";
 
 export interface FactionContext {
     getAll: () => Promise<Faction[]>;
-    getFactions(dbids: number[]): Promise<Faction[]>;
-    getFaction(dbid: number): Promise<Faction>;
+    getFactions(ids: number[]): Promise<Faction[]>;
+    getFactionsByDB(dbids: number[]): Promise<Faction[]>;
+    getFaction(id: number): Promise<Faction>;
     addFaction(faction: Faction): Promise<Faction>;
     updateFaction(faction: Faction): Promise<Faction>;
-    deleteFaction(dbid: number): Promise<number>;
+    deleteFaction(id: number): Promise<number>;
 }
 
 export const Factions: FactionContext = {
@@ -23,13 +24,13 @@ export const Factions: FactionContext = {
             );
         });
     },
-    getFactions: function (dbids) {
+    getFactions: function (ids) {
         return new Promise(function (resolve, reject) {
             window.database.getAll(
                 window.database.tableNames.factions,
                 (factions: DB_Faction[]) => {
                     const filteredFactions = factions.filter((faction) =>
-                        dbids.includes(faction.id)
+                        ids.includes(faction.id)
                     );
                     resolve(FactionMapperFromDBs(filteredFactions));
                 },
@@ -37,11 +38,25 @@ export const Factions: FactionContext = {
             );
         });
     },
-    getFaction: function (factionId) {
+    getFactionsByDB: function (dbids) {
+        return new Promise(function (resolve, reject) {
+            window.database.getAll(
+                window.database.tableNames.factions,
+                (factions: DB_Faction[]) => {
+                    const filteredFactions = factions.filter((faction) =>
+                        dbids.includes(faction.dbnameId)
+                    );
+                    resolve(FactionMapperFromDBs(filteredFactions));
+                },
+                (error) => reject(error)
+            );
+        });
+    },
+    getFaction: function (id) {
         return new Promise(function (resolve, reject) {
             window.database.get(
                 window.database.tableNames.factions,
-                factionId,
+                id,
                 (faction: DB_Faction) => resolve(FactionMapperFromDB(faction)),
                 (error) => reject(error)
             );
@@ -68,12 +83,12 @@ export const Factions: FactionContext = {
             );
         });
     },
-    deleteFaction: function (dbid) {
+    deleteFaction: function (id) {
         return new Promise(function (resolve, reject) {
             window.database.delete(
                 window.database.tableNames.factions,
-                dbid,
-                () => resolve(dbid),
+                id,
+                () => resolve(id),
                 (error) => reject(error)
             );
         });

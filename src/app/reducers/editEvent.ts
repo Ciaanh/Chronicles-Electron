@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { AnyAction, createSlice, Dispatch } from "@reduxjs/toolkit";
 
 import { getEmptyLocale, cleanString } from "../constants";
 
@@ -95,7 +95,7 @@ export const editEventSlice = createSlice({
             });
         },
         editEvent_changeDbName: (state, action) => {
-            let dbname = state.dbnames.find((f) => f.id === action.payload);
+            const dbname = state.dbnames.find((f) => f.id === action.payload);
             if (dbname) {
                 state.event.dbname = dbname;
             }
@@ -111,7 +111,7 @@ export const editEventSlice = createSlice({
             });
         },
         editEvent_character_add: (state, action) => {
-            let character = state.event.characters.find(
+            const character = state.event.characters.find(
                 (f) => f.id === action.payload.id
             );
             if (character) {
@@ -121,7 +121,7 @@ export const editEventSlice = createSlice({
             state.event.characters.push(action.payload);
         },
         editEvent_character_remove: (state, action) => {
-            let characterIndex = state.event.characters.findIndex(
+            const characterIndex = state.event.characters.findIndex(
                 (f) => f.id === action.payload
             );
             if (characterIndex > -1) {
@@ -139,7 +139,7 @@ export const editEventSlice = createSlice({
             });
         },
         editEvent_faction_add: (state, action) => {
-            let faction = state.event.factions.find(
+            const faction = state.event.factions.find(
                 (f) => f.id === action.payload.id
             );
             if (faction) {
@@ -149,7 +149,7 @@ export const editEventSlice = createSlice({
             state.event.factions.push(action.payload);
         },
         editEvent_faction_remove: (state, action) => {
-            let factionIndex = state.event.factions.findIndex(
+            const factionIndex = state.event.factions.findIndex(
                 (f) => f.id === action.payload
             );
             if (factionIndex > -1) {
@@ -162,7 +162,9 @@ export const editEventSlice = createSlice({
 
             // resync all keysfor label and description pages
             for (
-                let index = 0; index < state.event.description.length; index++
+                let index = 0;
+                index < state.event.description.length;
+                index++
             ) {
                 state.event.description[index].key =
                     cleanString(state.event.name) + "_page" + index;
@@ -192,7 +194,7 @@ export const editEventSlice = createSlice({
                 "_page" +
                 state.event.description.length;
 
-            let description = state.event.description.find(
+            const description = state.event.description.find(
                 (f) => f.key === pageKey
             );
             if (description) {
@@ -204,7 +206,7 @@ export const editEventSlice = createSlice({
         },
 
         editEvent_description_remove: (state, action) => {
-            let descriptionIndex = state.event.description.findIndex(
+            const descriptionIndex = state.event.description.findIndex(
                 (f) => f.key === action.payload
             );
 
@@ -213,7 +215,9 @@ export const editEventSlice = createSlice({
             }
 
             for (
-                let index = 0; index < state.event.description.length; index++
+                let index = 0;
+                index < state.event.description.length;
+                index++
             ) {
                 state.event.description[index].key =
                     cleanString(state.event.name) + "_page" + index;
@@ -224,7 +228,7 @@ export const editEventSlice = createSlice({
             if (action.payload.islabel) {
                 state.event.label[action.payload.locale] = action.payload.value;
             } else {
-                let descriptionIndex = state.event.description.findIndex(
+                const descriptionIndex = state.event.description.findIndex(
                     (f) => f.key === action.payload.key
                 );
                 if (descriptionIndex > -1) {
@@ -279,7 +283,7 @@ export const {
 } = editEventSlice.actions;
 export default editEventSlice.reducer;
 
-const editEvent_save = (event) => (dispatch) => {
+const editEvent_save = (event) => (dispatch: Dispatch<AnyAction>) => {
     window.database.edit(
         window.database.tableNames.events,
         event.id,
@@ -292,9 +296,10 @@ const editEvent_save = (event) => (dispatch) => {
     );
 };
 
-const editEvent_create = (event) => (dispatch) => {
+const editEvent_create = (event) => (dispatch: Dispatch<AnyAction>) => {
     window.database.add(
-        window.database.tableNames.events, {
+        window.database.tableNames.events,
+        {
             name: event.name,
             yearStart: event.yearStart,
             yearEnd: event.yearEnd,
@@ -315,7 +320,7 @@ const editEvent_create = (event) => (dispatch) => {
     );
 };
 
-const editEvent_delete = (id) => (dispatch) => {
+const editEvent_delete = (id) => (dispatch: Dispatch<AnyAction>) => {
     window.database.remove(
         window.database.tableNames.events,
         id,
@@ -324,7 +329,7 @@ const editEvent_delete = (id) => (dispatch) => {
     );
 };
 
-const editEvent_load = (event) => (dispatch) => {
+const editEvent_load = (event) => (dispatch: Dispatch<AnyAction>) => {
     window.database.getAll(
         window.database.tableNames.factions,
         (factions) => dispatch(editEvent_factions_loaded(factions)),

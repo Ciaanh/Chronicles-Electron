@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { AnyAction, createSlice, Dispatch } from "@reduxjs/toolkit";
 
 export const dbnamesSlice = createSlice({
     name: "dbnames",
@@ -22,25 +22,25 @@ export const dbnamesSlice = createSlice({
             state.creatingDbName.create = false;
         },
         dbnames_saved: (state, action) => {
-            let index = state.list.findIndex((c) => c.id === action.payload.id);
+            const index = state.list.findIndex((c) => c.id === action.payload.id);
             if (index !== -1) {
                 state.list[index] = action.payload;
             }
         },
         dbnames_deleted: (state, action) => {
-            let index = state.list.findIndex((c) => c.id === action.payload.id);
+            const index = state.list.findIndex((c) => c.id === action.payload.id);
             if (index !== -1) {
                 state.list.splice(index, 1);
             }
         },
         dbnames_edit: (state, action) => {
-            let index = state.list.findIndex((c) => c.id === action.payload.id);
+            const index = state.list.findIndex((c) => c.id === action.payload.id);
             if (index !== -1) {
                 state.list[index].edit = true;
             }
         },
         dbnames_changeName: (state, action) => {
-            let index = state.list.findIndex((c) => c.id === action.payload.id);
+            const index = state.list.findIndex((c) => c.id === action.payload.id);
             if (index !== -1) {
                 state.list[index].name = action.payload.name;
             }
@@ -63,7 +63,7 @@ export const {
 } = dbnamesSlice.actions;
 export default dbnamesSlice.reducer;
 
-const dbnames_load = () => (dispatch) => {
+const dbnames_load = () => (dispatch: Dispatch<AnyAction>) => {
     window.database.getAll(
         window.database.tableNames.dbnames,
         (dbNames) => dispatch(dbnames_loaded(dbNames)),
@@ -71,7 +71,7 @@ const dbnames_load = () => (dispatch) => {
     );
 };
 
-const dbnames_create = (name) => (dispatch) => {
+const dbnames_create = (name) => (dispatch: Dispatch<AnyAction>) => {
     window.database.add(
         window.database.tableNames.dbnames, { name: name },
         (dbName) => dispatch(dbnames_created(dbName)),
@@ -79,7 +79,7 @@ const dbnames_create = (name) => (dispatch) => {
     );
 };
 
-const dbnames_save = (dbname) => (dispatch) => {
+const dbnames_save = (dbname) => (dispatch: Dispatch<AnyAction>) => {
     window.database.edit(
         window.database.tableNames.dbnames,
         dbname.id,
@@ -89,7 +89,7 @@ const dbnames_save = (dbname) => (dispatch) => {
     );
 };
 
-const dbnames_delete = (id) => (dispatch) => {
+const dbnames_delete = (id) => (dispatch: Dispatch<AnyAction>) => {
     window.database.remove(
         window.database.tableNames.dbnames,
         id,

@@ -1,4 +1,5 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { AnyAction, createSlice, Dispatch } from "@reduxjs/toolkit";
+
 
 export const timelinesSlice = createSlice({
     name: "timelines",
@@ -19,10 +20,10 @@ export const timelinesSlice = createSlice({
 });
 
 export const { timelines_loaded, timelines_changeSelectedTimeline } =
-timelinesSlice.actions;
+    timelinesSlice.actions;
 export default timelinesSlice.reducer;
 
-const timelines_load = () => (dispatch) => {
+const timelines_load = () => (dispatch: Dispatch<AnyAction>) => {
     window.database.getAll(
         window.database.tableNames.events,
         (events) => dispatch(timelines_loaded(events)),

@@ -1,76 +1,97 @@
 import archiver from "archiver";
+import { WritableStreamBuffer } from "stream-buffers";
+import { Character } from "../models/character";
+import { DbName } from "../models/dbname";
+import { Event } from "../models/event";
+import { Faction } from "../models/faction";
+import { FileContent } from "./fileContent";
 
-import dbService from "./services/dbService";
-import localeService from "./services/localeService";
+import { DBService } from "./services/dbService";
+import { LocaleService } from "./services/localeService";
 
-const archiveGenerator: any = {};
+export interface GenerationRequest {
+    dbnames: Array<DbName>;
+    events: Array<Event>;
+    factions: Array<Faction>;
+    characters: Array<Character>;
+}
 
-archiveGenerator.CreateArchive = function (res: any, files: Array<any>) {
-    const archive = archiver("zip", {
-        zlib: { level: 9 }, // Sets the compression level.
-    });
+export class AddonGenerator {
+    private Pack(locale: Array<FileContent>, db: Array<FileContent>) {
+        const outputStreamBuffer = new WritableStreamBuffer({
+            initialSize: 1000 * 1024, // start at 1000 kilobytes.
+            incrementAmount: 1000 * 1024, // grow by 1000 kilobytes each time buffer overflows.
+        });
 
-    archive.on("error", function (error) {
-        console.log(error);
-        res.status(500).send(error);
-        return;
-    });
+        const archive = archiver("zip", {
+            zlib: { level: 9 }, // Sets the compression level.
+        });
 
-    //on stream closed we can end the request
-    archive.on("end", function () {
-        console.log("Archive wrote %d bytes", archive.pointer());
-    });
+        archive.on("error", function (error) {
+            console.log(error);
+            return;
+        });
 
-    res.attachment("ChroniclesData.zip");
-    archive.pipe(res);
+        //on stream closed we can end the request
+        archive.on("end", function () {
+            console.log("Archive wrote %d bytes", archive.pointer());
+        });
 
-    files.forEach((file: any) => {
-        archive.append(file.content, { name: file.name });
-    });
+        archive.pipe(outputStreamBuffer);
 
-    archive.finalize();
-};
+        locale.forEach((file: FileContent) => {
+            archive.append(file.content, { name: file.name });
+        });
 
-const addonGenerator: any = {};
-addonGenerator.GenerateFiles = function (data: any, res: any) {
-    // {
-    //     addonDBNames[],
-    //     events[],
-    //     factions[],
-    //     characters[],
-    // }
+        db.forEach((file: FileContent) => {
+            archive.append(file.content, { name: file.name });
+        });
 
-    if (data.addonDBNames.length > 0) {
-        let files: Array<any> = [];
-        var preparedDbNames = data.addonDBNames.map(
-            (dbname: any, index: number) => {
-                let correctedIndex = index + 1;
-                var formatedIndex =
-                    correctedIndex > 9
-                        ? String(correctedIndex)
-                        : `0${correctedIndex}`;
-                dbname.index = formatedIndex;
-                return dbname;
-            }
-        );
+        archive.finalize();
 
-        localeService.GenerateLocales(
-            preparedDbNames,
-            data.events,
-            data.factions,
-            data.characters,
-            files
-        );
-        dbService.GenerateDBs(
-            preparedDbNames,
-            data.events,
-            data.factions,
-            data.characters,
-            files
-        );
-
-        archiveGenerator.CreateArchive(res, files);
+        outputStreamBuffer.on("finish", function () {
+            window.file.saveFile(
+                "Chronicles.zip",
+                outputStreamBuffer.getContents()
+            );
+        });
     }
-};
 
-export default addonGenerator;
+    Create = function (data: any) {
+        // {
+        //     addonDBNames[],
+        //     events[],
+        //     factions[],
+        //     characters[],
+        // }
+
+        if (data.addonDBNames.length > 0) {
+            const preparedDbNames = data.addonDBNames.map(
+                (dbname: any, index: number) => {
+                    const correctedIndex = index + 1;
+                    const formatedIndex =
+                        correctedIndex > 9
+                            ? String(correctedIndex)
+                            : `0${correctedIndex}`;
+                    dbname.index = formatedIndex;
+                    return dbname;
+                }
+            );
+
+            const locale = new LocaleService().Generate(
+                preparedDbNames,
+                data.events,
+                data.factions,
+                data.characters
+            );
+            const db = new DBService().Generate(
+                preparedDbNames,
+                data.events,
+                data.factions,
+                data.characters
+            );
+
+            this.Pack(locale, db);
+        }
+    };
+}

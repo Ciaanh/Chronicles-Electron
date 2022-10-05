@@ -21,7 +21,6 @@ import {
     addon_checkDbName_toggle,
     addon_closeError,
     addon_generate_selected,
-    addon_generate,
 } from "../reducers/addon";
 
 const Addon = () => {
@@ -68,7 +67,7 @@ const Addon = () => {
                                 <Button
                                     variant="contained"
                                     onClick={() =>
-                                        dispatch(addon_generate(dbname.id))
+                                        dispatch(addon_generate_selected([dbname.id]))
                                     }
                                 >
                                     Generate
@@ -112,7 +111,7 @@ const Addon = () => {
                             addonState.dbnames
                                 .filter((dbname) => dbname.checked)
                                 .map((dbname) => {
-                                    return dbname.id;
+                                    return dbname._id;
                                 })
                         )
                     )

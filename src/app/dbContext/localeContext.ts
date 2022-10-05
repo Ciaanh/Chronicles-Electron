@@ -2,11 +2,11 @@ import { DB_Locale, Locale } from "../models/locale";
 
 export interface LocaleContext {
     getAll: () => Promise<Locale[]>;
-    getLocales(dbids: number[]): Promise<Locale[]>;
-    getLocale(dbid: number): Promise<Locale>;
+    getLocales(ids: number[]): Promise<Locale[]>;
+    getLocale(id: number): Promise<Locale>;
     addLocale(locale: Locale): Promise<Locale>;
     updateLocale(locale: Locale): Promise<Locale>;
-    deleteLocale(dbid: number): Promise<number>;
+    deleteLocale(id: number): Promise<number>;
 }
 
 export const Locales: LocaleContext = {
@@ -19,13 +19,13 @@ export const Locales: LocaleContext = {
             );
         });
     },
-    getLocales: function (dbids) {
+    getLocales: function (ids) {
         return new Promise(function (resolve, reject) {
             window.database.getAll(
                 window.database.tableNames.locales,
                 (locale: DB_Locale[]) => {
                     const filteredLocale = locale.filter((locale) =>
-                        dbids.includes(locale.id)
+                        ids.includes(locale.id)
                     );
                     resolve(LocaleMapperFromDBs(filteredLocale));
                 },
@@ -33,11 +33,11 @@ export const Locales: LocaleContext = {
             );
         });
     },
-    getLocale: function (dbid) {
+    getLocale: function (id) {
         return new Promise(function (resolve, reject) {
             window.database.get(
                 window.database.tableNames.locales,
-                dbid,
+                id,
                 (locale: DB_Locale) => resolve(LocaleMapperFromDB(locale)),
                 (error) => reject(error)
             );
@@ -64,12 +64,12 @@ export const Locales: LocaleContext = {
             );
         });
     },
-    deleteLocale: function (dbid) {
+    deleteLocale: function (id) {
         return new Promise(function (resolve, reject) {
             window.database.delete(
                 window.database.tableNames.locales,
-                dbid,
-                () => resolve(dbid),
+                id,
+                () => resolve(id),
                 (error) => reject(error)
             );
         });

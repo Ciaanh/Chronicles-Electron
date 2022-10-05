@@ -6,11 +6,12 @@ import { Timelines } from "./timelineContext";
 
 export interface CharacterContext {
     getAll: () => Promise<Character[]>;
-    getCharacters(dbids: number[]): Promise<Character[]>;
-    getCharacter(dbid: number): Promise<Character>;
+    getCharacters(ids: number[]): Promise<Character[]>;
+    getCharactersByDB(dbids: number[]): Promise<Character[]>;
+    getCharacter(id: number): Promise<Character>;
     addCharacter(character: Character): Promise<Character>;
     updateCharacter(character: Character): Promise<Character>;
-    deleteCharacter(dbid: number): Promise<number>;
+    deleteCharacter(id: number): Promise<number>;
 }
 
 export const Characters: CharacterContext = {
@@ -24,13 +25,13 @@ export const Characters: CharacterContext = {
             );
         });
     },
-    getCharacters: function (dbids) {
+    getCharacters: function (ids) {
         return new Promise(function (resolve, reject) {
             window.database.getAll(
                 window.database.tableNames.characters,
                 (characters: Array<DB_Character>) => {
                     const filteredCharacters = characters.filter((character) =>
-                        dbids.includes(character.id)
+                        ids.includes(character.id)
                     );
                     resolve(CharacterMapperFromDBs(filteredCharacters));
                 },
@@ -38,11 +39,25 @@ export const Characters: CharacterContext = {
             );
         });
     },
-    getCharacter: function (characterId) {
+    getCharactersByDB: function (dbids) {
+        return new Promise(function (resolve, reject) {
+            window.database.getAll(
+                window.database.tableNames.characters,
+                (characters: Array<DB_Character>) => {
+                    const filteredCharacters = characters.filter((character) =>
+                        dbids.includes(character.dbnameId)
+                    );
+                    resolve(CharacterMapperFromDBs(filteredCharacters));
+                },
+                (error) => reject(error)
+            );
+        });
+    },
+    getCharacter: function (id) {
         return new Promise(function (resolve, reject) {
             window.database.get(
                 window.database.tableNames.characters,
-                characterId,
+                id,
                 (character: DB_Character) =>
                     resolve(CharacterMapperFromDB(character)),
                 (error) => reject(error)
@@ -70,12 +85,12 @@ export const Characters: CharacterContext = {
             );
         });
     },
-    deleteCharacter: function (dbid) {
+    deleteCharacter: function (id) {
         return new Promise(function (resolve, reject) {
             window.database.delete(
                 window.database.tableNames.characters,
-                dbid,
-                () => resolve(dbid),
+                id,
+                () => resolve(id),
                 (error) => reject(error)
             );
         });

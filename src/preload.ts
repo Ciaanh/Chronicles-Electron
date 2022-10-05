@@ -1,7 +1,8 @@
-import { contextBridge } from "electron";
+import { contextBridge, dialog } from "electron";
 import db from "electron-db";
 import path from "path";
 import { DbObject } from "./app/models/object_interfaces";
+import fs from "fs";
 
 export type TablesList = {
     events: string;
@@ -193,3 +194,35 @@ const exposedApi: DatabaseApi = {
 };
 
 contextBridge.exposeInMainWorld("database", exposedApi);
+
+export type FileApi = {
+    saveFile: (fileName: string, data: false | Buffer) => void;
+};
+
+const fileApi: FileApi = {
+    saveFile: (fileName: string, data: false | Buffer) => {
+        dialog
+            .showSaveDialog({
+                title: "Select the File Path to save",
+                defaultPath: fileName,
+                buttonLabel: "Save",
+                filters: [
+                    {
+                        name: "ZIP Files",
+                        extensions: ["zip"],
+                    },
+                ],
+            })
+            .then((result) => {
+                if (!result.canceled && data) {
+                    fs.writeFile(result.filePath, data, (err) => {
+                        if (err) {
+                            console.log(err);
+                        }
+                    });
+                }
+            });
+    },
+};
+
+contextBridge.exposeInMainWorld("file", fileApi);

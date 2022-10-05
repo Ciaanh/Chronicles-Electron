@@ -93,6 +93,7 @@
     },
     "dependencies": {
         "@types/archiver": "^5.3.1",
+        "@types/stream-buffers": "^3.0.4",
         "archiver": "^5.3.1",
         "electron-db": "^0.15.7",
         "electron-squirrel-startup": "^1.0.0",
@@ -101,6 +102,7 @@
         "react-redux": "^8.0.4",
         "react-router-dom": "^6.4.1",
         "redux": "^4.2.0",
-        "redux-thunk": "^2.4.1"
+        "redux-thunk": "^2.4.1",
+        "stream-buffers": "^3.0.2"
     }
 }

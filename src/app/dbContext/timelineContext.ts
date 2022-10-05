@@ -3,11 +3,11 @@ import { Locales } from "./localeContext";
 
 export interface TimelineContext {
     getAll: () => Promise<Timeline[]>;
-    getTimelines(dbids: number[]): Promise<Timeline[]>;
-    getTimeline(dbid: number): Promise<Timeline>;
+    getTimelines(ids: number[]): Promise<Timeline[]>;
+    getTimeline(id: number): Promise<Timeline>;
     addTimeline(timeline: Timeline): Promise<Timeline>;
     updateTimeline(timeline: Timeline): Promise<Timeline>;
-    deleteTimeline(dbid: number): Promise<number>;
+    deleteTimeline(id: number): Promise<number>;
 }
 
 export const Timelines: TimelineContext = {
@@ -21,13 +21,13 @@ export const Timelines: TimelineContext = {
             );
         });
     },
-    getTimelines: function (timelineIds) {
+    getTimelines: function (ids) {
         return new Promise(function (resolve, reject) {
             window.database.getAll(
                 window.database.tableNames.timelines,
                 (timelines: DB_Timeline[]) => {
                     const filteredTimelines = timelines.filter((timeline) =>
-                        timelineIds.includes(timeline.id)
+                        ids.includes(timeline.id)
                     );
                     resolve(TimelineMapperFromDBs(filteredTimelines));
                 },
@@ -35,11 +35,11 @@ export const Timelines: TimelineContext = {
             );
         });
     },
-    getTimeline: function (timelineId) {
+    getTimeline: function (id) {
         return new Promise(function (resolve, reject) {
             window.database.get(
                 window.database.tableNames.timelines,
-                timelineId,
+                id,
                 (timeline: DB_Timeline) =>
                     resolve(TimelineMapperFromDB(timeline)),
                 (error) => reject(error)
@@ -69,12 +69,12 @@ export const Timelines: TimelineContext = {
             );
         });
     },
-    deleteTimeline: function (timelineId) {
+    deleteTimeline: function (id) {
         return new Promise(function (resolve, reject) {
             window.database.delete(
                 window.database.tableNames.timelines,
-                timelineId,
-                () => resolve(timelineId),
+                id,
+                () => resolve(id),
                 (error) => reject(error)
             );
         });

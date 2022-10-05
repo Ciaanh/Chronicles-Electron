@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { AnyAction, createSlice, Dispatch } from "@reduxjs/toolkit";
 
 export const factionsSlice = createSlice({
     name: "factions",
@@ -21,13 +21,13 @@ export const factionsSlice = createSlice({
             state.list.push(action.payload);
         },
         factions_saved: (state, action) => {
-            let index = state.list.findIndex((c) => c.id === action.payload.id);
+            const index = state.list.findIndex((c) => c.id === action.payload.id);
             if (index !== -1) {
                 state.list[index] = action.payload;
             }
         },
         factions_deleted: (state, action) => {
-            let index = state.list.findIndex((c) => c.id === action.payload.id);
+            const index = state.list.findIndex((c) => c.id === action.payload.id);
             if (index !== -1) {
                 state.list.splice(index, 1);
             }
@@ -44,7 +44,7 @@ export const {
 } = factionsSlice.actions;
 export default factionsSlice.reducer;
 
-const factions_load = () => (dispatch) => {
+const factions_load = () => (dispatch: Dispatch<AnyAction>) => {
     window.database.getAll(
         window.database.tableNames.factions,
         (factions) => dispatch(factions_loaded(factions)),

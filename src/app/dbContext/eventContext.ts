@@ -7,11 +7,12 @@ import { Timelines } from "./timelineContext";
 
 export interface EventContext {
     getAll: () => Promise<Event[]>;
-    getEvents(dbids: number[]): Promise<Event[]>;
-    getEvent(dbid: number): Promise<Event>;
+    getEvents(ids: number[]): Promise<Event[]>;
+    getEventsByDB(dbids: number[]): Promise<Event[]>;
+    getEvent(id: number): Promise<Event>;
     addEvent(event: Event): Promise<Event>;
     updateEvent(event: Event): Promise<Event>;
-    deleteEvent(dbid: number): Promise<number>;
+    deleteEvent(id: number): Promise<number>;
 }
 
 export const Events: EventContext = {
@@ -24,13 +25,13 @@ export const Events: EventContext = {
             );
         });
     },
-    getEvents: function (dbids) {
+    getEvents: function (ids) {
         return new Promise(function (resolve, reject) {
             window.database.getAll(
                 window.database.tableNames.events,
                 (events: DB_Event[]) => {
                     const filteredEvents = events.filter((event) =>
-                        dbids.includes(event.id)
+                        ids.includes(event.id)
                     );
                     resolve(EventMapperFromDBs(filteredEvents));
                 },
@@ -38,11 +39,25 @@ export const Events: EventContext = {
             );
         });
     },
-    getEvent: function (eventId) {
+    getEventsByDB(dbids) {
+        return new Promise(function (resolve, reject) {
+            window.database.getAll(
+                window.database.tableNames.events,
+                (events: DB_Event[]) => {
+                    const filteredEvents = events.filter((event) =>
+                        dbids.includes(event.dbnameId)
+                    );
+                    resolve(EventMapperFromDBs(filteredEvents));
+                },
+                (error) => reject(error)
+            );
+        });
+    },
+    getEvent: function (id) {
         return new Promise(function (resolve, reject) {
             window.database.get(
                 window.database.tableNames.events,
-                eventId,
+                id,
                 (event: DB_Event) => resolve(EventMapperFromDB(event)),
                 (error) => reject(error)
             );
@@ -69,12 +84,12 @@ export const Events: EventContext = {
             );
         });
     },
-    deleteEvent: function (dbid) {
+    deleteEvent: function (id) {
         return new Promise(function (resolve, reject) {
             window.database.delete(
                 window.database.tableNames.events,
-                dbid,
-                () => resolve(dbid),
+                id,
+                () => resolve(id),
                 (error) => reject(error)
             );
         });

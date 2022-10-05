@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { AnyAction, createSlice, Dispatch } from "@reduxjs/toolkit";
 
 export const eventsSlice = createSlice({
     name: "events",
@@ -26,14 +26,14 @@ export const eventsSlice = createSlice({
             state.list.push(action.payload);
         },
         events_saved: (state, action) => {
-            let index = state.list.findIndex((c) => c.id === action.payload.id);
+            const index = state.list.findIndex((c) => c.id === action.payload.id);
             if (index !== -1) {
                 action.payload.open = false;
                 state.list[index] = action.payload;
             }
         },
         events_deleted: (state, action) => {
-            let index = state.list.findIndex((c) => c.id === action.payload.id);
+            const index = state.list.findIndex((c) => c.id === action.payload.id);
             if (index !== -1) {
                 state.list.splice(index, 1);
             }
@@ -50,7 +50,7 @@ export const {
 } = eventsSlice.actions;
 export default eventsSlice.reducer;
 
-const events_load = () => (dispatch) => {
+const events_load = () => (dispatch: Dispatch<AnyAction>) => {
     window.database.getAll(
         window.database.tableNames.events,
         (events) => dispatch(events_loaded(events)),
