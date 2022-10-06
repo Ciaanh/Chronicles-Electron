@@ -1,23 +1,26 @@
 import { AnyAction, createSlice, Dispatch } from "@reduxjs/toolkit";
+import dbContext from "../dbContext/dbContext";
+import { Event } from "../models/event";
+import { DisplayedObject } from "../models/object_interfaces";
 
 export const eventsSlice = createSlice({
     name: "events",
     initialState: {
-        list: [],
+        list: Array<DisplayedObject<Event>>(),
     },
     reducers: {
         events_show_details: (state, action) => {
             const event = state.list.find(
-                (event) => event.id === action.payload
+                (displayedEvent) => displayedEvent.Object._id === action.payload
             );
             if (event) {
-                event.open = !event.open;
+                event.IsOpen = !event.IsOpen;
             }
         },
         events_loaded: (state, action) => {
             if (action.payload) {
-                action.payload.forEach((event) => {
-                    event.open = false;
+                action.payload.forEach((event: DisplayedObject<Event>) => {
+                    event.IsOpen = false;
                 });
             }
             state.list = action.payload;
@@ -26,14 +29,20 @@ export const eventsSlice = createSlice({
             state.list.push(action.payload);
         },
         events_saved: (state, action) => {
-            const index = state.list.findIndex((c) => c.id === action.payload.id);
+            const index = state.list.findIndex(
+                (displayedEvent) =>
+                    displayedEvent.Object._id === action.payload.id
+            );
             if (index !== -1) {
                 action.payload.open = false;
                 state.list[index] = action.payload;
             }
         },
         events_deleted: (state, action) => {
-            const index = state.list.findIndex((c) => c.id === action.payload.id);
+            const index = state.list.findIndex(
+                (displayedEvent) =>
+                    displayedEvent.Object._id === action.payload.id
+            );
             if (index !== -1) {
                 state.list.splice(index, 1);
             }
@@ -51,11 +60,13 @@ export const {
 export default eventsSlice.reducer;
 
 const events_load = () => (dispatch: Dispatch<AnyAction>) => {
-    window.database.getAll(
-        window.database.tableNames.events,
-        (events) => dispatch(events_loaded(events)),
-        (error) => console.log("Error", error)
-    );
+    dbContext.Events.getAll()
+        .then((events) => {
+            dispatch(events_loaded(events));
+        })
+        .catch((err) => {
+            console.log("Error", err);
+        });
 };
 
 export { events_load };

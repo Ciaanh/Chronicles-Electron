@@ -1,11 +1,13 @@
 import { AnyAction, createSlice, Dispatch } from "@reduxjs/toolkit";
-
+import { DisplayedObject } from "../models/object_interfaces";
+import { Event } from "../models/event";
+import dbContext from "../dbContext/dbContext";
 
 export const timelinesSlice = createSlice({
     name: "timelines",
     initialState: {
         selected: "0",
-        eventList: [],
+        eventList: Array<DisplayedObject<Event>>(),
     },
     reducers: {
         timelines_loaded: (state, action) => {
@@ -24,11 +26,13 @@ export const { timelines_loaded, timelines_changeSelectedTimeline } =
 export default timelinesSlice.reducer;
 
 const timelines_load = () => (dispatch: Dispatch<AnyAction>) => {
-    window.database.getAll(
-        window.database.tableNames.events,
-        (events) => dispatch(timelines_loaded(events)),
-        (error) => console.log("Error", error)
-    );
+    dbContext.Timelines.getAll()
+        .then((timelines) => {
+            dispatch(timelines_loaded(timelines));
+        })
+        .catch((err) => {
+            console.log("Error", err);
+        });
 };
 
 export { timelines_load };

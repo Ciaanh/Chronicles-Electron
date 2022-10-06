@@ -1,9 +1,12 @@
 import { AnyAction, createSlice, Dispatch } from "@reduxjs/toolkit";
+import dbContext from "../dbContext/dbContext";
+import { Faction } from "../models/faction";
+import { DisplayedObject } from "../models/object_interfaces";
 
 export const factionsSlice = createSlice({
     name: "factions",
     initialState: {
-        list: [],
+        list: Array<DisplayedObject<Faction>>(),
     },
     reducers: {
         factions_show_details: (state, action) => {
@@ -21,13 +24,17 @@ export const factionsSlice = createSlice({
             state.list.push(action.payload);
         },
         factions_saved: (state, action) => {
-            const index = state.list.findIndex((c) => c.id === action.payload.id);
+            const index = state.list.findIndex(
+                (c) => c.id === action.payload.id
+            );
             if (index !== -1) {
                 state.list[index] = action.payload;
             }
         },
         factions_deleted: (state, action) => {
-            const index = state.list.findIndex((c) => c.id === action.payload.id);
+            const index = state.list.findIndex(
+                (c) => c.id === action.payload.id
+            );
             if (index !== -1) {
                 state.list.splice(index, 1);
             }
@@ -45,11 +52,13 @@ export const {
 export default factionsSlice.reducer;
 
 const factions_load = () => (dispatch: Dispatch<AnyAction>) => {
-    window.database.getAll(
-        window.database.tableNames.factions,
-        (factions) => dispatch(factions_loaded(factions)),
-        (error) => console.log("Error", error)
-    );
+    dbContext.Factions.getAll()
+        .then((factions) => {
+            dispatch(factions_loaded(factions));
+        })
+        .catch((err) => {
+            console.log("Error", err);
+        });
 };
 
 export { factions_load };

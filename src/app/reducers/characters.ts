@@ -1,10 +1,12 @@
 import { AnyAction, createSlice, Dispatch } from "@reduxjs/toolkit";
 import dbContext from "../dbContext/dbContext";
+import { Character } from "../models/character";
+import { DisplayedObject } from "../models/object_interfaces";
 
 export const charactersSlice = createSlice({
     name: "characters",
     initialState: {
-        list: [],
+        list: Array<DisplayedObject<Character>>(),
     },
     reducers: {
         characters_show_details: (state, action) => {

@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { AnyAction, createSlice, Dispatch } from "@reduxjs/toolkit";
 import { AddonGenerator, GenerationRequest } from "../addon/generator";
 import dbContext from "../dbContext/dbContext";
 import { DbName } from "../models/dbname";
@@ -79,7 +79,7 @@ export const {
 } = addonSlice.actions;
 export default addonSlice.reducer;
 
-const addon_load = () => (dispatch: any) => {
+const addon_load = () => (dispatch: Dispatch<AnyAction>) => {
     dbContext.DBNames.getAll()
         .then((dbnames) => {
             dispatch(addon_dbnames_loaded(dbnames));
@@ -89,7 +89,7 @@ const addon_load = () => (dispatch: any) => {
         });
 };
 
-const addon_generate_selected = (dbids: number[]) => async (dispatch: any) => {
+const addon_generate_selected = (dbids: number[]) => async (dispatch: Dispatch<AnyAction>) => {
     const dbnames = await dbContext.DBNames.getDBNames(dbids);
 
     const events = await dbContext.Events.getEventsByDB(dbids);
