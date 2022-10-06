@@ -4,17 +4,17 @@ import { Locales } from "./localeContext";
 import { Timelines } from "./timelineContext";
 
 export interface FactionContext {
-    getAll: () => Promise<Faction[]>;
-    getFactions(ids: number[]): Promise<Faction[]>;
-    getFactionsByDB(dbids: number[]): Promise<Faction[]>;
-    getFaction(id: number): Promise<Faction>;
-    addFaction(faction: Faction): Promise<Faction>;
-    updateFaction(faction: Faction): Promise<Faction>;
-    deleteFaction(id: number): Promise<number>;
+    findAll: () => Promise<Faction[]>;
+    find(ids: number[]): Promise<Faction[]>;
+    findByDB(dbids: number[]): Promise<Faction[]>;
+    get(id: number): Promise<Faction>;
+    create(faction: Faction): Promise<Faction>;
+    update(faction: Faction): Promise<Faction>;
+    delete(id: number): Promise<number>;
 }
 
 export const Factions: FactionContext = {
-    getAll: function () {
+    findAll: function () {
         return new Promise(function (resolve, reject) {
             window.database.getAll(
                 window.database.tableNames.factions,
@@ -24,7 +24,7 @@ export const Factions: FactionContext = {
             );
         });
     },
-    getFactions: function (ids) {
+    find: function (ids) {
         return new Promise(function (resolve, reject) {
             window.database.getAll(
                 window.database.tableNames.factions,
@@ -38,7 +38,7 @@ export const Factions: FactionContext = {
             );
         });
     },
-    getFactionsByDB: function (dbids) {
+    findByDB: function (dbids) {
         return new Promise(function (resolve, reject) {
             window.database.getAll(
                 window.database.tableNames.factions,
@@ -52,7 +52,7 @@ export const Factions: FactionContext = {
             );
         });
     },
-    getFaction: function (id) {
+    get: function (id) {
         return new Promise(function (resolve, reject) {
             window.database.get(
                 window.database.tableNames.factions,
@@ -62,7 +62,7 @@ export const Factions: FactionContext = {
             );
         });
     },
-    addFaction: function (faction) {
+    create: function (faction) {
         return new Promise(function (resolve, reject) {
             window.database.add(
                 window.database.tableNames.factions,
@@ -72,7 +72,7 @@ export const Factions: FactionContext = {
             );
         });
     },
-    updateFaction: function (faction) {
+    update: function (faction) {
         return new Promise(function (resolve, reject) {
             window.database.update(
                 window.database.tableNames.factions,
@@ -83,7 +83,7 @@ export const Factions: FactionContext = {
             );
         });
     },
-    deleteFaction: function (id) {
+    delete: function (id) {
         return new Promise(function (resolve, reject) {
             window.database.delete(
                 window.database.tableNames.factions,
@@ -112,16 +112,14 @@ export const FactionMapperFromDB = async (
     return {
         _id: faction.id,
         name: faction.name,
-        label: await Locales.getLocale(faction.labelId).then(
+        label: await Locales.get(faction.labelId).then((locale) => locale),
+        description: await Locales.get(faction.descriptionId).then(
             (locale) => locale
         ),
-        description: await Locales.getLocale(faction.descriptionId).then(
-            (locale) => locale
-        ),
-        timeline: await Timelines.getTimeline(faction.timelineId).then(
+        timeline: await Timelines.get(faction.timelineId).then(
             (timeline) => timeline
         ),
-        dbname: await DBNames.getDBName(faction.dbnameId).then(
+        dbname: await DBNames.get(faction.dbnameId).then(
             (dbname) => dbname
         ),
     };

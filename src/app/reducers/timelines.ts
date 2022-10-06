@@ -26,7 +26,7 @@ export const { timelines_loaded, timelines_changeSelectedTimeline } =
 export default timelinesSlice.reducer;
 
 const timelines_load = () => (dispatch: Dispatch<AnyAction>) => {
-    dbContext.Timelines.getAll()
+    dbContext.Timelines.findAll()
         .then((timelines) => {
             dispatch(timelines_loaded(timelines));
         })

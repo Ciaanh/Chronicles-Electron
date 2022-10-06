@@ -2,16 +2,16 @@ import { DB_Timeline, Timeline } from "../models/timeline";
 import { Locales } from "./localeContext";
 
 export interface TimelineContext {
-    getAll: () => Promise<Timeline[]>;
-    getTimelines(ids: number[]): Promise<Timeline[]>;
-    getTimeline(id: number): Promise<Timeline>;
-    addTimeline(timeline: Timeline): Promise<Timeline>;
-    updateTimeline(timeline: Timeline): Promise<Timeline>;
-    deleteTimeline(id: number): Promise<number>;
+    findAll: () => Promise<Timeline[]>;
+    find(ids: number[]): Promise<Timeline[]>;
+    get(id: number): Promise<Timeline>;
+    create(timeline: Timeline): Promise<Timeline>;
+    update(timeline: Timeline): Promise<Timeline>;
+    delete(id: number): Promise<number>;
 }
 
 export const Timelines: TimelineContext = {
-    getAll: function () {
+    findAll: function () {
         return new Promise(function (resolve, reject) {
             window.database.getAll(
                 window.database.tableNames.timelines,
@@ -21,7 +21,7 @@ export const Timelines: TimelineContext = {
             );
         });
     },
-    getTimelines: function (ids) {
+    find: function (ids) {
         return new Promise(function (resolve, reject) {
             window.database.getAll(
                 window.database.tableNames.timelines,
@@ -35,7 +35,7 @@ export const Timelines: TimelineContext = {
             );
         });
     },
-    getTimeline: function (id) {
+    get: function (id) {
         return new Promise(function (resolve, reject) {
             window.database.get(
                 window.database.tableNames.timelines,
@@ -46,7 +46,7 @@ export const Timelines: TimelineContext = {
             );
         });
     },
-    addTimeline: function (timeline) {
+    create: function (timeline) {
         return new Promise(function (resolve, reject) {
             window.database.add(
                 window.database.tableNames.timelines,
@@ -57,7 +57,7 @@ export const Timelines: TimelineContext = {
             );
         });
     },
-    updateTimeline: function (timeline) {
+    update: function (timeline) {
         return new Promise(function (resolve, reject) {
             window.database.update(
                 window.database.tableNames.timelines,
@@ -69,7 +69,7 @@ export const Timelines: TimelineContext = {
             );
         });
     },
-    deleteTimeline: function (id) {
+    delete: function (id) {
         return new Promise(function (resolve, reject) {
             window.database.delete(
                 window.database.tableNames.timelines,
@@ -95,7 +95,7 @@ export const TimelineMapperFromDB = async (
     return {
         _id: timeline.id,
         name: timeline.name,
-        label: await Locales.getLocale(timeline.labelId).then(
+        label: await Locales.get(timeline.labelId).then(
             (locale) => locale
         ),
     };

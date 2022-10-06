@@ -80,7 +80,7 @@ export const {
 export default addonSlice.reducer;
 
 const addon_load = () => (dispatch: Dispatch<AnyAction>) => {
-    dbContext.DBNames.getAll()
+    dbContext.DBNames.findAll()
         .then((dbnames) => {
             dispatch(addon_dbnames_loaded(dbnames));
         })
@@ -90,13 +90,13 @@ const addon_load = () => (dispatch: Dispatch<AnyAction>) => {
 };
 
 const addon_generate_selected = (dbids: number[]) => async (dispatch: Dispatch<AnyAction>) => {
-    const dbnames = await dbContext.DBNames.getDBNames(dbids);
+    const dbnames = await dbContext.DBNames.find(dbids);
 
     const events = await dbContext.Events.getEventsByDB(dbids);
 
-    const factions = await dbContext.Factions.getFactionsByDB(dbids);
+    const factions = await dbContext.Factions.findByDB(dbids);
 
-    const characters = await dbContext.Characters.getCharactersByDB(dbids);
+    const characters = await dbContext.Characters.findByDB(dbids);
 
     const request: GenerationRequest = {
         dbnames,

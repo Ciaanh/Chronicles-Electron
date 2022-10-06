@@ -120,21 +120,21 @@ export const EventMapperFromDB = async (event: DB_Event): Promise<Event> => {
         yearStart: event.yearStart,
         yearEnd: event.yearEnd,
         eventType: event.eventType,
-        timeline: await Timelines.getTimeline(event.timelineId).then(
+        timeline: await Timelines.get(event.timelineId).then(
             (timeline) => timeline
         ),
         link: event.link,
-        factions: await Factions.getFactions(event.factionIds).then(
+        factions: await Factions.find(event.factionIds).then(
             (faction) => faction
         ),
-        characters: await Characters.getCharacters(event.characterIds).then(
+        characters: await Characters.find(event.characterIds).then(
             (character) => character
         ),
-        label: await Locales.getLocale(event.labelId).then((locale) => locale),
-        description: await Locales.getLocales(event.descriptionIds).then(
+        label: await Locales.get(event.labelId).then((locale) => locale),
+        description: await Locales.find(event.descriptionIds).then(
             (locale) => locale
         ),
-        dbname: await DBNames.getDBName(event.dbnameId).then(
+        dbname: await DBNames.get(event.dbnameId).then(
             (dbname) => dbname
         ),
     };

@@ -1,6 +1,7 @@
 import { AnyAction, createSlice, Dispatch } from "@reduxjs/toolkit";
 
 import { getEmptyLocale, cleanString } from "../constants";
+import dbContext from "../dbContext/dbContext";
 
 import { factions_created, factions_saved, factions_deleted } from "./factions";
 
@@ -156,32 +157,25 @@ export const {
 export default editFactionSlice.reducer;
 
 const editFaction_save = (faction) => (dispatch: Dispatch<AnyAction>) => {
-    window.database.edit(
-        window.database.tableNames.factions,
-        faction.id,
-        faction,
-        (saved_faction) => {
+    dbContext.Factions.update(faction)
+        .then((savedFaction) => {
+            dispatch(factions_saved(savedFaction));
             dispatch(editFaction_close());
-            dispatch(factions_saved(saved_faction));
-        },
-        (error) => dispatch(editFaction_error(error))
-    );
+        })
+        .catch((error) => {
+            dispatch(editFaction_error(error));
+        });
 };
 
 const editFaction_create = (faction) => (dispatch: Dispatch<AnyAction>) => {
-    window.database.add(
-        window.database.tableNames.factions, {
-            name: faction.name,
-            description: faction.description,
-            timeline: faction.timeline,
-            dbname: faction.dbname,
-        },
-        (created_faction) => {
+    dbContext.Factions.create(faction)
+        .then((savedFaction) => {
+            dispatch(factions_created(savedFaction));
             dispatch(editFaction_close());
-            dispatch(factions_created(created_faction));
-        },
-        (error) => dispatch(editFaction_error(error))
-    );
+        })
+        .catch((error) => {
+            dispatch(editFaction_error(error));
+        });
 };
 
 const editFaction_delete = (id) => (dispatch: Dispatch<AnyAction>) => {

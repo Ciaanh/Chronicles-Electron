@@ -1,16 +1,16 @@
 import { DbName, DB_DbName } from "../models/dbname";
 
 export interface DBNameContext {
-    getAll: () => Promise<DbName[]>;
-    getDBNames(ids: number[]): Promise<DbName[]>;
-    getDBName(id: number): Promise<DbName>;
-    addDBName(dbname: DbName): Promise<DbName>;
-    updateDBName(dbname: DbName): Promise<DbName>;
-    deleteDBName(id: number): Promise<number>;
+    findAll: () => Promise<DbName[]>;
+    find(ids: number[]): Promise<DbName[]>;
+    get(id: number): Promise<DbName>;
+    create(dbname: DbName): Promise<DbName>;
+    update(dbname: DbName): Promise<DbName>;
+    delete(id: number): Promise<number>;
 }
 
 export const DBNames: DBNameContext = {
-    getAll: function () {
+    findAll: function () {
         return new Promise(function (resolve, reject) {
             window.database.getAll(
                 window.database.tableNames.dbnames,
@@ -19,7 +19,7 @@ export const DBNames: DBNameContext = {
             );
         });
     },
-    getDBNames: function (ids) {
+    find: function (ids) {
         return new Promise(function (resolve, reject) {
             window.database.getAll(
                 window.database.tableNames.dbnames,
@@ -33,7 +33,7 @@ export const DBNames: DBNameContext = {
             );
         });
     },
-    getDBName: function (id) {
+    get: function (id) {
         return new Promise(function (resolve, reject) {
             window.database.get(
                 window.database.tableNames.dbnames,
@@ -43,7 +43,7 @@ export const DBNames: DBNameContext = {
             );
         });
     },
-    addDBName: function (dbName) {
+    create: function (dbName) {
         return new Promise(function (resolve, reject) {
             window.database.add(
                 window.database.tableNames.dbnames,
@@ -53,7 +53,7 @@ export const DBNames: DBNameContext = {
             );
         });
     },
-    updateDBName: function (dbName) {
+    update: function (dbName) {
         return new Promise(function (resolve, reject) {
             window.database.update(
                 window.database.tableNames.dbnames,
@@ -64,7 +64,7 @@ export const DBNames: DBNameContext = {
             );
         });
     },
-    deleteDBName: function (id) {
+    delete: function (id) {
         return new Promise(function (resolve, reject) {
             window.database.delete(
                 window.database.tableNames.dbnames,
@@ -80,7 +80,6 @@ export const DbNameMapper = (dbname: DbName): DB_DbName => {
     return {
         id: dbname._id,
         name: dbname.name,
-        index: dbname.index,
     };
 };
 
@@ -88,7 +87,6 @@ export const DbNameMapperFromDB = (dbname: DB_DbName): DbName => {
     return {
         _id: dbname.id,
         name: dbname.name,
-        index: dbname.index,
     };
 };
 

@@ -5,17 +5,17 @@ import { Locales } from "./localeContext";
 import { Timelines } from "./timelineContext";
 
 export interface CharacterContext {
-    getAll: () => Promise<Character[]>;
-    getCharacters(ids: number[]): Promise<Character[]>;
-    getCharactersByDB(dbids: number[]): Promise<Character[]>;
-    getCharacter(id: number): Promise<Character>;
-    addCharacter(character: Character): Promise<Character>;
-    updateCharacter(character: Character): Promise<Character>;
-    deleteCharacter(id: number): Promise<number>;
+    findAll: () => Promise<Character[]>;
+    find(ids: number[]): Promise<Character[]>;
+    findByDB(dbids: number[]): Promise<Character[]>;
+    get(id: number): Promise<Character>;
+    create(character: Character): Promise<Character>;
+    update(character: Character): Promise<Character>;
+    delete(id: number): Promise<number>;
 }
 
 export const Characters: CharacterContext = {
-    getAll: function () {
+    findAll: function () {
         return new Promise(function (resolve, reject) {
             window.database.getAll(
                 window.database.tableNames.characters,
@@ -25,7 +25,7 @@ export const Characters: CharacterContext = {
             );
         });
     },
-    getCharacters: function (ids) {
+    find: function (ids) {
         return new Promise(function (resolve, reject) {
             window.database.getAll(
                 window.database.tableNames.characters,
@@ -39,7 +39,7 @@ export const Characters: CharacterContext = {
             );
         });
     },
-    getCharactersByDB: function (dbids) {
+    findByDB: function (dbids) {
         return new Promise(function (resolve, reject) {
             window.database.getAll(
                 window.database.tableNames.characters,
@@ -53,7 +53,7 @@ export const Characters: CharacterContext = {
             );
         });
     },
-    getCharacter: function (id) {
+    get: function (id) {
         return new Promise(function (resolve, reject) {
             window.database.get(
                 window.database.tableNames.characters,
@@ -64,7 +64,7 @@ export const Characters: CharacterContext = {
             );
         });
     },
-    addCharacter: function (character) {
+    create: function (character) {
         return new Promise(function (resolve, reject) {
             window.database.add(
                 window.database.tableNames.characters,
@@ -74,7 +74,7 @@ export const Characters: CharacterContext = {
             );
         });
     },
-    updateCharacter: function (character) {
+    update: function (character) {
         return new Promise(function (resolve, reject) {
             window.database.update(
                 window.database.tableNames.characters,
@@ -85,7 +85,7 @@ export const Characters: CharacterContext = {
             );
         });
     },
-    deleteCharacter: function (id) {
+    delete: function (id) {
         return new Promise(function (resolve, reject) {
             window.database.delete(
                 window.database.tableNames.characters,
@@ -114,16 +114,16 @@ export const CharacterMapperFromDB = async (
     return {
         _id: character.id,
         name: character.name,
-        biography: await Locales.getLocale(character.biographyId).then(
+        biography: await Locales.get(character.biographyId).then(
             (locale) => locale
         ),
-        timeline: await Timelines.getTimeline(character.timelineId).then(
+        timeline: await Timelines.get(character.timelineId).then(
             (timeline) => timeline
         ),
-        factions: await Factions.getFactions(character.factionIds).then(
+        factions: await Factions.find(character.factionIds).then(
             (faction) => faction
         ),
-        dbname: await DBNames.getDBName(character.dbnameId).then(
+        dbname: await DBNames.get(character.dbnameId).then(
             (dbname) => dbname
         ),
     };

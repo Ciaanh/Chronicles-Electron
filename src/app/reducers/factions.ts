@@ -52,7 +52,7 @@ export const {
 export default factionsSlice.reducer;
 
 const factions_load = () => (dispatch: Dispatch<AnyAction>) => {
-    dbContext.Factions.getAll()
+    dbContext.Factions.findAll()
         .then((factions) => {
             dispatch(factions_loaded(factions));
         })

@@ -74,13 +74,13 @@ export const {
 export default dbnamesSlice.reducer;
 
 const dbnames_load = () => (dispatch: Dispatch<AnyAction>) => {
-    dbContext.DBNames.getAll()
+    dbContext.DBNames.findAll()
         .then((dbnames) => dispatch(dbnames_loaded(dbnames)))
         .catch((error) => console.log("Error", error));
 };
 
 const dbnames_create = (name: string) => (dispatch: Dispatch<AnyAction>) => {
-    dbContext.DBNames.addDBName({
+    dbContext.DBNames.create({
         _id: -1,
         name: name,
     })
@@ -91,7 +91,7 @@ const dbnames_create = (name: string) => (dispatch: Dispatch<AnyAction>) => {
 };
 
 const dbnames_save = (dbname: DbName) => (dispatch: Dispatch<AnyAction>) => {
-    dbContext.DBNames.updateDBName(dbname)
+    dbContext.DBNames.update(dbname)
         .then((dbname) => {
             dispatch(dbnames_saved(dbname));
         })
@@ -99,7 +99,7 @@ const dbnames_save = (dbname: DbName) => (dispatch: Dispatch<AnyAction>) => {
 };
 
 const dbnames_delete = (id: number) => (dispatch: Dispatch<AnyAction>) => {
-    dbContext.DBNames.deleteDBName(id)
+    dbContext.DBNames.delete(id)
         .then((deletedid) => {
             dispatch(dbnames_deleted(deletedid));
         })

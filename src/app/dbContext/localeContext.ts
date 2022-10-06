@@ -1,16 +1,16 @@
 import { DB_Locale, Locale } from "../models/locale";
 
 export interface LocaleContext {
-    getAll: () => Promise<Locale[]>;
-    getLocales(ids: number[]): Promise<Locale[]>;
-    getLocale(id: number): Promise<Locale>;
-    addLocale(locale: Locale): Promise<Locale>;
-    updateLocale(locale: Locale): Promise<Locale>;
-    deleteLocale(id: number): Promise<number>;
+    findAll: () => Promise<Locale[]>;
+    find(ids: number[]): Promise<Locale[]>;
+    get(id: number): Promise<Locale>;
+    create(locale: Locale): Promise<Locale>;
+    update(locale: Locale): Promise<Locale>;
+    delete(id: number): Promise<number>;
 }
 
 export const Locales: LocaleContext = {
-    getAll: function () {
+    findAll: function () {
         return new Promise(function (resolve, reject) {
             window.database.getAll(
                 window.database.tableNames.locales,
@@ -19,7 +19,7 @@ export const Locales: LocaleContext = {
             );
         });
     },
-    getLocales: function (ids) {
+    find: function (ids) {
         return new Promise(function (resolve, reject) {
             window.database.getAll(
                 window.database.tableNames.locales,
@@ -33,7 +33,7 @@ export const Locales: LocaleContext = {
             );
         });
     },
-    getLocale: function (id) {
+    get: function (id) {
         return new Promise(function (resolve, reject) {
             window.database.get(
                 window.database.tableNames.locales,
@@ -43,7 +43,7 @@ export const Locales: LocaleContext = {
             );
         });
     },
-    addLocale: function (locale) {
+    create: function (locale) {
         return new Promise(function (resolve, reject) {
             window.database.add(
                 window.database.tableNames.locales,
@@ -53,7 +53,7 @@ export const Locales: LocaleContext = {
             );
         });
     },
-    updateLocale: function (locale) {
+    update: function (locale) {
         return new Promise(function (resolve, reject) {
             window.database.update(
                 window.database.tableNames.locales,
@@ -64,7 +64,7 @@ export const Locales: LocaleContext = {
             );
         });
     },
-    deleteLocale: function (id) {
+    delete: function (id) {
         return new Promise(function (resolve, reject) {
             window.database.delete(
                 window.database.tableNames.locales,
