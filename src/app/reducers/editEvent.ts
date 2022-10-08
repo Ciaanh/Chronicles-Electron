@@ -3,11 +3,11 @@ import { AnyAction, createSlice, Dispatch } from "@reduxjs/toolkit";
 import { getEmptyLocale, cleanString } from "../constants";
 import dbContext from "../dbContext/dbContext";
 import { Event } from "../models/event";
-import { EditededObject } from "../models/object_interfaces";
+import { EditededObject as EditedObject } from "../models/object_interfaces";
 
 import { events_created, events_saved, events_deleted } from "./events";
 
-function mapEvent(state, event: EditededObject<Event>) {
+function mapEvent(state: any, event: EditedObject<Event>) {
     state.event = event;
 }
 
@@ -49,30 +49,15 @@ export const editEventSlice = createSlice({
                 state.openDialog = true;
                 state.isCreate = false;
 
-                mapEvent(state, {
-                    _id: action.payload._id,
-
-                    name: action.payload.name,
-                    yearStart: action.payload.yearStart,
-                    yearEnd: action.payload.yearEnd,
-                    eventType: action.payload.eventType,
-                    timeline: action.payload.timeline,
-                    link: action.payload.link,
-                    factions: action.payload.factions,
-                    characters: action.payload.characters,
-                    label: action.payload.label,
-                    description: action.payload.description,
-                    dbname: action.payload.dbname,
-                });
+                const event = new EditedObject<Event>(action.payload, false);
+                mapEvent(state, event);
             }
         },
         editEvent_new: (state) => {
             state.openDialog = true;
             state.isCreate = true;
-            mapEvent(
-                state,
-                await getEmptyEvent().then((event) => event)
-            );
+            const event = getEmptyEvent().then((event) => event);
+            mapEvent(state, new EditedObject<Event>(event, true));
         },
         editEvent_close: (state) => {
             state.openDialog = false;
