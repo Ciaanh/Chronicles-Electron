@@ -1,6 +1,7 @@
 import { AnyAction, createSlice, Dispatch } from "@reduxjs/toolkit";
 
 import { getEmptyLocale, cleanString } from "../constants";
+import { Character } from "../models/character";
 
 import {
     characters_created,
@@ -8,7 +9,7 @@ import {
     characters_deleted,
 } from "./characters";
 
-function mapCharacter(state, character) {
+function mapCharacter(state, character: Character) {
     state.character.id = character.id;
     state.character.name = character.name;
     state.character.label = character.label;
@@ -187,7 +188,8 @@ const editCharacter_save = (character) => (dispatch: Dispatch<AnyAction>) => {
 
 const editCharacter_create = (character) => (dispatch: Dispatch<AnyAction>) => {
     window.database.add(
-        window.database.tableNames.characters, {
+        window.database.tableNames.characters,
+        {
             name: character.name,
             biography: character.biography,
             timeline: character.timeline,

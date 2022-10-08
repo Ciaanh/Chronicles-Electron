@@ -7,7 +7,7 @@ export const timelinesSlice = createSlice({
     name: "timelines",
     initialState: {
         selected: "0",
-        eventList: Array<DisplayedObject<Event>>(),
+        eventList: Array<Event>(),
     },
     reducers: {
         timelines_loaded: (state, action) => {

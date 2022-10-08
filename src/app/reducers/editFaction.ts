@@ -2,12 +2,13 @@ import { AnyAction, createSlice, Dispatch } from "@reduxjs/toolkit";
 
 import { getEmptyLocale, cleanString } from "../constants";
 import dbContext from "../dbContext/dbContext";
+import { Faction } from "../models/faction";
 
 import { factions_created, factions_saved, factions_deleted } from "./factions";
 
 // import { dbnames_load } from "./dbnames";
 
-function mapFaction(state, faction) {
+function mapFaction(state, faction: Faction) {
     state.faction.isCreate = faction.isCreate;
     state.faction.id = faction.id;
     state.faction.name = faction.name;

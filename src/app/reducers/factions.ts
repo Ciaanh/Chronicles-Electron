@@ -11,10 +11,10 @@ export const factionsSlice = createSlice({
     reducers: {
         factions_show_details: (state, action) => {
             const faction = state.list.find(
-                (faction) => faction.id === action.payload
+                (faction) => faction.Object._id === action.payload
             );
             if (faction) {
-                faction.open = !faction.open;
+                faction.IsOpen = !faction.IsOpen;
             }
         },
         factions_loaded: (state, action) => {
@@ -25,7 +25,7 @@ export const factionsSlice = createSlice({
         },
         factions_saved: (state, action) => {
             const index = state.list.findIndex(
-                (c) => c.id === action.payload.id
+                (faction) => faction.Object._id === action.payload.id
             );
             if (index !== -1) {
                 state.list[index] = action.payload;
@@ -33,7 +33,7 @@ export const factionsSlice = createSlice({
         },
         factions_deleted: (state, action) => {
             const index = state.list.findIndex(
-                (c) => c.id === action.payload.id
+                (faction) => faction.Object._id === action.payload.id
             );
             if (index !== -1) {
                 state.list.splice(index, 1);

@@ -11,10 +11,10 @@ export const charactersSlice = createSlice({
     reducers: {
         characters_show_details: (state, action) => {
             const character = state.list.find(
-                (character) => character.id === action.payload
+                (character) => character.Object._id === action.payload
             );
             if (character) {
-                character.open = !character.open;
+                character.IsOpen = !character.IsOpen;
             }
         },
         characters_loaded: (state, action) => {
@@ -25,7 +25,7 @@ export const charactersSlice = createSlice({
         },
         characters_saved: (state, action) => {
             const index = state.list.findIndex(
-                (c) => c.id === action.payload.id
+                (character) => character.Object._id === action.payload.id
             );
             if (index !== -1) {
                 state.list[index] = action.payload;
@@ -33,7 +33,7 @@ export const charactersSlice = createSlice({
         },
         characters_deleted: (state, action) => {
             const index = state.list.findIndex(
-                (c) => c.id === action.payload.id
+                (character) => character.Object._id === action.payload.id
             );
             if (index !== -1) {
                 state.list.splice(index, 1);

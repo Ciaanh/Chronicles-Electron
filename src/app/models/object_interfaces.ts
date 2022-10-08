@@ -25,3 +25,23 @@ export class DisplayedObject<T extends Dto> {
         this.open = isOpen;
     }
 }
+
+export class EditededObject<T extends Dto> {
+    private object: T;
+    private creation: boolean;
+
+    constructor(object: T, creation: boolean) {
+        this.object = object;
+        this.creation = creation;
+    }
+
+    public get Object(): T {
+        return this.object;
+    }
+    public get IsCreation(): boolean {
+        return this.creation;
+    }
+    public set IsCreation(isCreation: boolean) {
+        this.creation = isCreation;
+    }
+}

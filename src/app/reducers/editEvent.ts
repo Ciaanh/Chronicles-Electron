@@ -1,42 +1,33 @@
 import { AnyAction, createSlice, Dispatch } from "@reduxjs/toolkit";
 
 import { getEmptyLocale, cleanString } from "../constants";
+import dbContext from "../dbContext/dbContext";
+import { Event } from "../models/event";
+import { EditededObject } from "../models/object_interfaces";
 
 import { events_created, events_saved, events_deleted } from "./events";
 
-function mapEvent(state, event) {
-    state.event.isCreate = event.isCreate;
-    state.event.id = event.id;
-
-    state.event.name = event.name;
-    state.event.yearStart = event.yearStart;
-    state.event.yearEnd = event.yearEnd;
-    state.event.eventType = event.eventType;
-    state.event.timeline = event.timeline;
-    state.event.link = event.link;
-    state.event.factions = event.factions;
-    state.event.characters = event.characters;
-    state.event.label = event.label;
-    state.event.description = event.description;
-
-    state.event.dbname = event.dbname;
+function mapEvent(state, event: EditededObject<Event>) {
+    state.event = event;
 }
 
-function getEmptyEvent() {
+async function getEmptyEvent(): Promise<Event> {
     return {
-        id: undefined,
+        _id: null,
 
         name: "",
-        yearStart: "",
-        yearEnd: "",
+        yearStart: 0,
+        yearEnd: 0,
         eventType: "",
-        timeline: "",
+        timeline: await dbContext.Timelines.findAll().then(
+            (timelines) => timelines[0]
+        ),
         link: "",
         factions: [],
         characters: [],
         label: getEmptyLocale(undefined),
         description: [],
-        dbname: undefined,
+        dbname: await dbContext.DBNames.findAll().then((dbs) => dbs[0]),
     };
 }
 
@@ -59,7 +50,7 @@ export const editEventSlice = createSlice({
                 state.isCreate = false;
 
                 mapEvent(state, {
-                    id: action.payload.id,
+                    _id: action.payload._id,
 
                     name: action.payload.name,
                     yearStart: action.payload.yearStart,
@@ -78,7 +69,10 @@ export const editEventSlice = createSlice({
         editEvent_new: (state) => {
             state.openDialog = true;
             state.isCreate = true;
-            mapEvent(state, getEmptyEvent());
+            mapEvent(
+                state,
+                await getEmptyEvent().then((event) => event)
+            );
         },
         editEvent_close: (state) => {
             state.openDialog = false;
