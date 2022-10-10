@@ -8,7 +8,7 @@ export interface Character extends Dto {
     name: string;
     biography: Locale;
     timeline: Timeline;
-    factions: Array<Faction>;
+    factions: Faction[];
     dbname: DbName;
 }
 
@@ -16,6 +16,6 @@ export interface DB_Character extends DbObject {
     name: string;
     biographyId: number;
     timelineId: number;
-    factionIds: Array<number>;
+    factionIds: number[];
     dbnameId: number;
 }

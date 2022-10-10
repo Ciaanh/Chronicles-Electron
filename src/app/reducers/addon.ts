@@ -92,7 +92,7 @@ const addon_load = () => (dispatch: Dispatch<AnyAction>) => {
 const addon_generate_selected = (dbids: number[]) => async (dispatch: Dispatch<AnyAction>) => {
     const dbnames = await dbContext.DBNames.find(dbids);
 
-    const events = await dbContext.Events.getEventsByDB(dbids);
+    const events = await dbContext.Events.findByDB(dbids);
 
     const factions = await dbContext.Factions.findByDB(dbids);
 

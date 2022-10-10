@@ -1,78 +1,54 @@
 import { DbName, DB_DbName } from "../models/dbname";
 
 export interface DBNameContext {
-    findAll: () => Promise<DbName[]>;
-    find(ids: number[]): Promise<DbName[]>;
-    get(id: number): Promise<DbName>;
-    create(dbname: DbName): Promise<DbName>;
-    update(dbname: DbName): Promise<DbName>;
-    delete(id: number): Promise<number>;
+    findAll: () => DbName[];
+    find(ids: number[]): DbName[];
+    get(id: number): DbName;
+    create(dbname: DbName): DbName;
+    update(dbname: DbName): DbName;
+    delete(id: number): number;
 }
 
 export const DBNames: DBNameContext = {
     findAll: function () {
-        return new Promise(function (resolve, reject) {
-            window.database.getAll(
-                window.database.tableNames.dbnames,
-                (dbNames: DB_DbName[]) => resolve(DbNameMapperFromDBs(dbNames)),
-                (error) => reject(error)
-            );
-        });
+        const dbNames: DB_DbName[] = window.database.getAll(
+            window.database.tableNames.dbnames
+        );
+        return DbNameMapperFromDBs(dbNames);
     },
     find: function (ids) {
-        return new Promise(function (resolve, reject) {
-            window.database.getAll(
-                window.database.tableNames.dbnames,
-                (dbNames: DB_DbName[]) => {
-                    const filteredDBNames = dbNames.filter((dbName) =>
-                        ids.includes(dbName.id)
-                    );
-                    resolve(DbNameMapperFromDBs(filteredDBNames));
-                },
-                (error) => reject(error)
-            );
-        });
+        const dbNames: DB_DbName[] = window.database.getAll(
+            window.database.tableNames.dbnames
+        );
+        const filteredDBNames = dbNames.filter((dbName) =>
+            ids.includes(dbName.id)
+        );
+        return DbNameMapperFromDBs(filteredDBNames);
     },
     get: function (id) {
-        return new Promise(function (resolve, reject) {
-            window.database.get(
-                window.database.tableNames.dbnames,
-                id,
-                (dbName: DB_DbName) => resolve(DbNameMapperFromDB(dbName)),
-                (error) => reject(error)
-            );
-        });
+        const dbName: DB_DbName = window.database.get(
+            window.database.tableNames.dbnames,
+            id
+        );
+        return DbNameMapperFromDB(dbName);
     },
     create: function (dbName) {
-        return new Promise(function (resolve, reject) {
-            window.database.add(
-                window.database.tableNames.dbnames,
-                DbNameMapper(dbName),
-                (dbName: DB_DbName) => resolve(DbNameMapperFromDB(dbName)),
-                (error) => reject(error)
-            );
-        });
+        const createdDbName: DB_DbName = window.database.add(
+            window.database.tableNames.dbnames,
+            DbNameMapper(dbName)
+        );
+        return DbNameMapperFromDB(createdDbName);
     },
     update: function (dbName) {
-        return new Promise(function (resolve, reject) {
-            window.database.update(
-                window.database.tableNames.dbnames,
-                dbName._id,
-                DbNameMapper(dbName),
-                (dbName: DB_DbName) => resolve(DbNameMapperFromDB(dbName)),
-                (error) => reject(error)
-            );
-        });
+        const updatedDbName: DB_DbName = window.database.update(
+            window.database.tableNames.dbnames,
+
+            DbNameMapper(dbName)
+        );
+        return DbNameMapperFromDB(updatedDbName);
     },
     delete: function (id) {
-        return new Promise(function (resolve, reject) {
-            window.database.delete(
-                window.database.tableNames.dbnames,
-                id,
-                () => resolve(id),
-                (error) => reject(error)
-            );
-        });
+        return window.database.delete(window.database.tableNames.dbnames, id);
     },
 };
 

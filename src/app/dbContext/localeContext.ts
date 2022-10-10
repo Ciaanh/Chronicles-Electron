@@ -1,78 +1,53 @@
 import { DB_Locale, Locale } from "../models/locale";
 
 export interface LocaleContext {
-    findAll: () => Promise<Locale[]>;
-    find(ids: number[]): Promise<Locale[]>;
-    get(id: number): Promise<Locale>;
-    create(locale: Locale): Promise<Locale>;
-    update(locale: Locale): Promise<Locale>;
-    delete(id: number): Promise<number>;
+    findAll: () => Locale[];
+    find(ids: number[]): Locale[];
+    get(id: number): Locale;
+    create(locale: Locale): Locale;
+    update(locale: Locale): Locale;
+    delete(id: number): number;
 }
 
 export const Locales: LocaleContext = {
     findAll: function () {
-        return new Promise(function (resolve, reject) {
-            window.database.getAll(
-                window.database.tableNames.locales,
-                (locale: DB_Locale[]) => resolve(LocaleMapperFromDBs(locale)),
-                (error) => reject(error)
-            );
-        });
+        const locales: DB_Locale[] = window.database.getAll(
+            window.database.tableNames.locales
+        );
+        return LocaleMapperFromDBs(locales);
     },
     find: function (ids) {
-        return new Promise(function (resolve, reject) {
-            window.database.getAll(
-                window.database.tableNames.locales,
-                (locale: DB_Locale[]) => {
-                    const filteredLocale = locale.filter((locale) =>
-                        ids.includes(locale.id)
-                    );
-                    resolve(LocaleMapperFromDBs(filteredLocale));
-                },
-                (error) => reject(error)
-            );
-        });
+        const locales: DB_Locale[] = window.database.getAll(
+            window.database.tableNames.locales
+        );
+        const filteredLocales = locales.filter((locale) =>
+            ids.includes(locale.id)
+        );
+        return LocaleMapperFromDBs(filteredLocales);
     },
     get: function (id) {
-        return new Promise(function (resolve, reject) {
-            window.database.get(
-                window.database.tableNames.locales,
-                id,
-                (locale: DB_Locale) => resolve(LocaleMapperFromDB(locale)),
-                (error) => reject(error)
-            );
-        });
+        const locale: DB_Locale = window.database.get(
+            window.database.tableNames.locales,
+            id
+        );
+        return LocaleMapperFromDB(locale);
     },
     create: function (locale) {
-        return new Promise(function (resolve, reject) {
-            window.database.add(
-                window.database.tableNames.locales,
-                LocaleMapper(locale),
-                (locale: DB_Locale) => resolve(LocaleMapperFromDB(locale)),
-                (error) => reject(error)
-            );
-        });
+        const createdLocale: DB_Locale = window.database.add(
+            window.database.tableNames.locales,
+            LocaleMapper(locale)
+        );
+        return LocaleMapperFromDB(createdLocale);
     },
     update: function (locale) {
-        return new Promise(function (resolve, reject) {
-            window.database.update(
-                window.database.tableNames.locales,
-                locale._id,
-                LocaleMapper(locale),
-                (locale: DB_Locale) => resolve(LocaleMapperFromDB(locale)),
-                (error) => reject(error)
-            );
-        });
+        const updatedLocale: DB_Locale = window.database.update(
+            window.database.tableNames.locales,
+            LocaleMapper(locale)
+        );
+        return LocaleMapperFromDB(updatedLocale);
     },
     delete: function (id) {
-        return new Promise(function (resolve, reject) {
-            window.database.delete(
-                window.database.tableNames.locales,
-                id,
-                () => resolve(id),
-                (error) => reject(error)
-            );
-        });
+        return window.database.delete(window.database.tableNames.locales, id);
     },
 };
 

@@ -2,82 +2,53 @@ import { DB_Timeline, Timeline } from "../models/timeline";
 import { Locales } from "./localeContext";
 
 export interface TimelineContext {
-    findAll: () => Promise<Timeline[]>;
-    find(ids: number[]): Promise<Timeline[]>;
-    get(id: number): Promise<Timeline>;
-    create(timeline: Timeline): Promise<Timeline>;
-    update(timeline: Timeline): Promise<Timeline>;
-    delete(id: number): Promise<number>;
+    findAll: () => Timeline[];
+    find(ids: number[]): Timeline[];
+    get(id: number): Timeline;
+    create(timeline: Timeline): Timeline;
+    update(timeline: Timeline): Timeline;
+    delete(id: number): number;
 }
 
 export const Timelines: TimelineContext = {
     findAll: function () {
-        return new Promise(function (resolve, reject) {
-            window.database.getAll(
-                window.database.tableNames.timelines,
-                (timelines: DB_Timeline[]) =>
-                    resolve(TimelineMapperFromDBs(timelines)),
-                (error) => reject(error)
-            );
-        });
+        const timelines: DB_Timeline[] = window.database.getAll(
+            window.database.tableNames.timelines
+        );
+        return TimelineMapperFromDBs(timelines);
     },
     find: function (ids) {
-        return new Promise(function (resolve, reject) {
-            window.database.getAll(
-                window.database.tableNames.timelines,
-                (timelines: DB_Timeline[]) => {
-                    const filteredTimelines = timelines.filter((timeline) =>
-                        ids.includes(timeline.id)
-                    );
-                    resolve(TimelineMapperFromDBs(filteredTimelines));
-                },
-                (error) => reject(error)
-            );
-        });
+        const timelines: DB_Timeline[] = window.database.getAll(
+            window.database.tableNames.timelines
+        );
+        const filteredTimelines = timelines.filter((timeline) =>
+            ids.includes(timeline.id)
+        );
+        return TimelineMapperFromDBs(filteredTimelines);
     },
     get: function (id) {
-        return new Promise(function (resolve, reject) {
-            window.database.get(
-                window.database.tableNames.timelines,
-                id,
-                (timeline: DB_Timeline) =>
-                    resolve(TimelineMapperFromDB(timeline)),
-                (error) => reject(error)
-            );
-        });
+        const timeline: DB_Timeline = window.database.get(
+            window.database.tableNames.timelines,
+            id
+        );
+        return TimelineMapperFromDB(timeline);
     },
     create: function (timeline) {
-        return new Promise(function (resolve, reject) {
-            window.database.add(
-                window.database.tableNames.timelines,
-                TimelineMapper(timeline),
-                (timeline: DB_Timeline) =>
-                    resolve(TimelineMapperFromDB(timeline)),
-                (error) => reject(error)
-            );
-        });
+        const createdTimeline: DB_Timeline = window.database.add(
+            window.database.tableNames.timelines,
+            TimelineMapper(timeline)
+        );
+        return TimelineMapperFromDB(createdTimeline);
     },
     update: function (timeline) {
-        return new Promise(function (resolve, reject) {
-            window.database.update(
-                window.database.tableNames.timelines,
-                timeline._id,
-                TimelineMapper(timeline),
-                (timeline: DB_Timeline) =>
-                    resolve(TimelineMapperFromDB(timeline)),
-                (error) => reject(error)
-            );
-        });
+        const updatedTimeline: DB_Timeline = window.database.update(
+            window.database.tableNames.timelines,
+            TimelineMapper(timeline)
+        );
+        return TimelineMapperFromDB(updatedTimeline);
     },
     delete: function (id) {
-        return new Promise(function (resolve, reject) {
-            window.database.delete(
-                window.database.tableNames.timelines,
-                id,
-                () => resolve(id),
-                (error) => reject(error)
-            );
-        });
+        return window.database.delete(window.database.tableNames.timelines, id);
     },
 };
 
@@ -89,22 +60,14 @@ export const TimelineMapper = (timeline: Timeline): DB_Timeline => {
     };
 };
 
-export const TimelineMapperFromDB = async (
-    timeline: DB_Timeline
-): Promise<Timeline> => {
+export const TimelineMapperFromDB = (timeline: DB_Timeline): Timeline => {
     return {
         _id: timeline.id,
         name: timeline.name,
-        label: await Locales.get(timeline.labelId).then(
-            (locale) => locale
-        ),
+        label: Locales.get(timeline.labelId),
     };
 };
 
-export const TimelineMapperFromDBs = async (
-    timelines: DB_Timeline[]
-): Promise<Timeline[]> => {
-    return Promise.all(
-        timelines.map((timeline) => TimelineMapperFromDB(timeline))
-    );
+export const TimelineMapperFromDBs = (timelines: DB_Timeline[]): Timeline[] => {
+    return timelines.map((timeline) => TimelineMapperFromDB(timeline));
 };

@@ -2,16 +2,30 @@ import { AnyAction, createSlice, Dispatch } from "@reduxjs/toolkit";
 
 import { getEmptyLocale, cleanString } from "../constants";
 import dbContext from "../dbContext/dbContext";
+import { Character } from "../models/character";
+import { DbName } from "../models/dbname";
 import { Event } from "../models/event";
-import { EditededObject as EditedObject } from "../models/object_interfaces";
+import { Faction } from "../models/faction";
 
 import { events_created, events_saved, events_deleted } from "./events";
 
-function mapEvent(state: any, event: EditedObject<Event>) {
+interface EditEventState {
+    openDialog: boolean;
+    isCreate: boolean;
+    openError: boolean;
+    error: string;
+
+    event: Event;
+    dbnames: DbName[];
+    characters: Character[];
+    factions: Faction[];
+}
+
+function mapEvent(state: EditEventState, event: Event) {
     state.event = event;
 }
 
-async function getEmptyEvent(): Promise<Event> {
+function getEmptyEvent(): Event {
     return {
         _id: null,
 
@@ -19,15 +33,13 @@ async function getEmptyEvent(): Promise<Event> {
         yearStart: 0,
         yearEnd: 0,
         eventType: "",
-        timeline: await dbContext.Timelines.findAll().then(
-            (timelines) => timelines[0]
-        ),
+        timeline: dbContext.Timelines.findAll()[0],
         link: "",
         factions: [],
         characters: [],
         label: getEmptyLocale(undefined),
         description: [],
-        dbname: await dbContext.DBNames.findAll().then((dbs) => dbs[0]),
+        dbname: dbContext.DBNames.findAll()[0],
     };
 }
 
@@ -35,63 +47,65 @@ export const editEventSlice = createSlice({
     name: "editEvent",
     initialState: {
         openDialog: false,
+        isCreate: false,
+        openError: false,
+        error: "",
+
+        event: getEmptyEvent(),
         dbnames: [],
         characters: [],
         factions: [],
-        isCreate: false,
-        event: getEmptyEvent(),
-        openError: false,
-        error: "",
     },
     reducers: {
-        editEvent_edit: (state, action) => {
+        editEvent_edit: (state: EditEventState, action) => {
             if (action.payload) {
                 state.openDialog = true;
                 state.isCreate = false;
 
-                const event = new EditedObject<Event>(action.payload, false);
+                const event = action.payload as Event;
                 mapEvent(state, event);
             }
         },
-        editEvent_new: (state) => {
+        editEvent_new: (state: EditEventState) => {
             state.openDialog = true;
             state.isCreate = true;
-            const event = getEmptyEvent().then((event) => event);
-            mapEvent(state, new EditedObject<Event>(event, true));
+            mapEvent(state, getEmptyEvent());
         },
-        editEvent_close: (state) => {
+        editEvent_close: (state: EditEventState) => {
             state.openDialog = false;
             state.isCreate = false;
             mapEvent(state, getEmptyEvent());
         },
 
-        editEvent_dbnames_loaded: (state, action) => {
-            state.dbnames = action.payload.map((dbname) => {
+        editEvent_dbnames_loaded: (state: EditEventState, action) => {
+            state.dbnames = action.payload.map((dbname: DbName) => {
                 return {
-                    id: dbname.id,
+                    id: dbname._id,
                     name: dbname.name,
                 };
             });
         },
-        editEvent_changeDbName: (state, action) => {
-            const dbname = state.dbnames.find((f) => f.id === action.payload);
+        editEvent_changeDbName: (state: EditEventState, action) => {
+            const dbname = state.dbnames.find(
+                (dbname) => dbname._id === action.payload
+            );
             if (dbname) {
                 state.event.dbname = dbname;
             }
         },
 
-        editEvent_characters_loaded: (state, action) => {
-            state.characters = action.payload.map((character) => {
+        editEvent_characters_loaded: (state: EditEventState, action) => {
+            state.characters = action.payload.map((character: Character) => {
                 return {
-                    id: character.id,
+                    id: character._id,
                     name: character.name,
                     dbname: character.dbname,
                 };
             });
         },
-        editEvent_character_add: (state, action) => {
+        editEvent_character_add: (state: EditEventState, action) => {
             const character = state.event.characters.find(
-                (f) => f.id === action.payload.id
+                (character) => character._id === action.payload.id
             );
             if (character) {
                 return;
@@ -99,27 +113,27 @@ export const editEventSlice = createSlice({
 
             state.event.characters.push(action.payload);
         },
-        editEvent_character_remove: (state, action) => {
+        editEvent_character_remove: (state: EditEventState, action) => {
             const characterIndex = state.event.characters.findIndex(
-                (f) => f.id === action.payload
+                (character) => character._id === action.payload
             );
             if (characterIndex > -1) {
                 state.event.characters.splice(characterIndex, 1);
             }
         },
 
-        editEvent_factions_loaded: (state, action) => {
-            state.factions = action.payload.map((faction) => {
+        editEvent_factions_loaded: (state: EditEventState, action) => {
+            state.factions = action.payload.map((faction: Faction) => {
                 return {
-                    id: faction.id,
+                    id: faction._id,
                     name: faction.name,
                     dbname: faction.dbname,
                 };
             });
         },
-        editEvent_faction_add: (state, action) => {
+        editEvent_faction_add: (state: EditEventState, action) => {
             const faction = state.event.factions.find(
-                (f) => f.id === action.payload.id
+                (faction) => faction._id === action.payload.id
             );
             if (faction) {
                 return;
@@ -127,16 +141,16 @@ export const editEventSlice = createSlice({
 
             state.event.factions.push(action.payload);
         },
-        editEvent_faction_remove: (state, action) => {
+        editEvent_faction_remove: (state: EditEventState, action) => {
             const factionIndex = state.event.factions.findIndex(
-                (f) => f.id === action.payload
+                (faction) => faction._id === action.payload
             );
             if (factionIndex > -1) {
                 state.event.factions.splice(factionIndex, 1);
             }
         },
 
-        editEvent_changeName: (state, action) => {
+        editEvent_changeName: (state: EditEventState, action) => {
             state.event.name = action.payload;
 
             // resync all keysfor label and description pages
@@ -151,23 +165,23 @@ export const editEventSlice = createSlice({
 
             state.event.label.key = cleanString(state.event.name) + "_label";
         },
-        editEvent_changeYearStart: (state, action) => {
+        editEvent_changeYearStart: (state: EditEventState, action) => {
             state.event.yearStart = action.payload;
         },
-        editEvent_changeYearEnd: (state, action) => {
+        editEvent_changeYearEnd: (state: EditEventState, action) => {
             state.event.yearEnd = action.payload;
         },
-        editEvent_changeEventType: (state, action) => {
+        editEvent_changeEventType: (state: EditEventState, action) => {
             state.event.eventType = action.payload;
         },
-        editEvent_changeTimeline: (state, action) => {
+        editEvent_changeTimeline: (state: EditEventState, action) => {
             state.event.timeline = action.payload;
         },
-        editEvent_changeLink: (state, action) => {
+        editEvent_changeLink: (state: EditEventState, action) => {
             state.event.link = action.payload;
         },
 
-        editEvent_description_add: (state, action) => {
+        editEvent_description_add: (state: EditEventState, action) => {
             const pageKey =
                 cleanString(state.event.name) +
                 "_page" +
@@ -184,7 +198,7 @@ export const editEventSlice = createSlice({
             state.event.description.push(getEmptyLocale(pageKey));
         },
 
-        editEvent_description_remove: (state, action) => {
+        editEvent_description_remove: (state: EditEventState, action) => {
             const descriptionIndex = state.event.description.findIndex(
                 (f) => f.key === action.payload
             );
@@ -203,7 +217,7 @@ export const editEventSlice = createSlice({
             }
         },
 
-        editEvent_description_change: (state, action) => {
+        editEvent_description_change: (state: EditEventState, action) => {
             if (action.payload.islabel) {
                 state.event.label[action.payload.locale] = action.payload.value;
             } else {
@@ -218,12 +232,12 @@ export const editEventSlice = createSlice({
             }
         },
 
-        editEvent_error: (state, action) => {
+        editEvent_error: (state: EditEventState, action) => {
             state.error = action.payload.message;
             state.openError = true;
         },
 
-        editEvent_closeError: (state, action) => {
+        editEvent_closeError: (state: EditEventState, action) => {
             state.openError = false;
             state.error = "";
         },
@@ -262,70 +276,63 @@ export const {
 } = editEventSlice.actions;
 export default editEventSlice.reducer;
 
-const editEvent_save = (event) => (dispatch: Dispatch<AnyAction>) => {
-    window.database.edit(
-        window.database.tableNames.events,
-        event.id,
-        event,
-        (saved_event) => {
+const editEvent_save = (event: Event) => (dispatch: Dispatch<AnyAction>) => {
+    dbContext.Events.update(event)
+        .then((saved_event: Event) => {
             dispatch(editEvent_close());
             dispatch(events_saved(saved_event));
-        },
-        (error) => dispatch(editEvent_error(error))
-    );
+        })
+        .catch((error: string) => {
+            dispatch(editEvent_error(error));
+        });
 };
 
-const editEvent_create = (event) => (dispatch: Dispatch<AnyAction>) => {
-    window.database.add(
-        window.database.tableNames.events,
-        {
-            name: event.name,
-            yearStart: event.yearStart,
-            yearEnd: event.yearEnd,
-            eventType: event.eventType,
-            timeline: event.timeline,
-            link: event.link,
-            factions: event.factions,
-            characters: event.characters,
-            label: event.label,
-            description: event.description,
-            dbname: event.dbname,
-        },
-        (created_event) => {
+const editEvent_create = (event: Event) => (dispatch: Dispatch<AnyAction>) => {
+    dbContext.Events.create(event)
+        .then((saved_event: Event) => {
             dispatch(editEvent_close());
-            dispatch(events_created(created_event));
-        },
-        (error) => dispatch(editEvent_error(error))
-    );
+            dispatch(events_saved(saved_event));
+        })
+        .catch((error: string) => {
+            dispatch(editEvent_error(error));
+        });
 };
 
-const editEvent_delete = (id) => (dispatch: Dispatch<AnyAction>) => {
-    window.database.remove(
-        window.database.tableNames.events,
-        id,
-        (deletedid) => dispatch(events_deleted(deletedid)),
-        (error) => dispatch(editEvent_error(error))
-    );
+const editEvent_delete = (id: number) => (dispatch: Dispatch<AnyAction>) => {
+    dbContext.Events.delete(id)
+        .then((deletedid: number) => {
+            dispatch(editEvent_close());
+            dispatch(events_deleted(deletedid));
+        })
+        .catch((error: string) => {
+            dispatch(editEvent_error(error));
+        });
 };
 
-const editEvent_load = (event) => (dispatch: Dispatch<AnyAction>) => {
-    window.database.getAll(
-        window.database.tableNames.factions,
-        (factions) => dispatch(editEvent_factions_loaded(factions)),
-        (error) => dispatch(editEvent_error(error))
-    );
+const editEvent_load = (event: Event) => (dispatch: Dispatch<AnyAction>) => {
+    dbContext.Factions.findAll()
+        .then((factions: Faction[]) => {
+            dispatch(editEvent_factions_loaded(factions));
+        })
+        .catch((error: string) => {
+            dispatch(editEvent_error(error));
+        });
 
-    window.database.getAll(
-        window.database.tableNames.characters,
-        (characters) => dispatch(editEvent_characters_loaded(characters)),
-        (error) => dispatch(editEvent_error(error))
-    );
+    dbContext.Characters.findAll()
+        .then((characters: Character[]) => {
+            dispatch(editEvent_characters_loaded(characters));
+        })
+        .catch((error: string) => {
+            dispatch(editEvent_error(error));
+        });
 
-    window.database.getAll(
-        window.database.tableNames.dbnames,
-        (dbNames) => dispatch(editEvent_dbnames_loaded(dbNames)),
-        (error) => dispatch(editEvent_error(error))
-    );
+    dbContext.DBNames.findAll()
+        .then((dbnames: DbName[]) => {
+            dispatch(editEvent_dbnames_loaded(dbnames));
+        })
+        .catch((error: string) => {
+            dispatch(editEvent_error(error));
+        });
 };
 
 export { editEvent_save, editEvent_create, editEvent_delete, editEvent_load };

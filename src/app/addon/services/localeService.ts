@@ -13,7 +13,7 @@ interface localeLine {
 interface localeGroup {
     fileName: string;
     indexLine: string;
-    localeLines: Array<localeLine>;
+    localeLines: localeLine[];
 }
 
 export class LocaleService {
@@ -134,15 +134,15 @@ export class LocaleService {
                 return localeGroups;
             });
 
-            const locales: Array<localeGroup> = [];
-            localeGroups.forEach((dbLocaleGroup: Array<localeGroup>) => {
+            const locales: localeGroup[] = [];
+            localeGroups.forEach((dbLocaleGroup: localeGroup[]) => {
                 locales.push(...dbLocaleGroup);
             });
             return locales;
         });
 
-        const dbLocales: Array<localeGroup> = [];
-        dbLocaleGroups.forEach((dbLocaleGroup: Array<localeGroup>) => {
+        const dbLocales: localeGroup[] = [];
+        dbLocaleGroups.forEach((dbLocaleGroup: localeGroup[]) => {
             dbLocales.push(...dbLocaleGroup);
         });
 

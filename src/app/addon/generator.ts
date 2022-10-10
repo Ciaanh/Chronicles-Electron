@@ -10,10 +10,10 @@ import { DBService } from "./services/dbService";
 import { LocaleService } from "./services/localeService";
 
 export interface GenerationRequest {
-    dbnames: Array<DbName>;
-    events: Array<Event>;
-    factions: Array<Faction>;
-    characters: Array<Character>;
+    dbnames: DbName[];
+    events: Event[];
+    factions: Faction[];
+    characters: Character[];
 }
 
 export interface FormatedDbName {
@@ -22,14 +22,14 @@ export interface FormatedDbName {
     index: string;
 }
 export interface FileGenerationRequest {
-    dbnames: Array<FormatedDbName>;
-    events: Array<Event>;
-    factions: Array<Faction>;
-    characters: Array<Character>;
+    dbnames: FormatedDbName[];
+    events: Event[];
+    factions: Faction[];
+    characters: Character[];
 }
 
 export class AddonGenerator {
-    private Pack(locale: Array<FileContent>, db: Array<FileContent>) {
+    private Pack(locale: FileContent[], db: FileContent[]) {
         const outputStreamBuffer = new WritableStreamBuffer({
             initialSize: 1000 * 1024, // start at 1000 kilobytes.
             incrementAmount: 1000 * 1024, // grow by 1000 kilobytes each time buffer overflows.

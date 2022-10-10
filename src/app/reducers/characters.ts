@@ -52,13 +52,8 @@ export const {
 export default charactersSlice.reducer;
 
 const characters_load = () => (dispatch: Dispatch<AnyAction>) => {
-    dbContext.Characters.findAll()
-        .then((characters) => {
-            dispatch(characters_loaded(characters));
-        })
-        .catch((err) => {
-            console.log("Error", err);
-        });
+    const characters = dbContext.Characters.findAll();
+    dispatch(characters_loaded(characters));
 };
 
 export { characters_load };

@@ -12,10 +12,10 @@ export interface Event extends Dto {
     eventType: string;
     timeline: Timeline;
     link: string;
-    factions: Array<Faction>;
-    characters: Array<Character>;
+    factions: Faction[];
+    characters: Character[];
     label: Locale;
-    description: Array<Locale>;
+    description: Locale[];
     dbname: DbName;
 }
 
@@ -26,9 +26,9 @@ export interface DB_Event extends DbObject {
     eventType: string;
     timelineId: number;
     link: string;
-    factionIds: Array<number>;
-    characterIds: Array<number>;
+    factionIds: number[];
+    characterIds: number[];
     labelId: number;
-    descriptionIds: Array<number>;
+    descriptionIds: number[];
     dbnameId: number;
 }

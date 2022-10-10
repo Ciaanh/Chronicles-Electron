@@ -6,93 +6,61 @@ import { Locales } from "./localeContext";
 import { Timelines } from "./timelineContext";
 
 export interface EventContext {
-    getAll: () => Promise<Event[]>;
-    getEvents(ids: number[]): Promise<Event[]>;
-    getEventsByDB(dbids: number[]): Promise<Event[]>;
-    getEvent(id: number): Promise<Event>;
-    addEvent(event: Event): Promise<Event>;
-    updateEvent(event: Event): Promise<Event>;
-    deleteEvent(id: number): Promise<number>;
+    findAll: () => Event[];
+    find(ids: number[]): Event[];
+    findByDB(dbids: number[]): Event[];
+    get(id: number): Event;
+    create(event: Event): Event;
+    update(event: Event): Event;
+    delete(id: number): number;
 }
 
 export const Events: EventContext = {
-    getAll: function () {
-        return new Promise(function (resolve, reject) {
-            window.database.getAll(
-                window.database.tableNames.events,
-                (events: DB_Event[]) => resolve(EventMapperFromDBs(events)),
-                (error) => reject(error)
-            );
-        });
+    findAll: function () {
+        const events: DB_Event[] = window.database.getAll(
+            window.database.tableNames.events
+        );
+        return EventMapperFromDBs(events);
     },
-    getEvents: function (ids) {
-        return new Promise(function (resolve, reject) {
-            window.database.getAll(
-                window.database.tableNames.events,
-                (events: DB_Event[]) => {
-                    const filteredEvents = events.filter((event) =>
-                        ids.includes(event.id)
-                    );
-                    resolve(EventMapperFromDBs(filteredEvents));
-                },
-                (error) => reject(error)
-            );
-        });
+    find: function (ids) {
+        const events: DB_Event[] = window.database.getAll(
+            window.database.tableNames.events
+        );
+        const filteredEvents = events.filter((event) => ids.includes(event.id));
+        return EventMapperFromDBs(filteredEvents);
     },
-    getEventsByDB(dbids) {
-        return new Promise(function (resolve, reject) {
-            window.database.getAll(
-                window.database.tableNames.events,
-                (events: DB_Event[]) => {
-                    const filteredEvents = events.filter((event) =>
-                        dbids.includes(event.dbnameId)
-                    );
-                    resolve(EventMapperFromDBs(filteredEvents));
-                },
-                (error) => reject(error)
-            );
-        });
+    findByDB(dbids) {
+        const events: DB_Event[] = window.database.getAll(
+            window.database.tableNames.events
+        );
+        const filteredEvents = events.filter((event) =>
+            dbids.includes(event.dbnameId)
+        );
+        return EventMapperFromDBs(filteredEvents);
     },
-    getEvent: function (id) {
-        return new Promise(function (resolve, reject) {
-            window.database.get(
-                window.database.tableNames.events,
-                id,
-                (event: DB_Event) => resolve(EventMapperFromDB(event)),
-                (error) => reject(error)
-            );
-        });
+    get: function (id) {
+        const event: DB_Event = window.database.get(
+            window.database.tableNames.events,
+            id
+        );
+        return EventMapperFromDB(event);
     },
-    addEvent: function (event) {
-        return new Promise(function (resolve, reject) {
-            window.database.add(
-                window.database.tableNames.events,
-                EventMapper(event),
-                (dbEvent) => resolve(EventMapperFromDB(dbEvent)),
-                (error) => reject(error)
-            );
-        });
+    create: function (event) {
+        const createdEvent: DB_Event = window.database.add(
+            window.database.tableNames.events,
+            EventMapper(event)
+        );
+        return EventMapperFromDB(createdEvent);
     },
-    updateEvent: function (event) {
-        return new Promise(function (resolve, reject) {
-            window.database.update(
-                window.database.tableNames.events,
-                event._id,
-                EventMapper(event),
-                (dbEvent) => resolve(EventMapperFromDB(dbEvent)),
-                (error) => reject(error)
-            );
-        });
+    update: function (event) {
+        const updatedEvent: DB_Event = window.database.update(
+            window.database.tableNames.events,
+            EventMapper(event)
+        );
+        return EventMapperFromDB(updatedEvent);
     },
-    deleteEvent: function (id) {
-        return new Promise(function (resolve, reject) {
-            window.database.delete(
-                window.database.tableNames.events,
-                id,
-                () => resolve(id),
-                (error) => reject(error)
-            );
-        });
+    delete: function (id) {
+        return window.database.delete(window.database.tableNames.events, id);
     },
 };
 
@@ -113,35 +81,23 @@ export const EventMapper = (event: Event): DB_Event => {
     };
 };
 
-export const EventMapperFromDB = async (event: DB_Event): Promise<Event> => {
+export const EventMapperFromDB = (event: DB_Event): Event => {
     return {
         _id: event.id,
         name: event.name,
         yearStart: event.yearStart,
         yearEnd: event.yearEnd,
         eventType: event.eventType,
-        timeline: await Timelines.get(event.timelineId).then(
-            (timeline) => timeline
-        ),
+        timeline: Timelines.get(event.timelineId),
         link: event.link,
-        factions: await Factions.find(event.factionIds).then(
-            (faction) => faction
-        ),
-        characters: await Characters.find(event.characterIds).then(
-            (character) => character
-        ),
-        label: await Locales.get(event.labelId).then((locale) => locale),
-        description: await Locales.find(event.descriptionIds).then(
-            (locale) => locale
-        ),
-        dbname: await DBNames.get(event.dbnameId).then(
-            (dbname) => dbname
-        ),
+        factions: Factions.find(event.factionIds),
+        characters: Characters.find(event.characterIds),
+        label: Locales.get(event.labelId),
+        description: Locales.find(event.descriptionIds),
+        dbname: DBNames.get(event.dbnameId),
     };
 };
 
-export const EventMapperFromDBs = async (
-    events: Array<DB_Event>
-): Promise<Event[]> => {
-    return Promise.all(events.map((event) => EventMapperFromDB(event)));
+export const EventMapperFromDBs = (events: DB_Event[]): Event[] => {
+    return events.map((event) => EventMapperFromDB(event));
 };

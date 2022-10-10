@@ -18,7 +18,7 @@ export class DBService {
     */
 
     Generate(request: FileGenerationRequest) {
-        const files: Array<FileContent> = [];
+        const files: FileContent[] = [];
 
         const declarationFile = this.CreateDeclarationFile(request);
         files.push(declarationFile);

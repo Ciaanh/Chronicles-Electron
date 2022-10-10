@@ -16,39 +16,14 @@ export type DatabaseApi = {
     tableNames: TablesList;
     location: string;
     initDB: () => void;
-    getAll: <T extends DbObject>(
-        dbName: string,
-        success: (data: Array<T>) => void,
-        error: (error: string | null) => void
-    ) => void;
-    get: <T extends DbObject>(
-        dbName: string,
-        id: number,
-        success: (data: T) => void,
-        error: (error: string | null) => void
-    ) => void;
-    add: <T extends DbObject>(
-        dbName: string,
-        obj: T,
-        success: (result: T) => void,
-        error: (error: string | null) => void
-    ) => void;
-    update: <T extends DbObject>(
-        dbName: string,
-        id: number,
-        obj: T,
-        success: (result: T) => void,
-        error: (error: string | null) => void
-    ) => void;
-    delete: (
-        dbName: string,
-        id: number,
-        success: (removedId: number) => void,
-        error: (error: string | null) => void
-    ) => void;
+    getAll: <T extends DbObject>(dbName: string) => T[];
+    get: <T extends DbObject>(dbName: string, id: number) => T;
+    add: <T extends DbObject>(dbName: string, obj: T) => T;
+    update: <T extends DbObject>(dbName: string, obj: T) => T;
+    delete: (dbName: string, id: number) => number;
 };
 
-const exposedApi: DatabaseApi = {
+const databaseApi: DatabaseApi = {
     tableNames: {
         events: "events",
         characters: "characters",
@@ -61,18 +36,18 @@ const exposedApi: DatabaseApi = {
 
     initDB: () => {
         const tables = [
-            { name: exposedApi.tableNames.events },
-            { name: exposedApi.tableNames.characters },
-            { name: exposedApi.tableNames.factions },
-            { name: exposedApi.tableNames.dbnames },
-            { name: exposedApi.tableNames.timelines },
-            { name: exposedApi.tableNames.locales },
+            { name: databaseApi.tableNames.events },
+            { name: databaseApi.tableNames.characters },
+            { name: databaseApi.tableNames.factions },
+            { name: databaseApi.tableNames.dbnames },
+            { name: databaseApi.tableNames.timelines },
+            { name: databaseApi.tableNames.locales },
         ];
 
         tables.forEach((element) => {
             db.createTable(
                 element.name,
-                exposedApi.location,
+                databaseApi.location,
                 (succ: boolean, msg: string) => {
                     if (succ) {
                         console.log("Created table " + element.name);
@@ -89,111 +64,120 @@ const exposedApi: DatabaseApi = {
         });
     },
 
-    getAll: <T extends DbObject>(
-        dbName: string,
-        success: (data: Array<T>) => void,
-        error: (error: string | null) => void
-    ) => {
+    getAll: <T extends DbObject>(dbName: string): T[] => {
         if (db.valid(dbName)) {
             db.getAll(
                 dbName,
-                exposedApi.location,
-                (succ: boolean, data: Array<T>) => {
+                databaseApi.location,
+                (succ: boolean, data: T[]) => {
                     if (succ) {
-                        success(data);
+                        return data;
                     } else {
-                        error(null);
+                        throw new Error(
+                            `Failed to get all data from ${dbName}`
+                        );
                     }
                 }
             );
         }
+        throw new Error("Invalid database name: " + dbName);
     },
 
-    get: <T extends DbObject>(
-        dbName: string,
-        id: number,
-        success: (data: T) => void,
-        error: (error: string | null) => void
-    ) => {
+    get: <T extends DbObject>(dbName: string, id: number): T => {
         if (db.valid(dbName)) {
             const where = {
                 id: id,
             };
             db.getRows(
                 dbName,
-                exposedApi.location,
+                databaseApi.location,
                 where,
                 (succ: boolean, data: T) => {
                     if (succ) {
-                        success(data);
+                        return data;
                     } else {
-                        error(null);
+                        throw new Error(
+                            `Failed to get ${id} data from ${dbName}`
+                        );
                     }
                 }
             );
         }
+        throw new Error("Invalid database name: " + dbName);
     },
 
-    add: (dbName, obj, success, error) => {
+    add: <T extends DbObject>(dbName: string, obj: T): T => {
         if (db.valid(dbName)) {
             db.insertTableContent(
                 dbName,
-                exposedApi.location,
+                databaseApi.location,
                 obj,
                 (succ: boolean, msg: string) => {
                     if (succ) {
-                        exposedApi.get(dbName, obj.id, success, error);
+                        return databaseApi.get<T>(dbName, obj.id);
                     } else {
-                        error(msg);
+                        throw new Error(
+                            `Failed to add ${obj.id} data from ${dbName} : ${msg}`
+                        );
                     }
                 }
             );
         }
+        throw new Error("Invalid database name: " + dbName);
     },
 
-    update: (dbName, id, set, success, error) => {
+    update: <T extends DbObject>(dbName: string, obj: T): T => {
         if (db.valid(dbName)) {
             const where = {
-                id: id,
+                id: obj.id,
             };
 
             db.updateRow(
                 dbName,
-                exposedApi.location,
+                databaseApi.location,
                 where,
-                set,
+                obj,
                 (succ: boolean, msg: string) => {
                     if (succ) {
-                        exposedApi.get(dbName, id, success, error);
+                        return databaseApi.get<T>(dbName, obj.id);
                     } else {
-                        error(msg);
+                        throw new Error(
+                            `Failed to update ${obj.id} data from ${dbName} : ${msg}`
+                        );
                     }
                 }
             );
         }
+        throw new Error("Invalid database name: " + dbName);
     },
 
-    delete: (dbName, id, success, error) => {
+    delete: (dbName, id): number => {
         if (db.valid(dbName)) {
             db.deleteRow(
                 dbName,
-                exposedApi.location,
+                databaseApi.location,
                 { id: id },
                 (succ: boolean, msg: string) => {
                     if (succ) {
-                        success(id);
+                        return id;
                     } else {
-                        error(msg);
+                        throw new Error(
+                            "Failed to delete " +
+                                id +
+                                " data from " +
+                                dbName +
+                                " : " +
+                                msg
+                        );
                     }
                 }
             );
         }
-
-        return id;
+        throw new Error("Invalid database name: " + dbName);
     },
 };
 
-contextBridge.exposeInMainWorld("database", exposedApi);
+contextBridge.exposeInMainWorld("database", databaseApi);
 
 export type FileApi = {
     saveFile: (fileName: string, data: false | Buffer) => void;
