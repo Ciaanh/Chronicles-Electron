@@ -277,62 +277,48 @@ export const {
 export default editEventSlice.reducer;
 
 const editEvent_save = (event: Event) => (dispatch: Dispatch<AnyAction>) => {
-    dbContext.Events.update(event)
-        .then((saved_event: Event) => {
-            dispatch(editEvent_close());
-            dispatch(events_saved(saved_event));
-        })
-        .catch((error: string) => {
-            dispatch(editEvent_error(error));
-        });
+    try {
+        const saved_event = dbContext.Events.update(event);
+        dispatch(editEvent_close());
+        dispatch(events_saved(saved_event));
+    } catch (error) {
+        dispatch(editEvent_error(error));
+    }
 };
 
 const editEvent_create = (event: Event) => (dispatch: Dispatch<AnyAction>) => {
-    dbContext.Events.create(event)
-        .then((saved_event: Event) => {
-            dispatch(editEvent_close());
-            dispatch(events_saved(saved_event));
-        })
-        .catch((error: string) => {
-            dispatch(editEvent_error(error));
-        });
+    try {
+        const saved_event = dbContext.Events.create(event);
+        dispatch(editEvent_close());
+        dispatch(events_saved(saved_event));
+    } catch (error) {
+        dispatch(editEvent_error(error));
+    }
 };
 
 const editEvent_delete = (id: number) => (dispatch: Dispatch<AnyAction>) => {
-    dbContext.Events.delete(id)
-        .then((deletedid: number) => {
-            dispatch(editEvent_close());
-            dispatch(events_deleted(deletedid));
-        })
-        .catch((error: string) => {
-            dispatch(editEvent_error(error));
-        });
+    try {
+        const deletedid = dbContext.Events.delete(id);
+        dispatch(editEvent_close());
+        dispatch(events_deleted(deletedid));
+    } catch (error) {
+        dispatch(editEvent_error(error));
+    }
 };
 
 const editEvent_load = (event: Event) => (dispatch: Dispatch<AnyAction>) => {
-    dbContext.Factions.findAll()
-        .then((factions: Faction[]) => {
-            dispatch(editEvent_factions_loaded(factions));
-        })
-        .catch((error: string) => {
-            dispatch(editEvent_error(error));
-        });
+    try {
+        const factions = dbContext.Factions.findAll();
+        dispatch(editEvent_factions_loaded(factions));
 
-    dbContext.Characters.findAll()
-        .then((characters: Character[]) => {
-            dispatch(editEvent_characters_loaded(characters));
-        })
-        .catch((error: string) => {
-            dispatch(editEvent_error(error));
-        });
+        const characters = dbContext.Characters.findAll();
+        dispatch(editEvent_characters_loaded(characters));
 
-    dbContext.DBNames.findAll()
-        .then((dbnames: DbName[]) => {
-            dispatch(editEvent_dbnames_loaded(dbnames));
-        })
-        .catch((error: string) => {
-            dispatch(editEvent_error(error));
-        });
+        const dbnames = dbContext.DBNames.findAll();
+        dispatch(editEvent_dbnames_loaded(dbnames));
+    } catch (error) {
+        dispatch(editEvent_error(error));
+    }
 };
 
 export { editEvent_save, editEvent_create, editEvent_delete, editEvent_load };
