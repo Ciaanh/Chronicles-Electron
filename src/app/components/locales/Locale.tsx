@@ -25,7 +25,9 @@ import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import { styled } from "@mui/material/styles";
 
-import { Locale } from "../../models/locale";
+import { Locale, LocaleChange } from "../../models/locale";
+import { Language } from "../../constants";
+import { AnyAction } from "redux";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     "& .MuiDialogContent-root": {
@@ -47,11 +49,11 @@ const Item = styled(Paper)(({ theme }) => ({
 interface ILocaleProps {
     locale: Locale;
     islabel: boolean;
-    remove: (locale: string) => void;
-    change: (locale: string) => void;
+    remove: (key: string) => AnyAction;
+    change: (changes: LocaleChange) => AnyAction;
 }
 
-const Locale = (props:ILocaleProps) => {
+const Locale = (props: ILocaleProps) => {
     const { locale, islabel, remove, change } = props;
 
     const dispatch = useDispatch();
@@ -65,20 +67,20 @@ const Locale = (props:ILocaleProps) => {
         setOpen(false);
     };
 
-    const selectLocale = (value, key, locale) => {
+    const selectLocale = (value: string, key: string, language: Language) => {
         selectedLocale = {
             selected: true,
             key: key,
             value: value,
-            locale: locale,
+            language: language,
         };
     };
 
     let selectedLocale = {
         selected: false,
-        key: null,
+        key: "",
         value: "",
-        locale: null,
+        language: Language.enUS,
     };
 
     return (
@@ -161,7 +163,7 @@ const Locale = (props:ILocaleProps) => {
                                             selectLocale(
                                                 locale.enUS,
                                                 locale.key,
-                                                "enUS"
+                                                Language.enUS
                                             );
                                         }}
                                     />
@@ -172,7 +174,7 @@ const Locale = (props:ILocaleProps) => {
                                             selectLocale(
                                                 locale.frFR,
                                                 locale.key,
-                                                "frFR"
+                                                Language.frFR
                                             );
                                         }}
                                     />
@@ -195,9 +197,8 @@ const Locale = (props:ILocaleProps) => {
                                     dispatch(
                                         change({
                                             key: selectedLocale.key,
-                                            islabel: islabel,
-                                            locale: selectedLocale.locale,
                                             value: event.target.value,
+                                            language: selectedLocale.language,
                                         })
                                     );
                                 }}

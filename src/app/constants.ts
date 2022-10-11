@@ -18,23 +18,23 @@ export const EventTypes = [
     { name: "Birth", value: "Birth" },
     { name: "Other", value: "Other" },
 ];
-export const Locales = {
-    enUS: "enUS",
-    deDE: "deDE",
-    esES: "esES",
-    esMX: "esMX",
-    frFR: "frFR",
-    itIT: "itIT",
-    ptBR: "ptBR",
-    ruRU: "ruRU",
-    koKR: "koKR",
-    zhCN: "zhCN",
-    zhTW: "zhTW",
-};
+export enum Language {
+    enUS = "enUS",
+    deDE = "deDE",
+    esES = "esES",
+    esMX = "esMX",
+    frFR = "frFR",
+    itIT = "itIT",
+    ptBR = "ptBR",
+    ruRU = "ruRU",
+    koKR = "koKR",
+    zhCN = "zhCN",
+    zhTW = "zhTW",
+}
 
 export function getEmptyLocale(key: string): Locale {
     return {
-        id: -1,
+        _id: -1,
         key: key,
         enUS: null,
 

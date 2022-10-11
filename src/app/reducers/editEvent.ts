@@ -6,7 +6,7 @@ import { Character } from "../models/character";
 import { DbName } from "../models/dbname";
 import { Event } from "../models/event";
 import { Faction } from "../models/faction";
-import { Locale } from "../models/locale";
+import { Locale, LocaleChange } from "../models/locale";
 
 import { events_created, events_saved, events_deleted } from "./events";
 
@@ -200,8 +200,9 @@ export const editEventSlice = createSlice({
         },
 
         editEvent_description_remove: (state: EditEventState, action) => {
+            const key: string = action.payload;
             const descriptionIndex = state.event.description.findIndex(
-                (f) => f.key === action.payload
+                (description) => description.key === key
             );
 
             if (descriptionIndex > -1) {
@@ -219,25 +220,24 @@ export const editEventSlice = createSlice({
         },
 
         editEvent_description_change: (state: EditEventState, action) => {
-            const locale: Locale = action.payload;
+            const locale: LocaleChange = action.payload;
 
             if (locale) {
                 const descriptionIndex = state.event.description.findIndex(
-                    (f) => f.key === action.payload.key
+                    (description) => description.key === locale.key
                 );
                 if (descriptionIndex > -1) {
-                    state.event.description[descriptionIndex][
-                        action.payload.locale
-                    ] = action.payload.value;
+                    state.event.description[descriptionIndex][locale.language] =
+                        locale.value;
                 }
             }
         },
 
         editEvent_label_change: (state: EditEventState, action) => {
-            const locale: Locale = action.payload;
+            const locale: LocaleChange = action.payload;
 
             if (locale) {
-                state.event.label[action.payload.locale] = action.payload.value;
+                state.event.label[locale.language] = locale.value;
             }
         },
 
@@ -279,6 +279,8 @@ export const {
     editEvent_description_add,
     editEvent_description_remove,
     editEvent_description_change,
+
+    editEvent_label_change,
 
     editEvent_error,
     editEvent_closeError,

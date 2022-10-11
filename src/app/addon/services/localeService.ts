@@ -4,6 +4,7 @@ import { Event } from "../../models/event";
 import { Faction } from "../../models/faction";
 import { FileContent } from "../fileContent";
 import { FileGenerationRequest, FormatedDbName } from "../generator";
+import { Language } from "../../constants";
 
 interface localeLine {
     key: string;
@@ -23,18 +24,18 @@ export class LocaleService {
     }
 
     private languages: [
-        "enUS",
-        "frFR",
+        Language.enUS,
+        Language.frFR,
 
-        "deDE",
-        "esES",
-        "esMX",
-        "itIT",
-        "ptBR",
-        "ruRU",
-        "koKR",
-        "zhCN",
-        "zhTW"
+        Language.deDE,
+        Language.esES,
+        Language.esMX,
+        Language.itIT,
+        Language.ptBR,
+        Language.ruRU,
+        Language.koKR,
+        Language.zhCN,
+        Language.zhTW
     ];
 
     private FormatDbName(dbname: string) {

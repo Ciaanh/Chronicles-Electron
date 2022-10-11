@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 
-import { Timelines, Locales } from "../../constants";
+import { Timelines, Language } from "../../constants";
 
 import {
     Timeline,
@@ -90,7 +90,7 @@ const TimelinesView = () => {
 
                         <TimelineContent sx={{ py: "12px", px: 2 }}>
                             <Typography variant="h6" component="span">
-                                {event.label[Locales.enUS]}
+                                {event.label[Language.enUS]}
                             </Typography>
                             <Typography>Because you need strength</Typography>
                         </TimelineContent>

@@ -2,32 +2,35 @@ import { AnyAction, createSlice, Dispatch } from "@reduxjs/toolkit";
 
 import { getEmptyLocale, cleanString } from "../constants";
 import dbContext from "../dbContext/dbContext";
+import { DbName } from "../models/dbname";
 import { Faction } from "../models/faction";
+import { LocaleChange } from "../models/locale";
 
 import { factions_created, factions_saved, factions_deleted } from "./factions";
 
-// import { dbnames_load } from "./dbnames";
+interface EditFactionState {
+    openDialog: boolean;
+    isCreate: boolean;
+    openError: boolean;
+    error: string;
 
-function mapFaction(state, faction: Faction) {
-    state.faction.isCreate = faction.isCreate;
-    state.faction.id = faction.id;
-    state.faction.name = faction.name;
-    state.faction.label = faction.label;
-    state.faction.description = faction.description;
-    state.faction.timeline = faction.timeline;
-
-    state.faction.dbname = faction.dbname;
+    faction: Faction;
+    dbnames: DbName[];
 }
 
-function getEmptyFaction() {
+function mapFaction(state: EditFactionState, faction: Faction) {
+    state.faction = faction;
+}
+
+function getEmptyFaction(): Faction {
     return {
-        id: null,
+        _id: null,
 
         name: "",
         label: getEmptyLocale(undefined),
         description: getEmptyLocale(undefined),
-        timeline: "",
-        dbname: undefined,
+        timeline: dbContext.Timelines.findAll()[0],
+        dbname: dbContext.DBNames.findAll()[0],
     };
 }
 
@@ -35,11 +38,12 @@ export const editFactionSlice = createSlice({
     name: "editFaction",
     initialState: {
         openDialog: false,
-        dbnames: [],
         isCreate: false,
-        faction: getEmptyFaction(),
         openError: false,
         error: "",
+
+        faction: getEmptyFaction(),
+        dbnames: [],
     },
     reducers: {
         editFaction_edit: (state, action) => {
@@ -47,13 +51,8 @@ export const editFactionSlice = createSlice({
                 state.openDialog = true;
                 state.isCreate = false;
 
-                mapFaction(state, {
-                    id: action.payload.id,
-                    name: action.payload.name,
-                    description: action.payload.description,
-                    timeline: action.payload.timeline,
-                    dbname: action.payload.dbname,
-                });
+                const faction = action.payload as Faction;
+                mapFaction(state, faction);
             }
         },
         editFaction_new: (state) => {
@@ -68,42 +67,13 @@ export const editFactionSlice = createSlice({
 
             mapFaction(state, getEmptyFaction());
         },
-        editFaction_factions_loaded: (state, action) => {
-            state.factions = action.payload.map((faction) => {
-                return {
-                    id: faction.id,
-                    name: faction.name,
-                };
-            });
-        },
-        editFaction_faction_add: (state, action) => {
-            const faction = state.faction.factions.find(
-                (f) => f.id === action.payload.id
-            );
-            if (faction) {
-                return;
-            }
-
-            state.faction.factions.push(action.payload);
-        },
-        editFaction_faction_remove: (state, action) => {
-            const factionIndex = state.faction.factions.findIndex(
-                (f) => f.id === action.payload
-            );
-            if (factionIndex > -1) {
-                state.faction.factions.splice(factionIndex, 1);
-            }
-        },
         editFaction_dbnames_loaded: (state, action) => {
-            state.dbnames = action.payload.map((dbname) => {
-                return {
-                    id: dbname.id,
-                    name: dbname.name,
-                };
-            });
+            state.dbnames = action.payload as DbName[];
         },
         editFaction_changeDbName: (state, action) => {
-            const dbname = state.dbnames.find((f) => f.id === action.payload);
+            const dbname = state.dbnames.find(
+                (dbname) => dbname.id === action.payload
+            );
             if (dbname) {
                 state.faction.dbname = dbname;
             }
@@ -117,11 +87,12 @@ export const editFactionSlice = createSlice({
                 cleanString(state.faction.name) + "_label";
         },
         editFaction_changeLabel: (state, action) => {
-            state.faction.label[action.payload.locale] = action.payload.value;
+            const locale: LocaleChange = action.payload;
+            state.faction.label[locale.language] = locale.value;
         },
         editFaction_changeDescription: (state, action) => {
-            state.faction.description[action.payload.locale] =
-                action.payload.value;
+            const locale: LocaleChange = action.payload;
+            state.faction.description[locale.language] = locale.value;
         },
         editFaction_changeTimeline: (state, action) => {
             state.faction.timeline = action.payload;
@@ -143,9 +114,6 @@ export const {
     editFaction_edit,
     editFaction_new,
     editFaction_close,
-    editFaction_factions_loaded,
-    editFaction_faction_add,
-    editFaction_faction_remove,
     editFaction_dbnames_loaded,
     editFaction_changeDbName,
     editFaction_changeName,
@@ -157,43 +125,45 @@ export const {
 } = editFactionSlice.actions;
 export default editFactionSlice.reducer;
 
-const editFaction_save = (faction) => (dispatch: Dispatch<AnyAction>) => {
-    dbContext.Factions.update(faction)
-        .then((savedFaction) => {
+const editFaction_save =
+    (faction: Faction) => (dispatch: Dispatch<AnyAction>) => {
+        try {
+            const savedFaction = dbContext.Factions.update(faction);
             dispatch(factions_saved(savedFaction));
             dispatch(editFaction_close());
-        })
-        .catch((error) => {
+        } catch (error) {
             dispatch(editFaction_error(error));
-        });
-};
+        }
+    };
 
-const editFaction_create = (faction) => (dispatch: Dispatch<AnyAction>) => {
-    dbContext.Factions.create(faction)
-        .then((savedFaction) => {
+const editFaction_create =
+    (faction: Faction) => (dispatch: Dispatch<AnyAction>) => {
+        try {
+            const savedFaction = dbContext.Factions.create(faction);
             dispatch(factions_created(savedFaction));
             dispatch(editFaction_close());
-        })
-        .catch((error) => {
+        } catch (error) {
             dispatch(editFaction_error(error));
-        });
-};
+        }
+    };
 
-const editFaction_delete = (id) => (dispatch: Dispatch<AnyAction>) => {
-    window.database.remove(
-        window.database.tableNames.factions,
-        id,
-        (deletedid) => dispatch(factions_deleted(deletedid)),
-        (error) => dispatch(editFaction_error(error))
-    );
+const editFaction_delete = (id: number) => (dispatch: Dispatch<AnyAction>) => {
+    try {
+        const deletedId = dbContext.Factions.delete(id);
+        dispatch(factions_deleted(deletedId));
+        dispatch(editFaction_close());
+    } catch (error) {
+        dispatch(editFaction_error(error));
+    }
 };
 
 const editFaction_load = () => (dispatch: Dispatch<AnyAction>) => {
-    window.database.getAll(
-        window.database.tableNames.dbnames,
-        (dbnames) => dispatch(editFaction_dbnames_loaded(dbnames)),
-        (error) => dispatch(editFaction_error(error))
-    );
+    try {
+        const dbnames = dbContext.DBNames.findAll();
+        dispatch(editFaction_dbnames_loaded(dbnames));
+    } catch (error) {
+        dispatch(editFaction_error(error));
+    }
 };
 
 export {

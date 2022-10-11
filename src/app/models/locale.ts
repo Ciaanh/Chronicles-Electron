@@ -1,3 +1,4 @@
+import { Language } from "../constants";
 import { DbObject, Dto } from "./object_interfaces";
 
 export interface Locale extends Dto {
@@ -30,4 +31,10 @@ export interface DB_Locale extends DbObject {
     koKR: string | null;
     zhCN: string | null;
     zhTW: string | null;
+}
+
+export interface LocaleChange {
+    key: string;
+    value: string;
+    language: Language;
 }
