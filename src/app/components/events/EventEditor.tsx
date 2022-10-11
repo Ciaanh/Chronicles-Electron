@@ -52,6 +52,7 @@ import {
     editEvent_description_add,
     editEvent_description_remove,
     editEvent_description_change,
+    editEvent_label_change,
     editEvent_closeError,
     editEvent_save,
     editEvent_create,
@@ -635,7 +636,7 @@ const EventEditor = () => {
                                             locale={event.label}
                                             islabel={true}
                                             change={
-                                                editEvent_description_change
+                                                editEvent_label_change
                                             }
                                         />
                                     </Grid>

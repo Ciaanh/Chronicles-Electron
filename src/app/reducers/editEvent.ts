@@ -219,11 +219,9 @@ export const editEventSlice = createSlice({
         },
 
         editEvent_description_change: (state: EditEventState, action) => {
-const locale:Locale= action.payload;
+            const locale: Locale = action.payload;
 
-            if ( locale&& locale.islabel) {
-                state.event.label[action.payload.locale] = action.payload.value;
-            } else {
+            if (locale) {
                 const descriptionIndex = state.event.description.findIndex(
                     (f) => f.key === action.payload.key
                 );
@@ -232,6 +230,14 @@ const locale:Locale= action.payload;
                         action.payload.locale
                     ] = action.payload.value;
                 }
+            }
+        },
+
+        editEvent_label_change: (state: EditEventState, action) => {
+            const locale: Locale = action.payload;
+
+            if (locale) {
+                state.event.label[action.payload.locale] = action.payload.value;
             }
         },
 
