@@ -79,12 +79,7 @@ export const editEventSlice = createSlice({
         },
 
         editEvent_dbnames_loaded: (state: EditEventState, action) => {
-            state.dbnames = action.payload.map((dbname: DbName) => {
-                return {
-                    id: dbname._id,
-                    name: dbname.name,
-                };
-            });
+            state.dbnames = action.payload as DbName[];
         },
         editEvent_changeDbName: (state: EditEventState, action) => {
             const dbname = state.dbnames.find(
@@ -96,13 +91,7 @@ export const editEventSlice = createSlice({
         },
 
         editEvent_characters_loaded: (state: EditEventState, action) => {
-            state.characters = action.payload.map((character: Character) => {
-                return {
-                    id: character._id,
-                    name: character.name,
-                    dbname: character.dbname,
-                };
-            });
+            state.characters = action.payload as Character[];
         },
         editEvent_character_add: (state: EditEventState, action) => {
             const character = state.event.characters.find(
@@ -124,13 +113,7 @@ export const editEventSlice = createSlice({
         },
 
         editEvent_factions_loaded: (state: EditEventState, action) => {
-            state.factions = action.payload.map((faction: Faction) => {
-                return {
-                    id: faction._id,
-                    name: faction.name,
-                    dbname: faction.dbname,
-                };
-            });
+            state.factions = action.payload as Faction[];
         },
         editEvent_faction_add: (state: EditEventState, action) => {
             const faction = state.event.factions.find(

@@ -52,13 +52,12 @@ export const {
 export default factionsSlice.reducer;
 
 const factions_load = () => (dispatch: Dispatch<AnyAction>) => {
-    dbContext.Factions.findAll()
-        .then((factions) => {
-            dispatch(factions_loaded(factions));
-        })
-        .catch((err) => {
-            console.log("Error", err);
-        });
+    try {
+        const factions = dbContext.Factions.findAll();
+        dispatch(factions_loaded(factions));
+    } catch (error) {
+        console.log("Error", error);
+    }
 };
 
 export { factions_load };

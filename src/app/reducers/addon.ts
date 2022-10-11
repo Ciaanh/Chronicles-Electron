@@ -80,31 +80,31 @@ export const {
 export default addonSlice.reducer;
 
 const addon_load = () => (dispatch: Dispatch<AnyAction>) => {
-    dbContext.DBNames.findAll()
-        .then((dbnames) => {
-            dispatch(addon_dbnames_loaded(dbnames));
-        })
-        .catch((err) => {
-            dispatch(addon_errorWhileGenerating(err));
-        });
+    try {
+        const dbnames = dbContext.DBNames.findAll();
+        dispatch(addon_dbnames_loaded(dbnames));
+    } catch (error) {
+        dispatch(addon_errorWhileGenerating(error));
+    }
 };
 
-const addon_generate_selected = (dbids: number[]) => async (dispatch: Dispatch<AnyAction>) => {
-    const dbnames = await dbContext.DBNames.find(dbids);
+const addon_generate_selected =
+    (dbids: number[]) => async (dispatch: Dispatch<AnyAction>) => {
+        const dbnames = await dbContext.DBNames.find(dbids);
 
-    const events = await dbContext.Events.findByDB(dbids);
+        const events = await dbContext.Events.findByDB(dbids);
 
-    const factions = await dbContext.Factions.findByDB(dbids);
+        const factions = await dbContext.Factions.findByDB(dbids);
 
-    const characters = await dbContext.Characters.findByDB(dbids);
+        const characters = await dbContext.Characters.findByDB(dbids);
 
-    const request: GenerationRequest = {
-        dbnames,
-        events,
-        factions,
-        characters,
+        const request: GenerationRequest = {
+            dbnames,
+            events,
+            factions,
+            characters,
+        };
+        new AddonGenerator().Create(request);
     };
-    new AddonGenerator().Create(request);
-};
 
 export { addon_load, addon_generate_selected };

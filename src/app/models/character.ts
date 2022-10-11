@@ -6,6 +6,7 @@ import { Timeline } from "./timeline";
 
 export interface Character extends Dto {
     name: string;
+    label: Locale;
     biography: Locale;
     timeline: Timeline;
     factions: Faction[];
@@ -14,6 +15,7 @@ export interface Character extends Dto {
 
 export interface DB_Character extends DbObject {
     name: string;
+    labelId: number;
     biographyId: number;
     timelineId: number;
     factionIds: number[];

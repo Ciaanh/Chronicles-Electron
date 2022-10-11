@@ -26,13 +26,12 @@ export const { timelines_loaded, timelines_changeSelectedTimeline } =
 export default timelinesSlice.reducer;
 
 const timelines_load = () => (dispatch: Dispatch<AnyAction>) => {
-    dbContext.Timelines.findAll()
-        .then((timelines) => {
-            dispatch(timelines_loaded(timelines));
-        })
-        .catch((err) => {
-            console.log("Error", err);
-        });
+    try {
+        const timelines = dbContext.Timelines.findAll();
+        dispatch(timelines_loaded(timelines));
+    } catch (error) {
+        console.log("Error", error);
+    }
 };
 
 export { timelines_load };

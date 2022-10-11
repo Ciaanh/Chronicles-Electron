@@ -18,6 +18,7 @@ import Events from "./components/events/Events";
 import Characters from "./components/characters/Characters";
 import Factions from "./components/factions/Factions";
 import DBNames from "./components/dbnames/DBNames";
+import ReactDOM from "react-dom";
 
 const store = initializeStore();
 

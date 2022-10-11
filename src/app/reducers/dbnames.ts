@@ -74,36 +74,42 @@ export const {
 export default dbnamesSlice.reducer;
 
 const dbnames_load = () => (dispatch: Dispatch<AnyAction>) => {
-    dbContext.DBNames.findAll()
-        .then((dbnames) => dispatch(dbnames_loaded(dbnames)))
-        .catch((error) => console.log("Error", error));
+    try {
+        const dbnames = dbContext.DBNames.findAll();
+        dispatch(dbnames_loaded(dbnames));
+    } catch (error) {
+        console.log("Error", error);
+    }
 };
 
 const dbnames_create = (name: string) => (dispatch: Dispatch<AnyAction>) => {
-    dbContext.DBNames.create({
-        _id: -1,
-        name: name,
-    })
-        .then((dbname) => {
-            dispatch(dbnames_created(dbname));
-        })
-        .catch((error) => console.log("Error", error));
+    try {
+        const dbname = dbContext.DBNames.create({
+            _id: -1,
+            name: name,
+        });
+        dispatch(dbnames_created(dbname));
+    } catch (error) {
+        console.log("Error", error);
+    }
 };
 
 const dbnames_save = (dbname: DbName) => (dispatch: Dispatch<AnyAction>) => {
-    dbContext.DBNames.update(dbname)
-        .then((dbname) => {
-            dispatch(dbnames_saved(dbname));
-        })
-        .catch((error) => console.log("Error", error));
+    try {
+        const saved_dbname = dbContext.DBNames.update(dbname);
+        dispatch(dbnames_saved(saved_dbname));
+    } catch (error) {
+        console.log("Error", error);
+    }
 };
 
 const dbnames_delete = (id: number) => (dispatch: Dispatch<AnyAction>) => {
-    dbContext.DBNames.delete(id)
-        .then((deletedid) => {
-            dispatch(dbnames_deleted(deletedid));
-        })
-        .catch((error) => console.log("Error", error));
+    try {
+        const deletedId = dbContext.DBNames.delete(id);
+        dispatch(dbnames_deleted(deletedId));
+    } catch (error) {
+        console.log("Error", error);
+    }
 };
 
 export { dbnames_load, dbnames_create, dbnames_save, dbnames_delete };

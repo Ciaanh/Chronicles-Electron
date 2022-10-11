@@ -60,13 +60,12 @@ export const {
 export default eventsSlice.reducer;
 
 const events_load = () => (dispatch: Dispatch<AnyAction>) => {
-    dbContext.Events.findAll()
-        .then((events) => {
-            dispatch(events_loaded(events));
-        })
-        .catch((err) => {
-            console.log("Error", err);
-        });
+    try {
+        const events = dbContext.Events.findAll();
+        dispatch(events_loaded(events));
+    } catch (err) {
+        console.log("Error", err);
+    }
 };
 
 export { events_load };

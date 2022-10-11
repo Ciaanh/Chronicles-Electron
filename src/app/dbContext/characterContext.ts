@@ -72,6 +72,7 @@ export const CharacterMapper = (character: Character): DB_Character => {
     return {
         id: character._id,
         name: character.name,
+        labelId: character.label._id,
         biographyId: character.biography._id,
         timelineId: character.timeline._id,
         factionIds: character.factions.map((faction) => faction._id),
@@ -83,6 +84,7 @@ export const CharacterMapperFromDB = (character: DB_Character): Character => {
     return {
         _id: character.id,
         name: character.name,
+        label: Locales.get(character.labelId),
         biography: Locales.get(character.biographyId),
         timeline: Timelines.get(character.timelineId),
         factions: Factions.find(character.factionIds),

@@ -1,7 +1,11 @@
 import { AnyAction, createSlice, Dispatch } from "@reduxjs/toolkit";
 
 import { getEmptyLocale, cleanString } from "../constants";
+import dbContext from "../dbContext/dbContext";
 import { Character } from "../models/character";
+import { DbName } from "../models/dbname";
+import { Faction } from "../models/faction";
+import { LocaleChange } from "../models/locale";
 
 import {
     characters_created,
@@ -9,27 +13,31 @@ import {
     characters_deleted,
 } from "./characters";
 
-function mapCharacter(state, character: Character) {
-    state.character.id = character.id;
-    state.character.name = character.name;
-    state.character.label = character.label;
-    state.character.biography = character.biography;
-    state.character.timeline = character.timeline;
-    state.character.factions = character.factions;
+interface EditCharacterState {
+    openDialog: boolean;
+    isCreate: boolean;
+    openError: boolean;
+    error: string;
 
-    state.character.dbname = character.dbname;
+    character: Character;
+    factions: Faction[];
+    dbnames: DbName[];
 }
 
-function getEmptyCharacter() {
+function mapCharacter(state: EditCharacterState, character: Character) {
+    state.character = character;
+}
+
+function getEmptyCharacter(): Character {
     return {
-        id: null,
+        _id: null,
 
         name: "",
-        biography: getEmptyLocale(undefined),
         label: getEmptyLocale(undefined),
-        timeline: "",
+        biography: getEmptyLocale(undefined),
+        timeline: dbContext.Timelines.findAll()[0],
         factions: [],
-        dbname: undefined,
+        dbname: dbContext.DBNames.findAll()[0],
     };
 }
 
@@ -37,12 +45,13 @@ export const editCharacterSlice = createSlice({
     name: "editCharacter",
     initialState: {
         openDialog: false,
-        factions: [],
-        dbnames: [],
         isCreate: false,
-        character: getEmptyCharacter(),
         openError: false,
         error: "",
+
+        character: getEmptyCharacter(),
+        factions: [],
+        dbnames: [],
     },
     reducers: {
         editCharacter_edit: (state, action) => {
@@ -50,14 +59,8 @@ export const editCharacterSlice = createSlice({
                 state.openDialog = true;
                 state.isCreate = false;
 
-                mapCharacter(state, {
-                    id: action.payload.id,
-                    name: action.payload.name,
-                    biography: action.payload.biography,
-                    timeline: action.payload.timeline,
-                    factions: action.payload.factions,
-                    dbname: action.payload.dbname,
-                });
+                const character = action.payload as Character;
+                mapCharacter(state, character);
             }
         },
         editCharacter_new: (state) => {
@@ -73,17 +76,11 @@ export const editCharacterSlice = createSlice({
             mapCharacter(state, getEmptyCharacter());
         },
         editCharacter_factions_loaded: (state, action) => {
-            state.factions = action.payload.map((faction) => {
-                return {
-                    id: faction.id,
-                    name: faction.name,
-                    dbname: faction.dbname,
-                };
-            });
+            state.factions = action.payload as Faction[];
         },
         editCharacter_faction_add: (state, action) => {
             const faction = state.character.factions.find(
-                (f) => f.id === action.payload.id
+                (faction) => faction._id === action.payload.id
             );
             if (faction) {
                 return;
@@ -93,19 +90,14 @@ export const editCharacterSlice = createSlice({
         },
         editCharacter_faction_remove: (state, action) => {
             const factionIndex = state.character.factions.findIndex(
-                (f) => f.id === action.payload
+                (faction) => faction._id === action.payload
             );
             if (factionIndex > -1) {
                 state.character.factions.splice(factionIndex, 1);
             }
         },
         editCharacter_dbnames_loaded: (state, action) => {
-            state.dbnames = action.payload.map((dbname) => {
-                return {
-                    id: dbname.id,
-                    name: dbname.name,
-                };
-            });
+            state.dbnames = action.payload as DbName[];
         },
         editCharacter_changeDbName: (state, action) => {
             const dbname = state.dbnames.find((f) => f.id === action.payload);
@@ -121,9 +113,13 @@ export const editCharacterSlice = createSlice({
             state.character.biography.key =
                 cleanString(state.character.name) + "_biography";
         },
+        editCharacter_changeLabel: (state, action) => {
+            const locale: LocaleChange = action.payload;
+            state.character.label[locale.language] = locale.value;
+        },
         editCharacter_changeBiography: (state, action) => {
-            state.character.biography[action.payload.locale] =
-                action.payload.value;
+            const locale: LocaleChange = action.payload;
+            state.character.biography[locale.language] = locale.value;
         },
         editCharacter_changeTimeline: (state, action) => {
             state.character.timeline = action.payload;
@@ -160,58 +156,49 @@ export const {
 export default editCharacterSlice.reducer;
 
 const editCharacter_load = () => (dispatch: Dispatch<AnyAction>) => {
-    window.database.getAll(
-        window.database.tableNames.factions,
-        (factions) => dispatch(editCharacter_factions_loaded(factions)),
-        (error) => dispatch(editCharacter_error(error))
-    );
+    try {
+        const factions = dbContext.Factions.findAll();
+        dispatch(editCharacter_factions_loaded(factions));
 
-    window.database.getAll(
-        window.database.tableNames.dbnames,
-        (dbNames) => dispatch(editCharacter_dbnames_loaded(dbNames)),
-        (error) => dispatch(editCharacter_error(error))
-    );
+        const dbnames = dbContext.DBNames.findAll();
+        dispatch(editCharacter_dbnames_loaded(dbnames));
+    } catch (error) {
+        dispatch(editCharacter_error(error));
+    }
 };
 
-const editCharacter_save = (character) => (dispatch: Dispatch<AnyAction>) => {
-    window.database.edit(
-        window.database.tableNames.characters,
-        character.id,
-        character,
-        (saved_character) => {
+const editCharacter_save =
+    (character: Character) => (dispatch: Dispatch<AnyAction>) => {
+        try {
+            const saved_character = dbContext.Characters.update(character);
             dispatch(editCharacter_close());
             dispatch(characters_saved(saved_character));
-        },
-        (error) => dispatch(editCharacter_error(error))
-    );
-};
+        } catch (error) {
+            dispatch(editCharacter_error(error));
+        }
+    };
 
-const editCharacter_create = (character) => (dispatch: Dispatch<AnyAction>) => {
-    window.database.add(
-        window.database.tableNames.characters,
-        {
-            name: character.name,
-            biography: character.biography,
-            timeline: character.timeline,
-            factions: character.factions,
-            dbname: character.dbname,
-        },
-        (created_character) => {
+const editCharacter_create =
+    (character: Character) => (dispatch: Dispatch<AnyAction>) => {
+        try {
+            const created_character = dbContext.Characters.create(character);
             dispatch(editCharacter_close());
             dispatch(characters_created(created_character));
-        },
-        (error) => dispatch(editCharacter_error(error))
-    );
-};
+        } catch (error) {
+            dispatch(editCharacter_error(error));
+        }
+    };
 
-const editCharacter_delete = (id) => (dispatch: Dispatch<AnyAction>) => {
-    window.database.remove(
-        window.database.tableNames.characters,
-        id,
-        (deletedid) => dispatch(characters_deleted(deletedid)),
-        (error) => dispatch(editCharacter_error(error))
-    );
-};
+const editCharacter_delete =
+    (id: number) => (dispatch: Dispatch<AnyAction>) => {
+        try {
+            const deletedId = dbContext.Characters.delete(id);
+            dispatch(editCharacter_close());
+            dispatch(characters_deleted(deletedId));
+        } catch (error) {
+            dispatch(editCharacter_error(error));
+        }
+    };
 
 export {
     editCharacter_load,
