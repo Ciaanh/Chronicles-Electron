@@ -6,6 +6,7 @@ import { Character } from "../models/character";
 import { DbName } from "../models/dbname";
 import { Event } from "../models/event";
 import { Faction } from "../models/faction";
+import { Locale } from "../models/locale";
 
 import { events_created, events_saved, events_deleted } from "./events";
 
@@ -218,7 +219,9 @@ export const editEventSlice = createSlice({
         },
 
         editEvent_description_change: (state: EditEventState, action) => {
-            if (action.payload.islabel) {
+const locale:Locale= action.payload;
+
+            if ( locale&& locale.islabel) {
                 state.event.label[action.payload.locale] = action.payload.value;
             } else {
                 const descriptionIndex = state.event.description.findIndex(
