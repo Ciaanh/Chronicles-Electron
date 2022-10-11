@@ -25,6 +25,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import { styled } from "@mui/material/styles";
 
+import { Locale } from "../../models/locale";
+
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     "& .MuiDialogContent-root": {
         padding: theme.spacing(2),
@@ -42,7 +44,14 @@ const Item = styled(Paper)(({ theme }) => ({
     color: theme.palette.text.secondary,
 }));
 
-const Locale = (props) => {
+interface ILocaleProps {
+    locale: Locale;
+    islabel: boolean;
+    remove: (locale: string) => void;
+    change: (locale: string) => void;
+}
+
+const Locale = (props:ILocaleProps) => {
     const { locale, islabel, remove, change } = props;
 
     const dispatch = useDispatch();
