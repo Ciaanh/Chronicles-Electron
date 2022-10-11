@@ -4,6 +4,8 @@ import path from "path";
 import { DbObject } from "./app/models/object_interfaces";
 import fs from "fs";
 
+// https://github.com/louischatriot/nedb#persistence ?
+
 export type TablesList = {
     events: string;
     characters: string;
