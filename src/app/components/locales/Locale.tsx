@@ -1,5 +1,4 @@
 import React from "react";
-import { useDispatch } from "react-redux";
 
 import {
     AppBar,
@@ -27,7 +26,6 @@ import { styled } from "@mui/material/styles";
 
 import { Locale, LocaleChange } from "../../models/locale";
 import { Language } from "../../constants";
-import { AnyAction } from "redux";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     "& .MuiDialogContent-root": {

@@ -1,11 +1,6 @@
 import React, { useEffect } from "react";
-
 import { Route, HashRouter } from "react-router-dom";
-
-import { Provider, useDispatch } from "react-redux";
-
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-
 import { Box, CssBaseline, ThemeOptions } from "@mui/material";
 
 import initializeStore from "./store";

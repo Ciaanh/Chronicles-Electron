@@ -6,7 +6,7 @@ import GetAppIcon from "@mui/icons-material/GetApp";
 
 import { AddonDownloadUrl } from "../constants";
 
-const Copyright = (props) => {
+const Copyright = (props: any) => {
     return (
         <Typography
             variant="body2"

@@ -1,140 +1,215 @@
 import React, { useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
 
 import {
     Alert,
+    AppBar,
     Box,
     Button,
     Checkbox,
+    IconButton,
     List,
     ListItem,
     ListItemButton,
     ListItemIcon,
     ListItemText,
     Snackbar,
+    Toolbar,
+    Typography,
 } from "@mui/material";
-
+import MenuIcon from "@mui/icons-material/Menu";
 import DownloadIcon from "@mui/icons-material/Download";
 
-import {
-    addon_load,
-    addon_checkDbName_toggle,
-    addon_closeError,
-    addon_generate_selected,
-} from "../reducers/addon";
+import { render } from "react-dom";
+import { DbName } from "../models/dbname";
+import dbContext from "../dbContext/dbContext";
+import { AddonGenerator, GenerationRequest } from "../addon/generator";
 
-const Addon = () => {
-    const dispatch = useDispatch();
+interface AddonProps {
+    message: string;
+}
+interface AddonState {
+    dbnames: DbNameItem[];
+    openError: boolean;
+    error: string;
+}
 
-    // eslint-disable-next-line
-    useEffect(() => dispatch(addon_load()), []);
+interface DbNameItem extends DbName {
+    checked: boolean;
+}
 
-    const addonState = useSelector((state) => {
-        return state.addon;
-    });
+class Addon extends React.Component<AddonProps, AddonState> {
+    constructor(props: AddonProps) {
+        super(props);
+        const initialState: AddonState = {
+            dbnames: [],
+            openError: false,
+            error: "",
+        };
+        try {
+            const dbnames = dbContext.DBNames.findAll();
+            initialState.dbnames = dbnames.map((db) => {
+                return { ...db, checked: false };
+            });
+        } catch (error) {
+            initialState.openError = true;
+            initialState.error = "Error loading dbnames";
+        }
 
-    return (
-        <Box sx={{ flexGrow: 1 }}>
-            <AppBar position="static">
-                <Toolbar>
-                    <IconButton
-                        size="large"
-                        edge="start"
-                        color="inherit"
-                        aria-label="menu"
-                        sx={{ mr: 2 }}
-                    >
-                        <MenuIcon />
-                    </IconButton>
-                    <Typography
-                        variant="h6"
-                        component="div"
-                        sx={{ flexGrow: 1 }}
-                    >
-                        Addon
-                    </Typography>
-                    <Button color="inherit">Login</Button>
-                </Toolbar>
-            </AppBar>
-            <List>
-                {addonState.dbnames.map((dbname) => {
-                    const labelId = `checkbox-list-label-${dbname.id}`;
-                    return (
-                        <ListItem
-                            key={dbname.id}
-                            value={dbname.name}
-                            secondaryAction={
-                                <Button
-                                    variant="contained"
-                                    onClick={() =>
-                                        dispatch(addon_generate_selected([dbname.id]))
-                                    }
-                                >
-                                    Generate
-                                </Button>
-                            }
-                            disablePadding
+        this.state = initialState;
+    }
+
+    addon_errorWhileGenerating(message: string) {
+        const newState: AddonState = { ...this.state } as AddonState;
+        newState.openError = true;
+        newState.error = message;
+        this.setState(newState);
+    }
+
+    addon_generate_selected(dbids: number[]) {
+        const dbnames = dbContext.DBNames.find(dbids);
+
+        const events = dbContext.Events.findByDB(dbids);
+
+        const factions = dbContext.Factions.findByDB(dbids);
+
+        const characters = dbContext.Characters.findByDB(dbids);
+
+        const request: GenerationRequest = {
+            dbnames,
+            events,
+            factions,
+            characters,
+        };
+        new AddonGenerator().Create(request);
+    }
+
+    addon_checkDbName_toggle(dbnameid: number) {
+        const newState: AddonState = { ...this.state } as AddonState;
+
+        const dbnameIndex = newState.dbnames.findIndex(
+            (dbname) => dbname._id === dbnameid
+        );
+        if (dbnameIndex !== -1) {
+            newState.dbnames[dbnameIndex].checked =
+                !newState.dbnames[dbnameIndex].checked;
+        }
+
+        this.setState(newState);
+    }
+
+    addon_closeError() {
+        const newState: AddonState = { ...this.state } as AddonState;
+
+        newState.openError = false;
+        newState.error = "";
+
+        this.setState(newState);
+    }
+
+    render() {
+        return (
+            <Box sx={{ flexGrow: 1 }}>
+                <AppBar position="static">
+                    <Toolbar>
+                        <IconButton
+                            size="large"
+                            edge="start"
+                            color="inherit"
+                            aria-label="menu"
+                            sx={{ mr: 2 }}
                         >
-                            <ListItemButton
-                                role={undefined}
-                                onClick={() => {
-                                    dispatch(
-                                        addon_checkDbName_toggle(dbname.id)
-                                    );
-                                }}
-                                dense
+                            <MenuIcon />
+                        </IconButton>
+                        <Typography
+                            variant="h6"
+                            component="div"
+                            sx={{ flexGrow: 1 }}
+                        >
+                            Addon
+                        </Typography>
+                        <Button color="inherit">Login</Button>
+                    </Toolbar>
+                </AppBar>
+                <List>
+                    {this.state.dbnames.map((dbname) => {
+                        const labelId = `checkbox-list-label-${dbname._id}`;
+                        return (
+                            <ListItem
+                                key={dbname._id}
+                                value={dbname.name}
+                                secondaryAction={
+                                    <Button
+                                        variant="contained"
+                                        onClick={() =>
+                                            this.addon_generate_selected([
+                                                dbname._id,
+                                            ])
+                                        }
+                                    >
+                                        Generate
+                                    </Button>
+                                }
+                                disablePadding
                             >
-                                <ListItemIcon>
-                                    <Checkbox
-                                        checked={dbname.checked}
-                                        tabIndex={-1}
-                                        disableRipple
-                                        inputProps={{
-                                            "aria-labelledby": labelId,
-                                        }}
+                                <ListItemButton
+                                    role={undefined}
+                                    onClick={() =>
+                                        this.addon_checkDbName_toggle(
+                                            dbname._id
+                                        )
+                                    }
+                                    dense
+                                >
+                                    <ListItemIcon>
+                                        <Checkbox
+                                            checked={dbname.checked}
+                                            tabIndex={-1}
+                                            disableRipple
+                                            inputProps={{
+                                                "aria-labelledby": labelId,
+                                            }}
+                                        />
+                                    </ListItemIcon>
+                                    <ListItemText
+                                        id={labelId}
+                                        primary={dbname.name}
                                     />
-                                </ListItemIcon>
-                                <ListItemText
-                                    id={labelId}
-                                    primary={dbname.name}
-                                />
-                            </ListItemButton>
-                        </ListItem>
-                    );
-                })}
-            </List>
-            <Button
-                variant="contained"
-                onClick={() =>
-                    dispatch(
-                        addon_generate_selected(
-                            addonState.dbnames
+                                </ListItemButton>
+                            </ListItem>
+                        );
+                    })}
+                </List>
+                <Button
+                    variant="contained"
+                    onClick={() =>
+                        this.addon_generate_selected(
+                            this.state.dbnames
                                 .filter((dbname) => dbname.checked)
                                 .map((dbname) => {
                                     return dbname._id;
                                 })
                         )
-                    )
-                }
-            >
-                Generate Selected <DownloadIcon />
-            </Button>
-
-            <Snackbar
-                open={addonState.openError}
-                onClose={() => dispatch(addon_closeError())}
-            >
-                <Alert
-                    elevation={1}
-                    variant="filled"
-                    onClose={() => dispatch(addon_closeError())}
-                    severity="error"
+                    }
                 >
-                    {addonState.error}
-                </Alert>
-            </Snackbar>
-        </Box>
-    );
-};
+                    Generate Selected <DownloadIcon />
+                </Button>
+
+                <Snackbar
+                    open={this.state.openError}
+                    onClose={() => this.addon_closeError()}
+                >
+                    <Alert
+                        elevation={1}
+                        variant="filled"
+                        onClose={() => this.addon_closeError()}
+                        severity="error"
+                    >
+                        {this.state.error}
+                    </Alert>
+                </Snackbar>
+            </Box>
+        );
+    }
+}
 
 export default Addon;

@@ -15,8 +15,7 @@
     "config": {
         "forge": {
             "packagerConfig": {},
-            "makers": [
-                {
+            "makers": [{
                     "name": "@electron-forge/maker-squirrel",
                     "config": {
                         "name": "my_new_app"
@@ -44,13 +43,11 @@
                         "mainConfig": "./webpack.main.config.js",
                         "renderer": {
                             "config": "./webpack.renderer.config.js",
-                            "entryPoints": [
-                                {
-                                    "html": "./src/index.html",
-                                    "js": "./src/renderer.ts",
-                                    "name": "main_window"
-                                }
-                            ]
+                            "entryPoints": [{
+                                "html": "./src/index.html",
+                                "js": "./src/renderer.ts",
+                                "name": "main_window"
+                            }]
                         }
                     }
                 ]
@@ -72,7 +69,6 @@
         "@mui/styled-engine": "^5.10.1",
         "@mui/styled-engine-sc": "^5.10.1",
         "@mui/system": "^5.10.1",
-        "@reduxjs/toolkit": "^1.8.5",
         "@types/react": "^18.0.21",
         "@types/react-dom": "^18.0.6",
         "@types/react-router-dom": "^5.3.3",
@@ -99,10 +95,7 @@
         "electron-squirrel-startup": "^1.0.0",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
-        "react-redux": "^8.0.4",
         "react-router-dom": "^6.4.1",
-        "redux": "^4.2.0",
-        "redux-thunk": "^2.4.1",
         "stream-buffers": "^3.0.2"
     }
 }

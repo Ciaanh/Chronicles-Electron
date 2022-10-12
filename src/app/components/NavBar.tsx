@@ -1,5 +1,4 @@
 import React from "react";
-import { useSelector } from "react-redux";
 import { NavLink } from "react-router-dom";
 
 import Copyright from "./Copyright";
@@ -25,8 +24,8 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 const drawerWidth = 240;
 
-const NavBar = (props) => {
-    const activeRoute = (routeName) => {
+const NavBar = (props: any) => {
+    const activeRoute = (routeName: string) => {
         return props.location.pathname === routeName ? true : false;
     };
     return (
