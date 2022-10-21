@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Timelines, Language } from "../../constants";
+import { Language } from "../../constants";
 
 import {
     Timeline as TimelineUI,
@@ -23,7 +23,6 @@ import {
 import DoubleArrowIcon from "@mui/icons-material/DoubleArrow";
 
 import { Event } from "../../models/event";
-import { render } from "react-dom";
 import dbContext from "../../dbContext/dbContext";
 import { Timeline } from "../../models/timeline";
 

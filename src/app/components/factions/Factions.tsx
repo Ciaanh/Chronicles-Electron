@@ -82,7 +82,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
         this.setState(newState);
     }
 
-    showcreate() {
+    showCreate() {
         const newState: FactionsState = { ...this.state } as FactionsState;
 
         newState.edit = false;
@@ -92,7 +92,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
         this.setState(newState);
     }
 
-    showedit(factionToEdit: Faction) {
+    showEdit(factionToEdit: Faction) {
         const newState: FactionsState = { ...this.state } as FactionsState;
 
         const index = newState.factions.findIndex(
@@ -167,6 +167,41 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
     //     }
     // }
 
+    create(factionToEdit: Faction) {
+        try {
+            const newFaction = dbContext.Factions.create(factionToEdit);
+            const newState: FactionsState = {
+                ...this.state,
+            } as FactionsState;
+
+            newState.factions.push(newFaction);
+
+            this.setState(newState);
+        } catch (error) {
+            console.log("Error", error);
+        }
+    }
+
+    update(factionToEdit: Faction) {
+        try {
+            const newFaction = dbContext.Factions.update(factionToEdit);
+            const newState: FactionsState = {
+                ...this.state,
+            } as FactionsState;
+
+            const index = newState.factions.findIndex(
+                (faction) => faction._id === newFaction._id
+            );
+            if (index !== -1) {
+                newState.factions[index] = newFaction;
+            }
+
+            this.setState(newState);
+        } catch (error) {
+            console.log("Error", error);
+        }
+    }
+
     render() {
         return (
             <React.Fragment>
@@ -175,7 +210,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
                     <FactionRow
                         key={faction._id}
                         faction={faction}
-                        openDetails={this.showedit}
+                        openDetails={this.showEdit}
                         deletedFaction={this.faction_deleted}
                         showError={this.showError}
                     />
@@ -188,7 +223,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
                         bottom: (theme) => theme.spacing(2),
                         right: (theme) => theme.spacing(2),
                     }}
-                    onClick={() => this.showcreate()}
+                    onClick={() => this.showCreate()}
                 >
                     <AddIcon />
                 </Fab>
@@ -239,9 +274,13 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
                                         color="inherit"
                                         onClick={() => {
                                             if (this.state.create) {
-                                                editFaction_create(faction);
+                                                this.create(
+                                                    this.state.editingFaction
+                                                );
                                             } else {
-                                                editFaction_save(faction);
+                                                this.update(
+                                                    this.state.editingFaction
+                                                );
                                             }
                                         }}
                                     >
@@ -348,7 +387,6 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
                             </Grid>
 
                             <Grid
-                                item={true}
                                 xs={12}
                                 sx={{
                                     marginLeft: (theme) => theme.spacing(1),
@@ -373,7 +411,6 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
                             </Grid>
 
                             <Grid
-                                item
                                 xs={12}
                                 sx={{
                                     marginLeft: (theme) => theme.spacing(1),
@@ -397,7 +434,6 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
                             </Grid>
 
                             <Grid
-                                item
                                 xs={12}
                                 sx={{
                                     marginLeft: (theme) => theme.spacing(1),

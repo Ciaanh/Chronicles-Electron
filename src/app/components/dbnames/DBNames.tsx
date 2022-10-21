@@ -113,7 +113,7 @@ class DBNames extends React.Component<DBNamesProps, DBNamesState> {
         }
     }
 
-    save(dbnameToSave: DbName) {
+    update(dbnameToSave: DbName) {
         const newState: DBNamesState = { ...this.state } as DBNamesState;
         try {
             const saved_dbname = dbContext.DBNames.update(dbnameToSave);
@@ -194,7 +194,7 @@ class DBNames extends React.Component<DBNamesProps, DBNamesState> {
                                     />
                                     <Button
                                         onClick={() => {
-                                            this.save(dbname);
+                                            this.update(dbname);
                                         }}
                                         color="primary"
                                     >
