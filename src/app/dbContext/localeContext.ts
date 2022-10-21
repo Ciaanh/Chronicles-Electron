@@ -33,6 +33,13 @@ export const Locales: LocaleContext = {
         return LocaleMapperFromDB(locale);
     },
     create: function (locale) {
+        const locales = window.database
+            .getAll(window.database.tableNames.locales)
+            .map((locale) => locale.id);
+
+        const newId = locales.length > 0 ? Math.max(...locales) + 1 : 1;
+        locale._id = newId;
+
         const createdLocale: DB_Locale = window.database.add(
             window.database.tableNames.locales,
             LocaleMapper(locale)

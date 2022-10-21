@@ -46,6 +46,13 @@ export const Events: EventContext = {
         return EventMapperFromDB(event);
     },
     create: function (event) {
+        const events = window.database
+            .getAll(window.database.tableNames.events)
+            .map((event) => event.id);
+
+        const newId = events.length > 0 ? Math.max(...events) + 1 : 1;
+        event._id = newId;
+
         const createdEvent: DB_Event = window.database.add(
             window.database.tableNames.events,
             EventMapper(event)

@@ -3,12 +3,12 @@ import { Locale } from "./models/locale";
 export const AddonDownloadUrl =
     "https://www.curseforge.com/wow/addons/chronicles";
 
-export const Timelines = [
-    { name: "Main", value: 0 },
-    { name: "Alternate Dreanor", value: 1 },
-    { name: "End of time", value: 2 },
-    { name: "War Of The Ancients", value: 3 },
-];
+// export const Timelines = [
+//     { name: "Main", value: 0 },
+//     { name: "Alternate Dreanor", value: 1 },
+//     { name: "End of time", value: 2 },
+//     { name: "War Of The Ancients", value: 3 },
+// ];
 export const EventTypes = [
     { name: "Event", value: "Event" },
     { name: "Era", value: "Era" },

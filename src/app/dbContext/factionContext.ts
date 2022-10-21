@@ -46,6 +46,13 @@ export const Factions: FactionContext = {
         return FactionMapperFromDB(faction);
     },
     create: function (faction) {
+        const factions = window.database
+            .getAll(window.database.tableNames.factions)
+            .map((faction) => faction.id);
+
+        const newId = factions.length > 0 ? Math.max(...factions) + 1 : 1;
+        faction._id = newId;
+
         const createdFaction: DB_Faction = window.database.add(
             window.database.tableNames.factions,
             FactionMapper(faction)

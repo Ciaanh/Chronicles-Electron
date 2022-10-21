@@ -33,6 +33,13 @@ export const DBNames: DBNameContext = {
         return DbNameMapperFromDB(dbName);
     },
     create: function (dbName) {
+        const dbNames = window.database
+            .getAll(window.database.tableNames.dbnames)
+            .map((dbName) => dbName.id);
+
+        const newId = dbNames.length > 0 ? Math.max(...dbNames) + 1 : 1;
+        dbName._id = newId;
+
         const createdDbName: DB_DbName = window.database.add(
             window.database.tableNames.dbnames,
             DbNameMapper(dbName)

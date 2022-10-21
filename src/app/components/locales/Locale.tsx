@@ -47,14 +47,12 @@ const Item = styled(Paper)(({ theme }) => ({
 interface ILocaleProps {
     locale: Locale;
     islabel: boolean;
-    remove: (key: string) => AnyAction;
-    change: (changes: LocaleChange) => AnyAction;
+    remove: (key: string) => void;
+    change: (changes: LocaleChange) => void;
 }
 
 const Locale = (props: ILocaleProps) => {
     const { locale, islabel, remove, change } = props;
-
-    const dispatch = useDispatch();
 
     const [open, setOpen] = React.useState(false);
 
@@ -97,8 +95,8 @@ const Locale = (props: ILocaleProps) => {
                                     edge="start"
                                     color="inherit"
                                     onClick={(event) => {
-                                        dispatch(remove(locale.key));
                                         event.stopPropagation();
+                                        remove(locale.key);
                                     }}
                                     aria-label="close"
                                 >
@@ -157,24 +155,24 @@ const Locale = (props: ILocaleProps) => {
                                     <ListItemText
                                         primary="enUS"
                                         secondary="Secondary text"
-                                        onClick={() => {
+                                        onClick={() =>
                                             selectLocale(
                                                 locale.enUS,
                                                 locale.key,
                                                 Language.enUS
-                                            );
-                                        }}
+                                            )
+                                        }
                                     />
                                     <ListItemText
                                         primary="frFR"
                                         secondary="Secondary text"
-                                        onClick={() => {
+                                        onClick={() =>
                                             selectLocale(
                                                 locale.frFR,
                                                 locale.key,
                                                 Language.frFR
-                                            );
-                                        }}
+                                            )
+                                        }
                                     />
                                 </List>
                             </Item>
@@ -191,15 +189,13 @@ const Locale = (props: ILocaleProps) => {
                                 multiline
                                 rows={15}
                                 value={selectedLocale.value}
-                                onChange={(event) => {
-                                    dispatch(
-                                        change({
-                                            key: selectedLocale.key,
-                                            value: event.target.value,
-                                            language: selectedLocale.language,
-                                        })
-                                    );
-                                }}
+                                onChange={(event) =>
+                                    change({
+                                        key: selectedLocale.key,
+                                        value: event.target.value,
+                                        language: selectedLocale.language,
+                                    })
+                                }
                                 variant="filled"
                             />
                         </Grid>

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 
 import {
     Alert,
@@ -19,7 +19,6 @@ import {
 import MenuIcon from "@mui/icons-material/Menu";
 import DownloadIcon from "@mui/icons-material/Download";
 
-import { render } from "react-dom";
 import { DbName } from "../models/dbname";
 import dbContext from "../dbContext/dbContext";
 import { AddonGenerator, GenerationRequest } from "../addon/generator";

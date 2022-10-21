@@ -47,6 +47,13 @@ export const Characters: CharacterContext = {
         return CharacterMapperFromDB(character);
     },
     create: function (character) {
+        const characters = window.database
+            .getAll(window.database.tableNames.characters)
+            .map((character) => character.id);
+
+        const newId = characters.length > 0 ? Math.max(...characters) + 1 : 1;
+        character._id = newId;
+
         const createdCharacter = window.database.add(
             window.database.tableNames.characters,
             CharacterMapper(character)

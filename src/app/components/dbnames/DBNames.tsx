@@ -14,119 +14,226 @@ import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 
-import {
-    dbnames_displayCreate,
-    dbnames_edit,
-    dbnames_changeName,
-    dbnames_changeCreationName,
-    dbnames_load,
-    dbnames_create,
-    dbnames_save,
-    dbnames_delete,
-} from "../../reducers/dbnames";
+import { DbName } from "../../models/dbname";
+import dbContext from "../../dbContext/dbContext";
 
-const DBNames = () => {
-    const dispatch = useDispatch();
+interface DBNamesProps {
+    message: string;
+}
 
-    // eslint-disable-next-line
-    useEffect(() => dispatch(dbnames_load()), []);
+interface DBNamesState {
+    dbnames: DbName[];
 
-    const dbnamesState = useSelector((state) => {
-        return state.dbnames;
-    });
+    edit: boolean;
+    create: boolean;
+    editingDbName: DbName | null;
 
-    return (
-        <React.Fragment>
-            <List>
-                {dbnamesState.list.map((dbname) => (
-                    <ListItem key={dbname.id}>
-                        <React.Fragment>
-                            <IconButton
-                                aria-label="delete"
-                                size="small"
-                                onClick={(event) => {
-                                    event.stopPropagation();
-                                    dispatch(dbnames_delete(dbname.id));
-                                }}
-                            >
-                                <HighlightOffIcon />
-                            </IconButton>
-                            <IconButton
-                                aria-label="edit"
-                                size="small"
-                                onClick={(event) => {
-                                    event.stopPropagation();
-                                    dispatch(dbnames_edit(dbname));
-                                }}
-                            >
-                                <EditIcon />
-                            </IconButton>
-                        </React.Fragment>
+    openError: boolean;
+    error: string;
+}
 
-                        {dbname.edit ? (
+class DBNames extends React.Component<DBNamesProps, DBNamesState> {
+    constructor(props: DBNamesProps) {
+        super(props);
+        const initialState: DBNamesState = {
+            dbnames: [],
+
+            edit: false,
+            create: false,
+            editingDbName: null,
+
+            openError: false,
+            error: "",
+        };
+        try {
+            const dbnames = dbContext.DBNames.findAll();
+            initialState.dbnames = dbnames.map((db) => {
+                return { ...db, checked: false };
+            });
+        } catch (error) {
+            initialState.openError = true;
+            initialState.error = "Error loading dbnames";
+        }
+
+        this.state = initialState;
+    }
+
+    showcreate() {
+        const newState: DBNamesState = { ...this.state } as DBNamesState;
+
+        newState.create = true;
+        newState.editingDbName = { _id: -1, name: "" } as DbName;
+
+        this.setState(newState);
+    }
+
+    showedit(dbnameToEdit: DbName) {
+        const newState: DBNamesState = { ...this.state } as DBNamesState;
+
+        const index = newState.dbnames.findIndex(
+            (dbname) => dbname._id === dbnameToEdit._id
+        );
+        if (index !== -1) {
+            newState.editingDbName = { ...dbnameToEdit };
+            newState.edit = true;
+            newState.create = true;
+        }
+
+        this.setState(newState);
+    }
+
+    changeEditingName(name: string) {
+        const newState: DBNamesState = { ...this.state } as DBNamesState;
+
+        if ((newState.edit || newState.create) && newState.editingDbName) {
+            newState.editingDbName.name = name;
+        } else {
+            newState.openError = true;
+            newState.error = "Error changing editing value";
+        }
+
+        this.setState(newState);
+    }
+
+    create(name: string) {
+        const newState: DBNamesState = { ...this.state } as DBNamesState;
+        try {
+            const created_dbname = dbContext.DBNames.create({
+                _id: -1,
+                name: name,
+            });
+            newState.dbnames.push(created_dbname);
+            newState.create = false;
+            newState.editingDbName = null;
+        } catch (error) {
+            newState.openError = true;
+            newState.error = "Error creating dbname";
+        } finally {
+            this.setState(newState);
+        }
+    }
+
+    save(dbnameToSave: DbName) {
+        const newState: DBNamesState = { ...this.state } as DBNamesState;
+        try {
+            const saved_dbname = dbContext.DBNames.update(dbnameToSave);
+            const index = newState.dbnames.findIndex(
+                (dbname) => dbname._id === saved_dbname._id
+            );
+            if (index !== -1) {
+                newState.dbnames[index] = saved_dbname;
+            }
+        } catch (error) {
+            newState.openError = true;
+            newState.error = "Error saving dbname";
+        } finally {
+            this.setState(newState);
+        }
+    }
+
+    dbnames_delete(id: number) {
+        const newState: DBNamesState = { ...this.state } as DBNamesState;
+        try {
+            const deletedId = dbContext.DBNames.delete(id);
+
+            const index = newState.dbnames.findIndex(
+                (dbname) => dbname._id === deletedId
+            );
+            if (index !== -1) {
+                newState.dbnames.splice(index, 1);
+            }
+        } catch (error) {
+            newState.openError = true;
+            newState.error = "Error deleting dbname";
+        } finally {
+            this.setState(newState);
+        }
+    }
+
+    render() {
+        return (
+            <React.Fragment>
+                <List>
+                    {this.state.dbnames.map((dbname) => (
+                        <ListItem key={dbname._id}>
                             <React.Fragment>
-                                <TextField
-                                    label="Name"
-                                    value={dbname.name}
-                                    onChange={(event) => {
-                                        dispatch(
-                                            dbnames_changeName({
-                                                id: dbname.id,
-                                                name: event.target.value,
-                                            })
-                                        );
+                                <IconButton
+                                    aria-label="delete"
+                                    size="small"
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        this.dbnames_delete(dbname._id);
                                     }}
-                                    margin="dense"
-                                    variant="outlined"
-                                />
-                                <Button
-                                    onClick={() => {
-                                        dispatch(dbnames_save(dbname));
-                                    }}
-                                    color="primary"
                                 >
-                                    Save
-                                </Button>
+                                    <HighlightOffIcon />
+                                </IconButton>
+                                <IconButton
+                                    aria-label="edit"
+                                    size="small"
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        this.showedit(dbname);
+                                    }}
+                                >
+                                    <EditIcon />
+                                </IconButton>
                             </React.Fragment>
-                        ) : (
-                            <Typography>{dbname.name}</Typography>
-                        )}
-                    </ListItem>
-                ))}
 
-                {dbnamesState.creatingDbName &&
-                dbnamesState.creatingDbName.create ? (
-                    <React.Fragment>
-                        <TextField
-                            label="Name"
-                            value={dbnamesState.creatingDbName.name}
-                            onChange={(event) => {
-                                dispatch(
-                                    dbnames_changeCreationName(
+                            {this.state.edit && this.state.editingDbName ? (
+                                <React.Fragment>
+                                    <TextField
+                                        label="Name"
+                                        value={this.state.editingDbName.name}
+                                        onChange={(event) =>
+                                            this.changeEditingName(
+                                                event.target.value
+                                            )
+                                        }
+                                        margin="dense"
+                                        variant="outlined"
+                                    />
+                                    <Button
+                                        onClick={() => {
+                                            this.save(dbname);
+                                        }}
+                                        color="primary"
+                                    >
+                                        Save
+                                    </Button>
+                                </React.Fragment>
+                            ) : (
+                                <Typography>{dbname.name}</Typography>
+                            )}
+                        </ListItem>
+                    ))}
+
+                    {this.state.create && this.state.editingDbName ? (
+                        <React.Fragment>
+                            <TextField
+                                label="Name"
+                                value={this.state.editingDbName.name}
+                                onChange={(event) =>
+                                    this.changeEditingName(
                                         event.target.value
                                     )
-                                );
-                            }}
-                            margin="dense"
-                            variant="outlined"
-                        />
-                        <Button
-                            onClick={() => {
-                                dispatch(
-                                    dbnames_create(
-                                        dbnamesState.creatingDbName.name
+                                }
+                                margin="dense"
+                                variant="outlined"
+                            />
+                            <Button
+                                onClick={() =>
+                                    this.create(
+                                        this.state.editingDbName.name
                                     )
-                                );
-                            }}
-                            color="primary"
-                        >
-                            Save
-                        </Button>
-                    </React.Fragment>
-                ) : null}
-            </List>
+                                }
+                                color="primary"
+                            >
+                                Save
+                            </Button>
+                        </React.Fragment>
+                    ) : null}
+                </List>
 
-            <React.Fragment>
                 <Fab
                     color="primary"
                     sx={{
@@ -134,13 +241,13 @@ const DBNames = () => {
                         bottom: (theme) => theme.spacing(2),
                         right: (theme) => theme.spacing(2),
                     }}
-                    onClick={() => dispatch(dbnames_displayCreate())}
+                    onClick={() => this.showcreate()}
                 >
                     <AddIcon />
                 </Fab>
             </React.Fragment>
-        </React.Fragment>
-    );
-};
+        );
+    }
+}
 
 export default DBNames;

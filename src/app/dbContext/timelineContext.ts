@@ -34,6 +34,13 @@ export const Timelines: TimelineContext = {
         return TimelineMapperFromDB(timeline);
     },
     create: function (timeline) {
+        const timelines = window.database
+            .getAll(window.database.tableNames.timelines)
+            .map((timeline) => timeline.id);
+
+        const newId = timelines.length > 0 ? Math.max(...timelines) + 1 : 1;
+        timeline._id = newId;
+
         const createdTimeline: DB_Timeline = window.database.add(
             window.database.tableNames.timelines,
             TimelineMapper(timeline)
