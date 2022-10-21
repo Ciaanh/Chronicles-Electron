@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 
-import Locale from "../locales/Locale";
+import Locale from "../locales/LocaleView";
 
 import { Timelines, EventTypes } from "../../constants";
 import Grid from "@mui/material/Unstable_Grid2";

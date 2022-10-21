@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 
 import {
     Fab,
@@ -131,7 +131,7 @@ class DBNames extends React.Component<DBNamesProps, DBNamesState> {
         }
     }
 
-    dbnames_delete(id: number) {
+    delete(id: number) {
         const newState: DBNamesState = { ...this.state } as DBNamesState;
         try {
             const deletedId = dbContext.DBNames.delete(id);
@@ -162,7 +162,7 @@ class DBNames extends React.Component<DBNamesProps, DBNamesState> {
                                     size="small"
                                     onClick={(event) => {
                                         event.stopPropagation();
-                                        this.dbnames_delete(dbname._id);
+                                        this.delete(dbname._id);
                                     }}
                                 >
                                     <HighlightOffIcon />
@@ -213,18 +213,14 @@ class DBNames extends React.Component<DBNamesProps, DBNamesState> {
                                 label="Name"
                                 value={this.state.editingDbName.name}
                                 onChange={(event) =>
-                                    this.changeEditingName(
-                                        event.target.value
-                                    )
+                                    this.changeEditingName(event.target.value)
                                 }
                                 margin="dense"
                                 variant="outlined"
                             />
                             <Button
                                 onClick={() =>
-                                    this.create(
-                                        this.state.editingDbName.name
-                                    )
+                                    this.create(this.state.editingDbName.name)
                                 }
                                 color="primary"
                             >

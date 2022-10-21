@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 
 import Grid from "@mui/material/Unstable_Grid2";
 import {
@@ -19,22 +19,21 @@ import {
 } from "@mui/material";
 
 import AddIcon from "@mui/icons-material/Add";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveIcon from "@mui/icons-material/Save";
 
 import FactionRow from "./FactionRow";
 import NoData from "../NoData";
-import Locale from "../locales/Locale";
+import Locale from "../locales/LocaleView";
 
 import { Faction } from "../../models/faction";
 
 import dbContext from "../../dbContext/dbContext";
 
-import { getEmptyLocale } from "../../constants";
+import { getEmptyLocale, cleanString } from "../../constants";
 
 interface FactionsProps {
-    factions: any;
+    factions: Faction[];
 }
 
 interface FactionsState {
@@ -129,6 +128,13 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
         };
     }
 
+    closeError() {
+        const newState: FactionsState = { ...this.state } as FactionsState;
+        newState.openError = false;
+        newState.error = "";
+        this.setState(newState);
+    }
+
     // factions_loaded(state, action) {
     //     state.list = action.payload;
     // }
@@ -200,6 +206,22 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
         } catch (error) {
             console.log("Error", error);
         }
+    }
+
+    changeName(name: string) {
+        const newState: FactionsState = { ...this.state } as FactionsState;
+        if (newState.editingFaction) {
+            newState.editingFaction.name = name;
+
+            newState.editingFaction.label.key = cleanString(name) + "_label";
+
+            newState.editingFaction.description.key =
+                cleanString(name) + "_label";
+        } else {
+            newState.error = "No faction to edit";
+            newState.openError = true;
+        }
+        this.setState(newState);
     }
 
     render() {
@@ -430,6 +452,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
                                     locale={this.state.editingFaction.label}
                                     islabel={true}
                                     change={editFaction_changeLabel}
+                                    remove={editFaction_removeLabel}
                                 />
                             </Grid>
 
@@ -455,19 +478,17 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
                                     }
                                     islabel={true}
                                     change={editFaction_changeDescription}
+                                    remove={editFaction_removeDescription}
                                 />
                             </Grid>
                         </Grid>
                     </DialogContent>
                 </Dialog>
-                <Snackbar
-                    open={this.state.openError}
-                    onClose={() => editFaction_closeError()}
-                >
+                <Snackbar open={this.state.openError} onClose={this.closeError}>
                     <Alert
                         elevation={10}
                         variant="filled"
-                        onClose={() => editFaction_closeError()}
+                        onClose={this.closeError}
                         severity="error"
                     >
                         {this.state.error}
