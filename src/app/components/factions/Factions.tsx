@@ -32,9 +32,8 @@ import dbContext from "../../dbContext/dbContext";
 
 import { getEmptyLocale, cleanString } from "../../constants";
 
-interface FactionsProps {
-    factions: Faction[];
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+interface FactionsProps {}
 
 interface FactionsState {
     factions: Faction[];
@@ -91,14 +90,14 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
         this.setState(newState);
     }
 
-    showEdit(factionToEdit: Faction) {
+    factionDetails(factionid: number) {
         const newState: FactionsState = { ...this.state } as FactionsState;
 
         const index = newState.factions.findIndex(
-            (faction) => faction._id === factionToEdit._id
+            (faction) => faction._id === factionid
         );
         if (index !== -1) {
-            newState.editingFaction = { ...factionToEdit };
+            newState.editingFaction = newState.factions[index];
             newState.edit = true;
             newState.create = false;
         }
@@ -135,21 +134,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
         this.setState(newState);
     }
 
-    // factions_loaded(state, action) {
-    //     state.list = action.payload;
-    // }
-    // factions_created(state, action) {
-    //     state.list.push(action.payload);
-    // }
-    // factions_saved(state, action) {
-    //     const index = state.list.findIndex(
-    //         (faction) => faction.Object._id === action.payload.id
-    //     );
-    //     if (index !== -1) {
-    //         state.list[index] = action.payload;
-    //     }
-    // }
-    faction_deleted(factionid: number) {
+    factionDeleted(factionid: number) {
         const newState: FactionsState = {
             ...this.state,
         } as FactionsState;
@@ -163,15 +148,6 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
 
         this.setState(newState);
     }
-
-    // factions_load() {
-    //     try {
-    //         const factions = dbContext.Factions.findAll();
-    //         dispatch(factions_loaded(factions));
-    //     } catch (error) {
-    //         console.log("Error", error);
-    //     }
-    // }
 
     create(factionToEdit: Faction) {
         try {
@@ -224,10 +200,75 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
         this.setState(newState);
     }
 
-    editFaction_changeDescription (value:string)  {
-        const locale: LocaleChange = action.payload;
-        state.faction.description[locale.language] = locale.value;
-    },
+    changeDbName(dbnameId: string | number) {
+        const newState: FactionsState = { ...this.state } as FactionsState;
+
+        if (!dbnameId || dbnameId === "" || dbnameId === "undefined") {
+            newState.error = "No dbname to edit";
+            newState.openError = true;
+        } else {
+            const dbnameIdValue = parseInt(dbnameId.toString());
+            if (newState.editingFaction) {
+                newState.editingFaction.dbname =
+                    dbContext.DBNames.get(dbnameIdValue);
+            } else {
+                newState.error = "No faction to edit";
+                newState.openError = true;
+            }
+        }
+        this.setState(newState);
+    }
+
+    changeTimeline(timelineId: string | number) {
+        const newState: FactionsState = { ...this.state } as FactionsState;
+
+        if (!timelineId || timelineId === "" || timelineId === "undefined") {
+            newState.error = "No timeline to edit";
+            newState.openError = true;
+        } else {
+            const timelineIdValue = parseInt(timelineId.toString());
+            if (newState.editingFaction) {
+                newState.editingFaction.timeline =
+                    dbContext.Timelines.get(timelineIdValue);
+            } else {
+                newState.error = "No faction to edit";
+                newState.openError = true;
+            }
+        }
+        this.setState(newState);
+    }
+
+    descriptionUpdated(localeId: number) {
+        const updatedLocale = dbContext.Locales.get(localeId);
+
+        const newState: FactionsState = { ...this.state } as FactionsState;
+        if (newState.editingFaction) {
+            newState.editingFaction.description = updatedLocale;
+            newState.factions.filter(
+                (faction) => faction._id === newState.editingFaction._id
+            )[0].description = updatedLocale;
+        } else {
+            newState.error = "No faction to edit";
+            newState.openError = true;
+        }
+        this.setState(newState);
+    }
+
+    labelUpdated(localeId: number) {
+        const updatedLocale = dbContext.Locales.get(localeId);
+
+        const newState: FactionsState = { ...this.state } as FactionsState;
+        if (newState.editingFaction) {
+            newState.editingFaction.label = updatedLocale;
+            newState.factions.filter(
+                (faction) => faction._id === newState.editingFaction._id
+            )[0].label = updatedLocale;
+        } else {
+            newState.error = "No faction to edit";
+            newState.openError = true;
+        }
+        this.setState(newState);
+    }
 
     render() {
         return (
@@ -237,8 +278,8 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
                     <FactionRow
                         key={faction._id}
                         faction={faction}
-                        openDetails={this.showEdit}
-                        deletedFaction={this.faction_deleted}
+                        factionDetails={this.factionDetails}
+                        factionDeleted={this.factionDeleted}
                         showError={this.showError}
                     />
                 ))}
@@ -340,11 +381,11 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
                                         value={
                                             this.state.editingFaction.dbname
                                                 ? this.state.editingFaction
-                                                      .dbname._id ?? "undefined"
-                                                : "undefined"
+                                                      .dbname._id ?? undefined
+                                                : undefined
                                         }
                                         onChange={(dbname) => {
-                                            editFaction_changeDbName(
+                                            this.changeDbName(
                                                 dbname.target.value
                                             );
                                         }}
@@ -385,7 +426,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
                                                 : "undefined"
                                         }
                                         onChange={(event) => {
-                                            editFaction_changeTimeline(
+                                            this.changeTimeline(
                                                 event.target.value
                                             );
                                         }}
@@ -428,7 +469,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
                                     }}
                                     value={this.state.editingFaction.name}
                                     onChange={(changeFaction) => {
-                                        editFaction_changeName(
+                                        this.changeName(
                                             changeFaction.target.value
                                         );
                                     }}
@@ -455,9 +496,8 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
                                 </Typography>
                                 <Locale
                                     locale={this.state.editingFaction.label}
-                                    islabel={true}
-                                    change={editFaction_changeLabel}
-                                    delete={editFaction_removeLabel}
+                                    isRequired={true}
+                                    updated={this.labelUpdated}
                                 />
                             </Grid>
 
@@ -481,9 +521,8 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
                                     locale={
                                         this.state.editingFaction.description
                                     }
-                                    islabel={true}
-                                    change={editFaction_changeDescription}
-                                    delete={editFaction_removeDescription}
+                                    isRequired={true}
+                                    updated={this.descriptionUpdated}
                                 />
                             </Grid>
                         </Grid>

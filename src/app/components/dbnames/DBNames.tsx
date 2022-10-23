@@ -17,9 +17,8 @@ import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import { DbName } from "../../models/dbname";
 import dbContext from "../../dbContext/dbContext";
 
-interface DBNamesProps {
-    message: string;
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+interface DBNamesProps {}
 
 interface DBNamesState {
     dbnames: DbName[];

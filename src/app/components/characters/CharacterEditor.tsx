@@ -275,7 +275,7 @@ const CharacterEditor = () => {
                                 <Locale
                                     locale={character.label}
                                     islabel={true}
-                                    change={editCharacter_changeLabel}
+                                    updated={editCharacter_changeLabel}
                                 />
                             </Grid>
 
@@ -299,7 +299,7 @@ const CharacterEditor = () => {
                                 <Locale
                                     locale={character.biography}
                                     islabel={true}
-                                    change={editCharacter_changeBiography}
+                                    updated={editCharacter_changeBiography}
                                 />
                             </Grid>
                         </Grid>

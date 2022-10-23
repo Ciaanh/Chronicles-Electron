@@ -1,4 +1,5 @@
 import { DB_Faction, Faction } from "../models/faction";
+import dbContext from "./dbContext";
 import { DBNames } from "./dbNameContext";
 import { Locales } from "./localeContext";
 import { Timelines } from "./timelineContext";
@@ -64,6 +65,19 @@ export const Factions: FactionContext = {
             window.database.tableNames.factions,
             FactionMapper(faction)
         );
+
+        if (faction.label._id !== -1) {
+            dbContext.Locales.update(faction.label);
+        } else {
+            dbContext.Locales.create(faction.label);
+        }
+
+        if (faction.description._id !== -1) {
+            dbContext.Locales.update(faction.description);
+        } else {
+            dbContext.Locales.create(faction.description);
+        }
+
         return FactionMapperFromDB(updatedFaction);
     },
     delete: function (id) {

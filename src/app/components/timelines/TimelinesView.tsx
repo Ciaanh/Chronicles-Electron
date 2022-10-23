@@ -26,9 +26,8 @@ import { Event } from "../../models/event";
 import dbContext from "../../dbContext/dbContext";
 import { Timeline } from "../../models/timeline";
 
-interface TimelinesViewProps {
-    message: string;
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+interface TimelinesViewProps {}
 
 interface TimelinesViewState {
     events: Event[];
@@ -102,10 +101,7 @@ class TimelinesView extends React.Component<
                         }
                     >
                         {this.state.timelines.map((timeline) => (
-                            <MenuItem
-                                value={timeline.name}
-                                key={timeline._id}
-                            >
+                            <MenuItem value={timeline.name} key={timeline._id}>
                                 <em>{timeline.name}</em>
                             </MenuItem>
                         ))}

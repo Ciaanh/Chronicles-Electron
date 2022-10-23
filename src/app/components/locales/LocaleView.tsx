@@ -18,11 +18,12 @@ import Grid from "@mui/material/Unstable_Grid2";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
+import SaveIcon from "@mui/icons-material/Save";
 import { styled } from "@mui/material/styles";
 
-import { Locale, LocaleChange } from "../../models/locale";
+import { Locale } from "../../models/locale";
 import { Language } from "../../constants";
-import dbContext from "src/app/dbContext/dbContext";
+import dbContext from "../../dbContext/dbContext";
 
 const Item = styled(Paper)(({ theme }) => ({
     //backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -34,9 +35,9 @@ const Item = styled(Paper)(({ theme }) => ({
 
 interface ILocaleProps {
     locale: Locale;
-    islabel: boolean;
-    delete: (localeId: number) => void;
-    change: (changes: LocaleChange) => void;
+    isRequired: boolean;
+    deleted?: (localeId: number) => void;
+    updated: (localeId: number) => void;
 }
 
 interface ILocaleState {
@@ -50,8 +51,6 @@ interface ILocaleState {
 }
 
 interface ISelectedLocaleItem {
-    key: string;
-    value: string;
     selected: boolean;
     language: Language;
 }
@@ -59,6 +58,10 @@ interface ISelectedLocaleItem {
 class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
     constructor(props: ILocaleProps) {
         super(props);
+
+        if (!props.isRequired && !props.deleted) {
+            throw new Error("deleted callback is required");
+        }
 
         const initialState: ILocaleState = {
             locale: props.locale,
@@ -69,8 +72,6 @@ class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
 
             selectedLocale: {
                 selected: false,
-                key: "",
-                value: "",
                 language: Language.enUS,
             } as ISelectedLocaleItem,
         };
@@ -84,6 +85,7 @@ class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
 
         this.setState(newState);
     }
+
     close() {
         const newState: ILocaleState = { ...this.state };
         newState.open = false;
@@ -95,21 +97,17 @@ class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
         const newState: ILocaleState = { ...this.state };
         newState.selectedLocale = {
             selected: true,
-            key: key,
-            value: value,
             language: language,
         } as ISelectedLocaleItem;
 
         this.setState(newState);
     }
 
-    change(changes: LocaleChange) {
+    changeLocale(value: string, language: Language) {
         const newState: ILocaleState = { ...this.state };
-        newState.locale = changes.locale;
 
-        dbContext.locale.update(changes.locale);
+        newState.locale[language] = value;
 
-        this.props.change(changes);
         this.setState(newState);
     }
 
@@ -117,9 +115,22 @@ class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
         const newState: ILocaleState = { ...this.state };
         newState.open = false;
 
-        dbContext.locale.delete(localeId);
-        this.props.delete(localeId);
+        dbContext.Locales.delete(localeId);
+        this.props.deleted(localeId);
 
+        this.setState(newState);
+    }
+
+    save(locale: Locale) {
+        const newState: ILocaleState = { ...this.state };
+        newState.open = false;
+
+        if (newState.locale._id === -1) {
+            dbContext.Locales.create(locale);
+        } else {
+            dbContext.Locales.update(locale);
+        }
+        this.props.updated(locale._id);
         this.setState(newState);
     }
 
@@ -134,6 +145,7 @@ class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
                             </Typography>
                         </Grid>
                         <Grid xs={1}>
+                            (!this.props.isRequired ? (
                             <IconButton
                                 edge="start"
                                 color="inherit"
@@ -145,6 +157,7 @@ class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
                             >
                                 <DeleteIcon />
                             </IconButton>
+                            )
                         </Grid>
 
                         <Grid xs={11}>
@@ -173,21 +186,30 @@ class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
                     >
                         <Toolbar>
                             Modal title
-                            {this.close ? (
-                                <IconButton
-                                    aria-label="close"
-                                    onClick={this.close}
-                                    sx={{
-                                        position: "absolute",
-                                        right: 8,
-                                        top: 8,
-                                        color: (theme) =>
-                                            theme.palette.grey[500],
-                                    }}
-                                >
-                                    <CloseIcon />
-                                </IconButton>
-                            ) : null}
+                            <IconButton
+                                aria-label="close"
+                                onClick={this.close}
+                                sx={{
+                                    position: "absolute",
+                                    right: 8,
+                                    top: 8,
+                                    color: (theme) => theme.palette.grey[500],
+                                }}
+                            >
+                                <CloseIcon />
+                            </IconButton>
+                            <IconButton
+                                aria-label="save"
+                                onClick={() => this.save(this.state.locale)}
+                                sx={{
+                                    position: "absolute",
+                                    right: 32,
+                                    top: 8,
+                                    color: (theme) => theme.palette.grey[500],
+                                }}
+                            >
+                                <SaveIcon />
+                            </IconButton>
                         </Toolbar>
                     </AppBar>
                     <DialogContent dividers>
@@ -231,15 +253,16 @@ class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
                                     label="Multiline"
                                     multiline
                                     rows={15}
-                                    value={this.state.selectedLocale.value}
+                                    value={
+                                        this.state.locale[
+                                            this.state.selectedLocale.language
+                                        ]
+                                    }
                                     onChange={(event) =>
-                                        this.props.change({
-                                            key: this.state.selectedLocale.key,
-                                            value: event.target.value,
-                                            language:
-                                                this.state.selectedLocale
-                                                    .language,
-                                        })
+                                        this.changeLocale(
+                                            event.target.value,
+                                            this.state.selectedLocale.language
+                                        )
                                     }
                                     variant="filled"
                                 />

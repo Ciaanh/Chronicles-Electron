@@ -12,17 +12,12 @@ import EditIcon from "@mui/icons-material/Edit";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
-import {
-    editFaction_edit,
-    editFaction_delete,
-} from "../../reducers/editFaction";
 import { Faction } from "../../models/faction";
-import dbContext from "../../dbContext/dbContext";
 
 interface IFactionRowProps {
     faction: Faction;
-    openDetails: (faction: Faction) => void;
-    deletedFaction: (factionid: number) => void;
+    factionDetails: (factionid: number) => void;
+    factionDeleted: (factionid: number) => void;
     showError: (error: string) => void;
 }
 
@@ -41,38 +36,21 @@ class FactionRow extends React.Component<IFactionRowProps, IFactionRowState> {
         this.state = initialState;
     }
 
-    editFaction_edit(state, action) {
-        if (action.payload) {
-            state.openDialog = true;
-            state.isCreate = false;
-
-            const faction = action.payload as Faction;
-            mapFaction(state, faction);
-        }
-    }
-
-    editFaction_delete(factionid: number) {
+    toggleAccordion() {
         const newState: IFactionRowState = {
             ...this.state,
         } as IFactionRowState;
 
-        try {
-            const deletedId = dbContext.Factions.delete(factionid);
-            this.props.deletedFaction(deletedId);
+        newState.open = !newState.open;
 
-            newState.open = false;
-        } catch (error) {
-            showError(error);
-        } finally {
-            this.setState(newState);
-        }
+        this.setState(newState);
     }
 
     render() {
         return (
             <Accordion
                 expanded={this.state.open}
-                onChange={() => this.props.openDetails(this.state.faction._id)}
+                onChange={() => this.toggleAccordion()}
             >
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                     <Typography
@@ -88,7 +66,9 @@ class FactionRow extends React.Component<IFactionRowProps, IFactionRowState> {
                                 size="small"
                                 onClick={(event) => {
                                     event.stopPropagation();
-                                    editFaction_delete(this.state.faction._id);
+                                    this.props.factionDeleted(
+                                        this.state.faction._id
+                                    );
                                 }}
                             >
                                 <HighlightOffIcon />
@@ -98,7 +78,9 @@ class FactionRow extends React.Component<IFactionRowProps, IFactionRowState> {
                                 size="small"
                                 onClick={(event) => {
                                     event.stopPropagation();
-                                    editFaction_edit(this.state.faction);
+                                    this.props.factionDetails(
+                                        this.state.faction._id
+                                    );
                                 }}
                             >
                                 <EditIcon />

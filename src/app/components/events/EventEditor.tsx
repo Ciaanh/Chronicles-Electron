@@ -634,7 +634,7 @@ const EventEditor = () => {
                                         <Locale
                                             locale={event.label}
                                             islabel={true}
-                                            change={
+                                            updated={
                                                 editEvent_label_change
                                             }
                                         />
@@ -679,10 +679,10 @@ const EventEditor = () => {
                                                         islabel={false}
                                                         index={index}
                                                         key={page.key}
-                                                        delete={
+                                                        deleted={
                                                             editEvent_description_remove
                                                         }
-                                                        change={
+                                                        updated={
                                                             editEvent_description_change
                                                         }
                                                     />

@@ -23,9 +23,8 @@ import { DbName } from "../models/dbname";
 import dbContext from "../dbContext/dbContext";
 import { AddonGenerator, GenerationRequest } from "../addon/generator";
 
-interface AddonProps {
-    message: string;
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+interface AddonProps {}
 interface AddonState {
     dbnames: DbNameItem[];
     openError: boolean;

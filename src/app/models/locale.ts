@@ -32,9 +32,3 @@ export interface DB_Locale extends DbObject {
     zhCN: string | null;
     zhTW: string | null;
 }
-
-export interface LocaleChange {
-    key: string;
-    value: string;
-    language: Language;
-}
