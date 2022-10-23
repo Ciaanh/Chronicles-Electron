@@ -224,6 +224,11 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
         this.setState(newState);
     }
 
+    editFaction_changeDescription (value:string)  {
+        const locale: LocaleChange = action.payload;
+        state.faction.description[locale.language] = locale.value;
+    },
+
     render() {
         return (
             <React.Fragment>
