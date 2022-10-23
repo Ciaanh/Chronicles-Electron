@@ -457,7 +457,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
                                     locale={this.state.editingFaction.label}
                                     islabel={true}
                                     change={editFaction_changeLabel}
-                                    remove={editFaction_removeLabel}
+                                    delete={editFaction_removeLabel}
                                 />
                             </Grid>
 
@@ -483,7 +483,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
                                     }
                                     islabel={true}
                                     change={editFaction_changeDescription}
-                                    remove={editFaction_removeDescription}
+                                    delete={editFaction_removeDescription}
                                 />
                             </Grid>
                         </Grid>

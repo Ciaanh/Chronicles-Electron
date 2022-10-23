@@ -679,7 +679,7 @@ const EventEditor = () => {
                                                         islabel={false}
                                                         index={index}
                                                         key={page.key}
-                                                        remove={
+                                                        delete={
                                                             editEvent_description_remove
                                                         }
                                                         change={

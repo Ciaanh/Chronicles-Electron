@@ -22,6 +22,7 @@ import { styled } from "@mui/material/styles";
 
 import { Locale, LocaleChange } from "../../models/locale";
 import { Language } from "../../constants";
+import dbContext from "src/app/dbContext/dbContext";
 
 const Item = styled(Paper)(({ theme }) => ({
     //backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -34,7 +35,7 @@ const Item = styled(Paper)(({ theme }) => ({
 interface ILocaleProps {
     locale: Locale;
     islabel: boolean;
-    remove: (key: string) => void;
+    delete: (localeId: number) => void;
     change: (changes: LocaleChange) => void;
 }
 
@@ -102,6 +103,26 @@ class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
         this.setState(newState);
     }
 
+    change(changes: LocaleChange) {
+        const newState: ILocaleState = { ...this.state };
+        newState.locale = changes.locale;
+
+        dbContext.locale.update(changes.locale);
+
+        this.props.change(changes);
+        this.setState(newState);
+    }
+
+    delete(localeId: number) {
+        const newState: ILocaleState = { ...this.state };
+        newState.open = false;
+
+        dbContext.locale.delete(localeId);
+        this.props.delete(localeId);
+
+        this.setState(newState);
+    }
+
     render() {
         return (
             <React.Fragment>
@@ -118,7 +139,7 @@ class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
                                 color="inherit"
                                 onClick={(event) => {
                                     event.stopPropagation();
-                                    this.props.remove(this.state.locale.key);
+                                    this.delete(this.state.locale._id);
                                 }}
                                 aria-label="close"
                             >
