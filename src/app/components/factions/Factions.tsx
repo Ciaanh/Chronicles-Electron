@@ -296,6 +296,17 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
                     <AddIcon />
                 </Fab>
 
+                <Snackbar open={this.state.openError} onClose={this.closeError}>
+                    <Alert
+                        elevation={10}
+                        variant="filled"
+                        onClose={this.closeError}
+                        severity="error"
+                    >
+                        {this.state.error}
+                    </Alert>
+                </Snackbar>
+
                 <Dialog
                     open={
                         (this.state.edit || this.state.create) &&
@@ -528,16 +539,6 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
                         </Grid>
                     </DialogContent>
                 </Dialog>
-                <Snackbar open={this.state.openError} onClose={this.closeError}>
-                    <Alert
-                        elevation={10}
-                        variant="filled"
-                        onClose={this.closeError}
-                        severity="error"
-                    >
-                        {this.state.error}
-                    </Alert>
-                </Snackbar>
             </React.Fragment>
         );
     }

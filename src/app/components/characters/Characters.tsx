@@ -1,19 +1,44 @@
 import React, { useEffect } from "react";
 
-import { Fab } from "@mui/material";
+import {
+    Alert,
+    AppBar,
+    Dialog,
+    DialogContent,
+    Fab,
+    FormControl,
+    Grid,
+    IconButton,
+    InputLabel,
+    List,
+    ListItem,
+    ListItemText,
+    Menu,
+    MenuItem,
+    Paper,
+    Select,
+    Snackbar,
+    TextField,
+    Toolbar,
+    Typography,
+} from "@mui/material";
 
 import AddIcon from "@mui/icons-material/Add";
-
-import { characters_load } from "../../reducers/characters";
-
-import { editCharacter_new } from "../../reducers/editCharacter";
+import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
+import CloseIcon from "@mui/icons-material/Close";
+import SaveIcon from "@mui/icons-material/Save";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 import CharacterRow from "./CharacterRow";
-import CharacterEditor from "./CharacterEditor";
 import NoData from "../NoData";
+import Locale from "../locales/LocaleView";
+
+import { getEmptyLocale, cleanString } from "../../constants";
 
 import { Character } from "../../models/character";
+import dbContext from "../../dbContext/dbContext";
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface CharactersProps {}
 
 interface CharactersState {
@@ -21,35 +46,458 @@ interface CharactersState {
 
     edit: boolean;
     create: boolean;
-    editingFaction: Character | null;
+    editingCharacter: Character | null;
 
     openError: boolean;
     error: string;
 }
 
 class Characters extends React.Component<CharactersProps, CharactersState> {
+    constructor(props: CharactersProps) {
+        super(props);
+
+        const initialState: CharactersState = {
+            characters: [],
+            edit: false,
+            create: false,
+            editingCharacter: null,
+            openError: false,
+            error: "",
+        };
+        try {
+            const characters = dbContext.Characters.findAll();
+            initialState.characters = characters;
+        } catch (error) {
+            initialState.openError = true;
+            initialState.error = "Error loading characters";
+        }
+
+        this.state = initialState;
+    }
+
+    showError(error: string) {
+        const newState: CharactersState = { ...this.state } as CharactersState;
+
+        newState.openError = true;
+        newState.error = error;
+
+        this.setState(newState);
+    }
+
+    closeError() {
+        const newState: CharactersState = { ...this.state } as CharactersState;
+        newState.openError = false;
+        newState.error = "";
+        this.setState(newState);
+    }
+
+    characterDetails(characterid: number) {
+        const newState: CharactersState = { ...this.state } as CharactersState;
+
+        const index = newState.characters.findIndex(
+            (character) => character._id === characterid
+        );
+        if (index !== -1) {
+            newState.editingCharacter = newState.characters[index];
+            newState.edit = true;
+            newState.create = false;
+        }
+
+        this.setState(newState);
+    }
+
+    characterDeleted(characterid: number) {
+        const newState: CharactersState = { ...this.state } as CharactersState;
+
+        const index = newState.characters.findIndex(
+            (character) => character._id === characterid
+        );
+        if (index !== -1) {
+            newState.characters.splice(index, 1);
+        }
+
+        this.setState(newState);
+    }
+
+    getEmptyCharacter(): Character {
+        return {
+            _id: -1,
+
+            name: "",
+            label: getEmptyLocale(undefined),
+            biography: getEmptyLocale(undefined),
+            timeline: dbContext.Timelines.findAll()[0],
+            factions: [],
+            dbname: dbContext.DBNames.findAll()[0],
+        };
+    }
+
+    showCreate() {
+        const newState: CharactersState = { ...this.state } as CharactersState;
+
+        newState.edit = false;
+        newState.create = true;
+        newState.editingCharacter = this.getEmptyCharacter();
+
+        this.setState(newState);
+    }
+
     render() {
         return (
             <React.Fragment>
                 {this.state.characters.length === 0 && <NoData />}
                 {this.state.characters.map((character) => (
-                    <CharacterRow key={character._id} character={character} />
+                    <CharacterRow
+                        key={character._id}
+                        character={character}
+                        characterDetails={this.characterDetails}
+                        characterDeleted={this.characterDeleted}
+                        showError={this.showError}
+                    />
                 ))}
 
-                <React.Fragment>
-                    <Fab
-                        color="primary"
-                        sx={{
-                            position: "fixed",
-                            bottom: (theme) => theme.spacing(2),
-                            right: (theme) => theme.spacing(2),
-                        }}
-                        onClick={() => dispatch(editCharacter_new())}
+                <Fab
+                    color="primary"
+                    sx={{
+                        position: "fixed",
+                        bottom: (theme) => theme.spacing(2),
+                        right: (theme) => theme.spacing(2),
+                    }}
+                    onClick={() => this.showCreate()}
+                >
+                    <AddIcon />
+                </Fab>
+
+                <Snackbar open={this.state.openError} onClose={this.closeError}>
+                    <Alert
+                        elevation={10}
+                        variant="filled"
+                        onClose={this.closeError}
+                        severity="error"
                     >
-                        <AddIcon />
-                    </Fab>
-                    <CharacterEditor />
-                </React.Fragment>
+                        {this.state.error}
+                    </Alert>
+                </Snackbar>
+
+                <Dialog
+                    open={openDialog}
+                    onClose={() => dispatch(editCharacter_close())}
+                    aria-labelledby="form-dialog-title"
+                    maxWidth="md"
+                    fullWidth={true}
+                >
+                    <AppBar
+                        sx={{
+                            position: "relative",
+                        }}
+                    >
+                        <Toolbar>
+                            <Grid container alignItems="center" direction="row">
+                                <Grid xs={9}>
+                                    <Grid
+                                        container
+                                        alignItems="center"
+                                        direction="row"
+                                    >
+                                        <IconButton
+                                            edge="start"
+                                            color="inherit"
+                                            onClick={() =>
+                                                dispatch(editCharacter_close())
+                                            }
+                                            aria-label="close"
+                                        >
+                                            <CloseIcon />
+                                        </IconButton>
+                                        <Typography variant="h6">
+                                            {isCreate
+                                                ? "Creating a new character"
+                                                : "Editing character"}
+                                        </Typography>
+                                    </Grid>
+                                </Grid>
+
+                                <Grid xs={2}></Grid>
+                                <Grid xs={1}>
+                                    <IconButton
+                                        autoFocus
+                                        color="inherit"
+                                        onClick={() => {
+                                            if (isCreate) {
+                                                dispatch(
+                                                    editCharacter_create(
+                                                        character
+                                                    )
+                                                );
+                                            } else {
+                                                dispatch(
+                                                    editCharacter_save(
+                                                        character
+                                                    )
+                                                );
+                                            }
+                                        }}
+                                    >
+                                        <Typography variant="h6">
+                                            {isCreate ? "Create" : "Save"}
+                                        </Typography>
+                                        <SaveIcon />
+                                    </IconButton>
+                                </Grid>
+                            </Grid>
+                        </Toolbar>
+                    </AppBar>
+                    <DialogContent>
+                        <Grid container spacing={2} direction="row">
+                            <Grid xs={8}>
+                                <Grid container xs={12} direction="row">
+                                    <FormControl
+                                        variant="outlined"
+                                        margin="dense"
+                                        sx={{
+                                            margin: (theme) => theme.spacing(1),
+                                            minWidth: 120,
+                                        }}
+                                    >
+                                        <InputLabel>DB Name</InputLabel>
+                                        <Select
+                                            label="DBName"
+                                            name="dbname"
+                                            value={
+                                                character.dbname
+                                                    ? character.dbname.id ??
+                                                      "undefined"
+                                                    : "undefined"
+                                            }
+                                            onChange={(dbname) => {
+                                                dispatch(
+                                                    editCharacter_changeDbName(
+                                                        dbname.target.value
+                                                    )
+                                                );
+                                            }}
+                                        >
+                                            <MenuItem value="undefined">
+                                                Undefined
+                                            </MenuItem>
+                                            {dbnames.map((dbname) => (
+                                                <MenuItem
+                                                    key={dbname.id}
+                                                    value={dbname.id}
+                                                >
+                                                    {dbname.name}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+
+                                    <FormControl
+                                        variant="outlined"
+                                        margin="dense"
+                                        sx={{
+                                            margin: (theme) => theme.spacing(1),
+                                            minWidth: 120,
+                                        }}
+                                    >
+                                        <InputLabel>Timeline</InputLabel>
+                                        <Select
+                                            label="Timeline"
+                                            name="timeline"
+                                            value={character.timeline}
+                                            onChange={(event) => {
+                                                dispatch(
+                                                    editCharacter_changeTimeline(
+                                                        event.target.value
+                                                    )
+                                                );
+                                            }}
+                                        >
+                                            {Timelines.map((timeline) => (
+                                                <MenuItem
+                                                    key={timeline.value}
+                                                    value={timeline.value}
+                                                >
+                                                    <em>{timeline.name}</em>
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+
+                                    {isCreate ? null : (
+                                        <TextField
+                                            disabled
+                                            label="Unique Id"
+                                            margin="dense"
+                                            value={character.id}
+                                        />
+                                    )}
+                                </Grid>
+
+                                <Grid
+                                    item
+                                    xs={12}
+                                    sx={{
+                                        marginLeft: (theme) => theme.spacing(1),
+                                        marginRight: (theme) =>
+                                            theme.spacing(1),
+                                    }}
+                                >
+                                    <TextField
+                                        label="Name"
+                                        sx={{
+                                            margin: (theme) => theme.spacing(1),
+                                            minWidth: 120,
+                                        }}
+                                        value={character.name}
+                                        onChange={(changeCharacter) => {
+                                            dispatch(
+                                                editCharacter_changeName(
+                                                    changeCharacter.target.value
+                                                )
+                                            );
+                                        }}
+                                        margin="dense"
+                                        variant="outlined"
+                                    />
+                                </Grid>
+                                <Grid
+                                    item
+                                    xs={12}
+                                    sx={{
+                                        marginLeft: (theme) => theme.spacing(1),
+                                        marginRight: (theme) =>
+                                            theme.spacing(1),
+                                    }}
+                                >
+                                    <Typography
+                                        variant="subtitle2"
+                                        sx={{
+                                            margin: (theme) => theme.spacing(1),
+                                            minWidth: 120,
+                                        }}
+                                    >
+                                        Label
+                                    </Typography>
+                                    <Locale
+                                        locale={character.label}
+                                        islabel={true}
+                                        updated={editCharacter_changeLabel}
+                                    />
+                                </Grid>
+
+                                <Grid
+                                    item
+                                    xs={12}
+                                    sx={{
+                                        marginLeft: (theme) => theme.spacing(1),
+                                        marginRight: (theme) =>
+                                            theme.spacing(1),
+                                    }}
+                                >
+                                    <Typography
+                                        variant="subtitle2"
+                                        sx={{
+                                            margin: (theme) => theme.spacing(1),
+                                            minWidth: 120,
+                                        }}
+                                    >
+                                        Biography
+                                    </Typography>
+                                    <Locale
+                                        locale={character.biography}
+                                        islabel={true}
+                                        updated={editCharacter_changeBiography}
+                                    />
+                                </Grid>
+                            </Grid>
+                            <Grid xs={4}>
+                                <Typography variant="h6">
+                                    Factions{" "}
+                                    <IconButton
+                                        aria-label="more"
+                                        aria-controls="long-menu"
+                                        aria-haspopup="true"
+                                        onClick={openFactionList}
+                                    >
+                                        <MoreVertIcon />
+                                    </IconButton>
+                                    <Menu
+                                        id="long-menu"
+                                        anchorEl={anchorEl}
+                                        keepMounted
+                                        open={open}
+                                        onClose={closeFactionList}
+                                        PaperProps={{
+                                            style: {
+                                                maxHeight: ITEM_HEIGHT * 4.5,
+                                                width: "20ch",
+                                            },
+                                        }}
+                                    >
+                                        {factions
+                                            .filter((faction) => {
+                                                return (
+                                                    character.dbname &&
+                                                    faction.dbname.id ===
+                                                        character.dbname.id
+                                                );
+                                            })
+                                            .map((faction) => (
+                                                <MenuItem
+                                                    key={faction.id}
+                                                    selected={
+                                                        character.factions.find(
+                                                            (f) =>
+                                                                f.id ===
+                                                                faction.id
+                                                        ) !== undefined
+                                                    }
+                                                    onClick={() => {
+                                                        dispatch(
+                                                            editCharacter_faction_add(
+                                                                faction
+                                                            )
+                                                        );
+                                                        setAnchorEl(null);
+                                                    }}
+                                                >
+                                                    {faction.name}
+                                                </MenuItem>
+                                            ))}
+                                    </Menu>
+                                </Typography>
+
+                                <Paper
+                                    sx={{
+                                        height: 235,
+                                        //width: 300,
+                                        overflow: "auto",
+                                    }}
+                                >
+                                    <List dense={true}>
+                                        {character.factions.map((faction) => (
+                                            <ListItem key={faction.id}>
+                                                <ListItemText
+                                                    primary={faction.name}
+                                                />
+                                                <RemoveCircleIcon
+                                                    onClick={() => {
+                                                        dispatch(
+                                                            editCharacter_faction_remove(
+                                                                faction.id
+                                                            )
+                                                        );
+                                                        setAnchorEl(null);
+                                                    }}
+                                                />
+                                            </ListItem>
+                                        ))}
+                                    </List>
+                                </Paper>
+                            </Grid>
+                        </Grid>
+                    </DialogContent>
+                </Dialog>
             </React.Fragment>
         );
     }
