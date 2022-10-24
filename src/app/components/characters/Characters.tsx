@@ -12,39 +12,47 @@ import CharacterRow from "./CharacterRow";
 import CharacterEditor from "./CharacterEditor";
 import NoData from "../NoData";
 
-const Characters = () => {
-    const dispatch = useDispatch();
+import { Character } from "../../models/character";
 
-    // eslint-disable-next-line
-    useEffect(() => dispatch(characters_load()), []);
+interface CharactersProps {}
 
-    const characters = useSelector((state) => {
-        return state.characters.list;
-    });
+interface CharactersState {
+    characters: Character[];
 
-    return (
-        <React.Fragment>
-            {characters.length === 0 && <NoData />}
-            {characters.map((character) => (
-                <CharacterRow key={character.id} row={character} />
-            ))}
+    edit: boolean;
+    create: boolean;
+    editingFaction: Character | null;
 
+    openError: boolean;
+    error: string;
+}
+
+class Characters extends React.Component<CharactersProps, CharactersState> {
+    render() {
+        return (
             <React.Fragment>
-                <Fab
-                    color="primary"
-                    sx={{
-                        position: "fixed",
-                        bottom: (theme) => theme.spacing(2),
-                        right: (theme) => theme.spacing(2),
-                    }}
-                    onClick={() => dispatch(editCharacter_new())}
-                >
-                    <AddIcon />
-                </Fab>
-                <CharacterEditor />
+                {this.state.characters.length === 0 && <NoData />}
+                {this.state.characters.map((character) => (
+                    <CharacterRow key={character._id} character={character} />
+                ))}
+
+                <React.Fragment>
+                    <Fab
+                        color="primary"
+                        sx={{
+                            position: "fixed",
+                            bottom: (theme) => theme.spacing(2),
+                            right: (theme) => theme.spacing(2),
+                        }}
+                        onClick={() => dispatch(editCharacter_new())}
+                    >
+                        <AddIcon />
+                    </Fab>
+                    <CharacterEditor />
+                </React.Fragment>
             </React.Fragment>
-        </React.Fragment>
-    );
-};
+        );
+    }
+}
 
 export default Characters;

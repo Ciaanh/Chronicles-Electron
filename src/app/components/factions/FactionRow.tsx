@@ -13,6 +13,7 @@ import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 import { Faction } from "../../models/faction";
+import dbContext from "../../dbContext/dbContext";
 
 interface IFactionRowProps {
     faction: Faction;
@@ -66,6 +67,9 @@ class FactionRow extends React.Component<IFactionRowProps, IFactionRowState> {
                                 size="small"
                                 onClick={(event) => {
                                     event.stopPropagation();
+                                    dbContext.Factions.delete(
+                                        this.state.faction._id
+                                    );
                                     this.props.factionDeleted(
                                         this.state.faction._id
                                     );

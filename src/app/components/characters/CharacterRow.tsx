@@ -15,120 +15,162 @@ import EditIcon from "@mui/icons-material/Edit";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
-import { characters_show_details } from "../../reducers/characters";
+import { Character } from "../../models/character";
+import dbContext from "../../dbContext/dbContext";
 
-import {
-    editCharacter_edit,
-    editCharacter_delete,
-} from "../../reducers/editCharacter";
+interface ICharacterRowProps {
+    character: Character;
+    characterDetails: (characterid: number) => void;
+    characterDeleted: (characterid: number) => void;
+    showError: (error: string) => void;
+}
 
-const CharacterRow = (props) => {
-    const { row } = props;
+interface ICharacterRowState {
+    character: Character;
+    open: boolean;
+}
 
-    const dispatch = useDispatch();
+class CharacterRow extends React.Component<
+    ICharacterRowProps,
+    ICharacterRowState
+> {
+    constructor(props: ICharacterRowProps) {
+        super(props);
+        const initialState: ICharacterRowState = {
+            character: props.character,
+            open: false,
+        };
 
-    return (
-        <Accordion
-            expanded={row.open}
-            onChange={() => dispatch(characters_show_details(row.id))}
-        >
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <Typography
-                    sx={{
-                        fontSize: (theme) => theme.typography.pxToRem(15),
-                        flexBasis: "33.33%",
-                        flexShrink: 0,
-                    }}
-                >
-                    <React.Fragment>
-                        <IconButton
-                            aria-label="delete"
-                            size="small"
-                            onClick={(event) => {
-                                event.stopPropagation();
-                                dispatch(editCharacter_delete(row.id));
-                            }}
-                        >
-                            <HighlightOffIcon />
-                        </IconButton>
-                        <IconButton
-                            aria-label="edit"
-                            size="small"
-                            onClick={(event) => {
-                                event.stopPropagation();
-                                dispatch(editCharacter_edit(row));
-                            }}
-                        >
-                            <EditIcon />
-                        </IconButton>
-                    </React.Fragment>
+        this.state = initialState;
+    }
 
-                    {row.name}
-                </Typography>
-                <Typography
-                    sx={{
-                        fontSize: (theme) => theme.typography.pxToRem(15),
-                        color: (theme) => theme.palette.text.secondary,
-                    }}
-                >
-                    Unique Id :{row.id}
-                </Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-                <Grid container spacing={2}>
-                    <Grid md={6} direction="column">
-                        <Typography
-                            sx={{
-                                fontSize: (theme) =>
-                                    theme.typography.pxToRem(15),
-                                flexBasis: "33.33%",
-                                flexShrink: 0,
-                            }}
-                        >
-                            Biography
-                        </Typography>
-                        <Typography
-                            sx={{
-                                fontSize: (theme) =>
-                                    theme.typography.pxToRem(15),
-                                color: (theme) => theme.palette.text.secondary,
-                            }}
-                        >
-                            {row.biography}
-                        </Typography>
+    toggleAccordion() {
+        const newState: ICharacterRowState = {
+            ...this.state,
+        } as ICharacterRowState;
+
+        newState.open = !newState.open;
+
+        this.setState(newState);
+    }
+
+    render() {
+        return (
+            <Accordion
+                expanded={this.state.open}
+                onChange={() => this.toggleAccordion()}
+            >
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    <Typography
+                        sx={{
+                            fontSize: (theme) => theme.typography.pxToRem(15),
+                            flexBasis: "33.33%",
+                            flexShrink: 0,
+                        }}
+                    >
+                        <React.Fragment>
+                            <IconButton
+                                aria-label="delete"
+                                size="small"
+                                onClick={(event) => {
+                                    event.stopPropagation();
+                                    dbContext.Characters.delete(
+                                        this.state.character._id
+                                    );
+                                    this.props.characterDeleted(
+                                        this.state.character._id
+                                    );
+                                }}
+                            >
+                                <HighlightOffIcon />
+                            </IconButton>
+                            <IconButton
+                                aria-label="edit"
+                                size="small"
+                                onClick={(event) => {
+                                    event.stopPropagation();
+                                    this.props.characterDetails(
+                                        this.state.character._id
+                                    );
+                                }}
+                            >
+                                <EditIcon />
+                            </IconButton>
+                        </React.Fragment>
+
+                        {this.state.character.name}
+                    </Typography>
+                    <Typography
+                        sx={{
+                            fontSize: (theme) => theme.typography.pxToRem(15),
+                            color: (theme) => theme.palette.text.secondary,
+                        }}
+                    >
+                        Unique Id :{this.state.character._id}
+                    </Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                    <Grid container spacing={2}>
+                        <Grid md={6} direction="column">
+                            <Typography
+                                sx={{
+                                    fontSize: (theme) =>
+                                        theme.typography.pxToRem(15),
+                                    flexBasis: "33.33%",
+                                    flexShrink: 0,
+                                }}
+                            >
+                                Biography
+                            </Typography>
+                            <Typography
+                                sx={{
+                                    fontSize: (theme) =>
+                                        theme.typography.pxToRem(15),
+                                    color: (theme) =>
+                                        theme.palette.text.secondary,
+                                }}
+                            >
+                                {this.state.character.biography.enUS}
+                            </Typography>
+                        </Grid>
+
+                        <Grid md={6}>
+                            <Typography
+                                sx={{
+                                    fontSize: (theme) =>
+                                        theme.typography.pxToRem(15),
+                                    flexBasis: "33.33%",
+                                    flexShrink: 0,
+                                }}
+                            >
+                                Factions
+                            </Typography>
+                            <List dense={true}>
+                                {this.state.character.factions.map(
+                                    (faction) => (
+                                        <ListItem key={faction._id}>
+                                            <ListItemText
+                                                sx={{
+                                                    fontSize: (theme) =>
+                                                        theme.typography.pxToRem(
+                                                            15
+                                                        ),
+                                                    color: (theme) =>
+                                                        theme.palette.text
+                                                            .secondary,
+                                                }}
+                                                primary={faction.name}
+                                            />
+                                        </ListItem>
+                                    )
+                                )}
+                            </List>
+                        </Grid>
                     </Grid>
-
-                    <Grid md={6}>
-                        <Typography
-                            sx={{
-                                fontSize: (theme) =>
-                                    theme.typography.pxToRem(15),
-                                flexBasis: "33.33%",
-                                flexShrink: 0,
-                            }}
-                        >
-                            Factions
-                        </Typography>
-                        <List dense={true}>
-                            {row.factions.map((faction) => (
-                                <ListItem key={faction.id}>
-                                    <ListItemText
-                                        sx={{
-                                            fontSize: (theme) =>
-                                                theme.typography.pxToRem(15),
-                                            color: (theme) =>
-                                                theme.palette.text.secondary,
-                                        }}
-                                        primary={faction.name}
-                                    />
-                                </ListItem>
-                            ))}
-                        </List>
-                    </Grid>
-                </Grid>
-            </AccordionDetails>
-        </Accordion>
-    );
-};
+                </AccordionDetails>
+            </Accordion>
+        );
+    }
+}
 
 export default CharacterRow;
