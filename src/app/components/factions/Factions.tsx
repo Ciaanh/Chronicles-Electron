@@ -30,9 +30,9 @@ import { Faction } from "../../models/faction";
 
 import dbContext from "../../dbContext/dbContext";
 
-import { getEmptyLocale, cleanString } from "../../constants";
 import { DbName } from "../../models/dbname";
 import { Timeline } from "../../models/timeline";
+import { getEmptyLocale } from "../../models/locale";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface FactionsProps {}
@@ -128,8 +128,8 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
             _id: -1,
 
             name: "",
-            label: getEmptyLocale(undefined),
-            description: getEmptyLocale(undefined),
+            label: getEmptyLocale(),
+            description: getEmptyLocale(),
             timeline: dbContext.Timelines.findAll()[0],
             dbname: dbContext.DBNames.findAll()[0],
         };
@@ -196,11 +196,6 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
         const newState: FactionsState = { ...this.state };
         if (newState.editingFaction) {
             newState.editingFaction.name = name;
-
-            newState.editingFaction.label.key = cleanString(name) + "_label";
-
-            newState.editingFaction.description.key =
-                cleanString(name) + "_label";
         } else {
             newState.error = "No faction to edit";
             newState.openError = true;
@@ -212,7 +207,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
         const newState: FactionsState = { ...this.state };
 
         if (!dbnameId || dbnameId === "" || dbnameId === "undefined") {
-            newState.error = "No dbname to edit";
+            newState.error = "No dbname to add";
             newState.openError = true;
         } else {
             const dbnameIdValue = parseInt(dbnameId.toString());
@@ -231,7 +226,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
         const newState: FactionsState = { ...this.state };
 
         if (!timelineId || timelineId === "" || timelineId === "undefined") {
-            newState.error = "No timeline to edit";
+            newState.error = "No timeline to add";
             newState.openError = true;
         } else {
             const timelineIdValue = parseInt(timelineId.toString());

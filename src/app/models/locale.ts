@@ -30,3 +30,35 @@ export interface DB_Locale extends DbObject {
     zhCN: string | null;
     zhTW: string | null;
 }
+
+function cleanString(value: string): string {
+    const cleaned = value
+        .replace(" ", "_")
+        .toLowerCase()
+        .trim()
+        .normalize("NFD")
+        .replace(/\p{Diacritic}/gu, "");
+    return cleaned;
+}
+
+export function getLocaleKey(locale: Locale) {
+    return cleanString(locale.enUS);
+}
+
+export function getEmptyLocale(): Locale {
+    return {
+        _id: -1,
+        enUS: null,
+
+        deDE: null,
+        esES: null,
+        esMX: null,
+        frFR: null,
+        itIT: null,
+        ptBR: null,
+        ruRU: null,
+        koKR: null,
+        zhCN: null,
+        zhTW: null,
+    };
+}

@@ -1,5 +1,9 @@
+import { Event } from "../../models/event";
+import { Character } from "../../models/character";
+import { Faction } from "../../models/faction";
 import { FileContent } from "../fileContent";
-import { FileGenerationRequest } from "../generator";
+import { FileGenerationRequest, FormatedDbName } from "../generator";
+import { getLocaleKey } from "../../models/locale";
 
 export class DBService {
     /*
@@ -26,7 +30,91 @@ export class DBService {
         const indexFile = this.CreateIndexFile(request);
         files.push(indexFile);
 
+        // character db content
+        // const characterDbFile = this.CreateCharacterDbFile(request);
+        // faction db content
+        // const factionDbFile = this.CreateFactionDbFile(request);
+        // event db content
+        const eventDbFile = this.CreateEventDbFile(request);
+        files.push(...eventDbFile);
+
         return files;
+    }
+
+    private CreateEventDbFile(request: FileGenerationRequest) {
+        const files = request.dbnames.map((dbname: FormatedDbName) => {
+            const dbFoldername = this.GetDbFolderName(
+                dbname.index,
+                dbname.name
+            );
+            const dbName = this.GetDbName(dbname.name, "Event");
+
+            const filteredEvents = request.events.filter(
+                (event: Event) => String(event.dbname._id) == String(dbname._id)
+            );
+
+            const eventDbContent = this.CreateEventDbContent(
+                dbName,
+                filteredEvents
+            );
+
+            return {
+                content: eventDbContent,
+                name: `Custom/DB/${dbFoldername}/${dbName}.lua`,
+            } as FileContent;
+        });
+
+        return files;
+    }
+
+    private CreateEventDbContent(
+        dbName: string,
+        filteredEvents: Event[]
+    ): string {
+        const eventDbContent = `${this.dbHeader}
+
+        ${dbName} = {
+            ${filteredEvents.map(this.MapEventContent).join(",\n")}
+        }`;
+        return eventDbContent;
+    }
+
+    // name: string;
+    // yearStart: number;
+    // yearEnd: number;
+    // eventType: number;
+    // timeline: Timeline;
+    // link: string;
+    // factions: Faction[];
+    // characters: Character[];
+    // label: Locale;
+    // description: Locale[];
+    // dbname: DbName;
+
+    private MapEventContent(event: Event): string {
+        const eventContent = `[${event._id}] = {
+            id=${event._id},
+			label=Locale["${getLocaleKey(event.label)}"],
+			description={${event.description
+                .map((desc) => `Locale["${getLocaleKey(desc)}"]`)
+                .join(", ")}},
+			yearStart=${event.yearStart},
+			yearEnd=${event.yearEnd},
+			eventType=${event.eventType},
+			timeline=${event.timeline._id},
+			-- date=[integer],
+			characters={${event.characters.map((char) => char._id).join(", ")}},
+            factions={${event.factions.map((fac) => fac._id).join(", ")}},
+		}`;
+        return eventContent;
+    }
+
+    private CreateFactionDbFile(request: FileGenerationRequest) {
+        throw new Error("Method not implemented.");
+    }
+
+    private CreateCharacterDbFile(request: FileGenerationRequest) {
+        throw new Error("Method not implemented.");
     }
 
     private dbHeader = `local FOLDER_NAME, private = ...
@@ -47,11 +135,32 @@ local Locale = LibStub("AceLocale-3.0"):GetLocale(private.addon_name)`;
         return `\tChronicles.DB:Register${formatedTypeName}DB(Chronicles.Custom.Modules.${lowerName}, ${formatedName}${formatedTypeName}sDB)`;
     };
 
+    private FormatIndex = function (
+        index: string,
+        dbname: string,
+        typeName: string
+    ) {
+        const dbFoldername = this.GetDbFolderName(index, dbname);
+        const dbFilename = this.GetDbName(dbname, typeName);
+
+        return `\t<Script file="${dbFoldername}\\${dbFilename}.lua" />`;
+    };
+
+    private GetDbFolderName = function (index: string, dbname: string) {
+        const formatedName = this.FormatDbName(dbname);
+        return `${index}_${formatedName}`;
+    };
+
+    private GetDbName = function (dbname: string, typeName: string) {
+        const formatedName = this.FormatDbName(dbname);
+        return `${formatedName}${typeName}sDB`;
+    };
+
     // ChroniclesDB.lua
     private CreateDeclarationFile = function (request: FileGenerationRequest) {
         // name like => mythos = "mythos",
         const names = request.dbnames
-            .map((dbname: any) => {
+            .map((dbname: FormatedDbName) => {
                 const lowerDbName = dbname.name.toLowerCase();
                 return `\t${lowerDbName} = "${lowerDbName}"`;
             })
@@ -61,17 +170,18 @@ local Locale = LibStub("AceLocale-3.0"):GetLocale(private.addon_name)`;
         // factionDB declaration => Chronicles.DB:RegisterFactionDB(Chronicles.Custom.Modules.mythos, MythosFactionsDB)
         // characterDB declaration => Chronicles.DB:RegisterCharacterDB(Chronicles.Custom.Modules.mythos, MythosCharactersDB)
         const declarations = request.dbnames
-            .map((dbname: any) => {
+            .map((dbname: FormatedDbName) => {
                 const filteredEvents = request.events.filter(
-                    (event: any) => String(event.dbname.id) == String(dbname.id)
+                    (event: Event) =>
+                        String(event.dbname._id) == String(dbname._id)
                 );
                 const filteredFactions = request.factions.filter(
-                    (faction: any) =>
-                        String(faction.dbname.id) == String(dbname.id)
+                    (faction: Faction) =>
+                        String(faction.dbname._id) == String(dbname._id)
                 );
                 const filteredCharacters = request.characters.filter(
-                    (character: any) =>
-                        String(character.dbname.id) == String(dbname.id)
+                    (character: Character) =>
+                        String(character.dbname._id) == String(dbname._id)
                 );
 
                 let eventDeclaration = "";
@@ -104,7 +214,7 @@ local Locale = LibStub("AceLocale-3.0"):GetLocale(private.addon_name)`;
                     .filter((value) => value.length > 0)
                     .join("\n");
             })
-            .filter((value: any) => value.length > 0)
+            .filter((value: string) => value.length > 0)
             .join("\n");
 
         const content = `local FOLDER_NAME, private = ...
@@ -125,15 +235,6 @@ end`;
         return dbDeclarationContent;
     };
 
-    private FormatIndex = function (
-        index: string,
-        dbname: string,
-        typeName: string
-    ) {
-        const formatedName = this.FormatDbName(dbname);
-        return `\t<Script file="${index}_${formatedName}\\${formatedName}${typeName}sDB.lua" />`;
-    };
-
     // ChroniclesDB.xml
     private CreateIndexFile = function (request: FileGenerationRequest) {
         // <Script file="01_Mythos\MythosEventsDB.lua" />
@@ -141,17 +242,18 @@ end`;
         // <Script file="01_Mythos\MythosCharactersDB.lua" />
 
         const indexes = request.dbnames
-            .map((dbname: any) => {
+            .map((dbname: FormatedDbName) => {
                 const filteredEvents = request.events.filter(
-                    (event: any) => String(event.dbname.id) == String(dbname.id)
+                    (event: Event) =>
+                        String(event.dbname._id) == String(dbname._id)
                 );
                 const filteredFactions = request.factions.filter(
-                    (faction: any) =>
-                        String(faction.dbname.id) == String(dbname.id)
+                    (faction: Faction) =>
+                        String(faction.dbname._id) == String(dbname._id)
                 );
                 const filteredCharacters = request.characters.filter(
-                    (character: any) =>
-                        String(character.dbname.id) == String(dbname.id)
+                    (character: Character) =>
+                        String(character.dbname._id) == String(dbname._id)
                 );
 
                 let eventIndex = "";
@@ -183,7 +285,7 @@ end`;
                     .filter((value) => value.length > 0)
                     .join("\n");
             })
-            .filter((value: any) => value.length > 0)
+            .filter((value: string) => value.length > 0)
             .join("\n");
 
         const content = `<Ui xmlns="http://www.blizzard.com/wow/ui/"

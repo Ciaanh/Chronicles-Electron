@@ -58,7 +58,7 @@ import {
     editEvent_load,
 } from "../../reducers/editEvent";
 
-const ITEM_HEIGHT = 48;
+
 
 const EventEditor = () => {
     const dispatch = useDispatch();

@@ -34,6 +34,8 @@ export class AddonGenerator {
         //     characters[],
         // }
 
+        // need to export the list of timelines to a file
+
         if (request.dbnames.length > 0) {
             const preparedDbNames = request.dbnames.map(
                 (dbname: DbName, zeroBasedIndex: number) => {

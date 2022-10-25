@@ -21,7 +21,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import { styled } from "@mui/material/styles";
 
-import { Locale } from "../../models/locale";
+import { getLocaleKey, Locale } from "../../models/locale";
 import { Language } from "../../constants";
 import dbContext from "../../dbContext/dbContext";
 
@@ -93,7 +93,7 @@ class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
         this.setState(newState);
     }
 
-    selectLocale(value: string, key: string, language: Language) {
+    selectLocale(value: string, language: Language) {
         const newState: ILocaleState = { ...this.state };
         newState.selectedLocale = {
             selected: true,
@@ -130,6 +130,7 @@ class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
         } else {
             dbContext.Locales.update(locale);
         }
+        
         this.props.updated(locale._id);
         this.setState(newState);
     }
@@ -141,7 +142,8 @@ class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
                     <Grid container spacing={2}>
                         <Grid xs={11}>
                             <Typography noWrap variant="subtitle2">
-                                Key : {this.state.locale.key}
+                                Key (estimated):{" "}
+                                {getLocaleKey(this.state.locale)}
                             </Typography>
                         </Grid>
                         <Grid xs={1}>
@@ -223,7 +225,6 @@ class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
                                             onClick={() =>
                                                 this.selectLocale(
                                                     this.state.locale.enUS,
-                                                    this.state.locale.key,
                                                     Language.enUS
                                                 )
                                             }
@@ -234,7 +235,6 @@ class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
                                             onClick={() =>
                                                 this.selectLocale(
                                                     this.state.locale.frFR,
-                                                    this.state.locale.key,
                                                     Language.frFR
                                                 )
                                             }

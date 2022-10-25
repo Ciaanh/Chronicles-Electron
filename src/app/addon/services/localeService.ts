@@ -1,4 +1,4 @@
-import { Locale } from "../../models/locale";
+import { getLocaleKey, Locale } from "../../models/locale";
 import { Character } from "../../models/character";
 import { Event } from "../../models/event";
 import { Faction } from "../../models/faction";
@@ -241,9 +241,9 @@ export class LocaleService {
         language: string
     ): localeLine {
         const localeLine: localeLine = {
-            key: locale.key,
+            key: getLocaleKey(locale),
             value: this.FormatLocaleValue(
-                locale.key,
+                getLocaleKey(locale),
                 this.GetLocaleValueByLanguage(locale, language)
             ),
         };

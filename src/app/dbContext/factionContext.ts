@@ -47,6 +47,14 @@ export const Factions: FactionContext = {
         return FactionMapperFromDB(faction);
     },
     create: function (faction) {
+        if (faction.label._id === -1) {
+            throw new Error("Faction label is required");
+        }
+
+        if (faction.description._id === -1) {
+            throw new Error("Faction description is required");
+        }
+        
         const factions = window.database
             .getAll(window.database.tableNames.factions)
             .map((faction) => faction.id);
@@ -61,22 +69,18 @@ export const Factions: FactionContext = {
         return FactionMapperFromDB(createdFaction);
     },
     update: function (faction) {
+        if (faction.label._id === -1) {
+            throw new Error("Faction label is required");
+        }
+
+        if (faction.description._id === -1) {
+            throw new Error("Faction description is required");
+        }
+
         const updatedFaction: DB_Faction = window.database.update(
             window.database.tableNames.factions,
             FactionMapper(faction)
         );
-
-        if (faction.label._id !== -1) {
-            dbContext.Locales.update(faction.label);
-        } else {
-            dbContext.Locales.create(faction.label);
-        }
-
-        if (faction.description._id !== -1) {
-            dbContext.Locales.update(faction.description);
-        } else {
-            dbContext.Locales.create(faction.description);
-        }
 
         return FactionMapperFromDB(updatedFaction);
     },

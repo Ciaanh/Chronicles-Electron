@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 
 import {
     Alert,
@@ -33,14 +33,14 @@ import CharacterRow from "./CharacterRow";
 import NoData from "../NoData";
 import Locale from "../locales/LocaleView";
 
-import { getEmptyLocale, cleanString } from "../../constants";
+import { ITEM_HEIGHT } from "../../constants";
 
 import { Character } from "../../models/character";
 import dbContext from "../../dbContext/dbContext";
 import { DbName } from "../../models/dbname";
 import { Timeline } from "../../models/timeline";
 import { Faction } from "../../models/faction";
-import { useThemeWithoutDefault } from "@mui/system";
+import { getEmptyLocale } from "../../models/locale";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface CharactersProps {}
@@ -55,6 +55,8 @@ interface CharactersState {
     edit: boolean;
     create: boolean;
     editingCharacter: Character | null;
+
+    factionAnchor: any | null;
 
     openError: boolean;
     error: string;
@@ -72,6 +74,9 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
             edit: false,
             create: false,
             editingCharacter: null,
+
+            factionAnchor: null,
+
             openError: false,
             error: "",
         };
@@ -84,6 +89,26 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
         }
 
         this.state = initialState;
+    }
+
+    openFactionList(event: any) {
+        const newState: CharactersState = {
+            ...this.state,
+        };
+
+        newState.factionAnchor = event.currentTarget;
+
+        this.setState(newState);
+    }
+
+    closeFactionList() {
+        const newState: CharactersState = {
+            ...this.state,
+        };
+
+        newState.factionAnchor = null;
+
+        this.setState(newState);
     }
 
     showError(error: string) {
@@ -135,8 +160,8 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
             _id: -1,
 
             name: "",
-            label: getEmptyLocale(undefined),
-            biography: getEmptyLocale(undefined),
+            label: getEmptyLocale(),
+            biography: getEmptyLocale(),
             timeline: dbContext.Timelines.findAll()[0],
             factions: [],
             dbname: dbContext.DBNames.findAll()[0],
@@ -210,7 +235,7 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
                 newState.editingCharacter.dbname =
                     dbContext.DBNames.get(dbnameIdValue);
             } else {
-                newState.error = "No faction to edit";
+                newState.error = "No character to edit";
                 newState.openError = true;
             }
         }
@@ -229,7 +254,97 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
                 newState.editingCharacter.timeline =
                     dbContext.Timelines.get(timelineIdValue);
             } else {
-                newState.error = "No faction to edit";
+                newState.error = "No character to edit";
+                newState.openError = true;
+            }
+        }
+        this.setState(newState);
+    }
+
+    changeName(name: string) {
+        const newState: CharactersState = { ...this.state };
+        if (newState.editingCharacter) {
+            newState.editingCharacter.name = name;
+        } else {
+            newState.error = "No character to edit";
+            newState.openError = true;
+        }
+        this.setState(newState);
+    }
+
+    labelUpdated(localeId: number) {
+        const updatedLocale = dbContext.Locales.get(localeId);
+
+        const newState: CharactersState = { ...this.state };
+        if (newState.editingCharacter) {
+            newState.editingCharacter.label = updatedLocale;
+            newState.characters.filter(
+                (character) => character._id === newState.editingCharacter._id
+            )[0].label = updatedLocale;
+        } else {
+            newState.error = "No character to edit";
+            newState.openError = true;
+        }
+        this.setState(newState);
+    }
+
+    biographyUpdated(localeId: number) {
+        const updatedLocale = dbContext.Locales.get(localeId);
+
+        const newState: CharactersState = { ...this.state };
+        if (newState.editingCharacter) {
+            newState.editingCharacter.biography = updatedLocale;
+            newState.characters.filter(
+                (character) => character._id === newState.editingCharacter._id
+            )[0].biography = updatedLocale;
+        } else {
+            newState.error = "No character to edit";
+            newState.openError = true;
+        }
+        this.setState(newState);
+    }
+
+    addFaction(factionId: string | number) {
+        const newState: CharactersState = { ...this.state };
+
+        if (!factionId || factionId === "" || factionId === "undefined") {
+            newState.error = "No faction to add";
+            newState.openError = true;
+        } else {
+            const factionIdValue = parseInt(factionId.toString());
+            if (newState.editingCharacter) {
+                if (
+                    !newState.editingCharacter.factions.find(
+                        (faction) => faction._id === factionIdValue
+                    )
+                ) {
+                    newState.editingCharacter.factions.push(
+                        dbContext.Factions.get(factionIdValue)
+                    );
+                }
+            } else {
+                newState.error = "No character to edit";
+                newState.openError = true;
+            }
+        }
+        this.setState(newState);
+    }
+
+    removeFaction(factionId: string | number) {
+        const newState: CharactersState = { ...this.state };
+
+        if (!factionId || factionId === "" || factionId === "undefined") {
+            newState.error = "No faction to remove";
+            newState.openError = true;
+        } else {
+            const factionIdValue = parseInt(factionId.toString());
+            if (newState.editingCharacter) {
+                newState.editingCharacter.factions =
+                    newState.editingCharacter.factions.filter(
+                        (faction) => faction._id !== factionIdValue
+                    );
+            } else {
+                newState.error = "No character to edit";
                 newState.openError = true;
             }
         }
@@ -454,14 +569,10 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
                                             margin: (theme) => theme.spacing(1),
                                             minWidth: 120,
                                         }}
-                                        value={character.name}
-                                        onChange={(changeCharacter) => {
-                                            dispatch(
-                                                editCharacter_changeName(
-                                                    changeCharacter.target.value
-                                                )
-                                            );
-                                        }}
+                                        value={this.state.editingCharacter.name}
+                                        onChange={(event) =>
+                                            this.changeName(event.target.value)
+                                        }
                                         margin="dense"
                                         variant="outlined"
                                     />
@@ -485,9 +596,11 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
                                         Label
                                     </Typography>
                                     <Locale
-                                        locale={character.label}
-                                        islabel={true}
-                                        updated={editCharacter_changeLabel}
+                                        locale={
+                                            this.state.editingCharacter.label
+                                        }
+                                        isRequired={true}
+                                        updated={this.labelUpdated}
                                     />
                                 </Grid>
 
@@ -510,9 +623,12 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
                                         Biography
                                     </Typography>
                                     <Locale
-                                        locale={character.biography}
-                                        islabel={true}
-                                        updated={editCharacter_changeBiography}
+                                        locale={
+                                            this.state.editingCharacter
+                                                .biography
+                                        }
+                                        isRequired={true}
+                                        updated={this.biographyUpdated}
                                     />
                                 </Grid>
                             </Grid>
@@ -523,16 +639,16 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
                                         aria-label="more"
                                         aria-controls="long-menu"
                                         aria-haspopup="true"
-                                        onClick={openFactionList}
+                                        onClick={this.openFactionList}
                                     >
                                         <MoreVertIcon />
                                     </IconButton>
                                     <Menu
                                         id="long-menu"
-                                        anchorEl={anchorEl}
+                                        anchorEl={this.state.factionAnchor}
                                         keepMounted
-                                        open={open}
-                                        onClose={closeFactionList}
+                                        open={Boolean(this.state.factionAnchor)}
+                                        onClose={this.closeFactionList}
                                         PaperProps={{
                                             style: {
                                                 maxHeight: ITEM_HEIGHT * 4.5,
@@ -540,31 +656,32 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
                                             },
                                         }}
                                     >
-                                        {factions
+                                        {this.state.factions
                                             .filter((faction) => {
                                                 return (
-                                                    character.dbname &&
-                                                    faction.dbname.id ===
-                                                        character.dbname.id
+                                                    this.state.editingCharacter
+                                                        .dbname &&
+                                                    faction.dbname._id ===
+                                                        this.state
+                                                            .editingCharacter
+                                                            .dbname._id
                                                 );
                                             })
                                             .map((faction) => (
                                                 <MenuItem
-                                                    key={faction.id}
+                                                    key={faction._id}
                                                     selected={
-                                                        character.factions.find(
+                                                        this.state.editingCharacter.factions.find(
                                                             (f) =>
-                                                                f.id ===
-                                                                faction.id
+                                                                f._id ===
+                                                                faction._id
                                                         ) !== undefined
                                                     }
                                                     onClick={() => {
-                                                        dispatch(
-                                                            editCharacter_faction_add(
-                                                                faction
-                                                            )
+                                                        this.addFaction(
+                                                            faction._id
                                                         );
-                                                        setAnchorEl(null);
+                                                        this.closeFactionList();
                                                     }}
                                                 >
                                                     {faction.name}
@@ -581,23 +698,23 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
                                     }}
                                 >
                                     <List dense={true}>
-                                        {character.factions.map((faction) => (
-                                            <ListItem key={faction.id}>
-                                                <ListItemText
-                                                    primary={faction.name}
-                                                />
-                                                <RemoveCircleIcon
-                                                    onClick={() => {
-                                                        dispatch(
-                                                            editCharacter_faction_remove(
-                                                                faction.id
-                                                            )
-                                                        );
-                                                        setAnchorEl(null);
-                                                    }}
-                                                />
-                                            </ListItem>
-                                        ))}
+                                        {this.state.editingCharacter.factions.map(
+                                            (faction) => (
+                                                <ListItem key={faction._id}>
+                                                    <ListItemText
+                                                        primary={faction.name}
+                                                    />
+                                                    <RemoveCircleIcon
+                                                        onClick={() => {
+                                                            this.removeFaction(
+                                                                faction._id
+                                                            );
+                                                            this.closeFactionList();
+                                                        }}
+                                                    />
+                                                </ListItem>
+                                            )
+                                        )}
                                     </List>
                                 </Paper>
                             </Grid>

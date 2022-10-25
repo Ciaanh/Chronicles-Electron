@@ -9,7 +9,7 @@ export interface Event extends Dto {
     name: string;
     yearStart: number;
     yearEnd: number;
-    eventType: string;
+    eventType: number;
     timeline: Timeline;
     link: string;
     factions: Faction[];
@@ -23,7 +23,7 @@ export interface DB_Event extends DbObject {
     name: string;
     yearStart: number;
     yearEnd: number;
-    eventType: string;
+    eventType: number;
     timelineId: number;
     link: string;
     factionIds: number[];
