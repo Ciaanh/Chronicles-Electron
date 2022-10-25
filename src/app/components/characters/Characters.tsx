@@ -37,12 +37,20 @@ import { getEmptyLocale, cleanString } from "../../constants";
 
 import { Character } from "../../models/character";
 import dbContext from "../../dbContext/dbContext";
+import { DbName } from "../../models/dbname";
+import { Timeline } from "../../models/timeline";
+import { Faction } from "../../models/faction";
+import { useThemeWithoutDefault } from "@mui/system";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface CharactersProps {}
 
 interface CharactersState {
     characters: Character[];
+
+    dbnames: DbName[];
+    timelines: Timeline[];
+    factions: Faction[];
 
     edit: boolean;
     create: boolean;
@@ -58,6 +66,9 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
 
         const initialState: CharactersState = {
             characters: [],
+            dbnames: dbContext.DBNames.findAll(),
+            timelines: dbContext.Timelines.findAll(),
+            factions: dbContext.Factions.findAll(),
             edit: false,
             create: false,
             editingCharacter: null,
@@ -76,7 +87,7 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
     }
 
     showError(error: string) {
-        const newState: CharactersState = { ...this.state } as CharactersState;
+        const newState: CharactersState = { ...this.state };
 
         newState.openError = true;
         newState.error = error;
@@ -85,14 +96,14 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
     }
 
     closeError() {
-        const newState: CharactersState = { ...this.state } as CharactersState;
+        const newState: CharactersState = { ...this.state };
         newState.openError = false;
         newState.error = "";
         this.setState(newState);
     }
 
     characterDetails(characterid: number) {
-        const newState: CharactersState = { ...this.state } as CharactersState;
+        const newState: CharactersState = { ...this.state };
 
         const index = newState.characters.findIndex(
             (character) => character._id === characterid
@@ -107,7 +118,7 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
     }
 
     characterDeleted(characterid: number) {
-        const newState: CharactersState = { ...this.state } as CharactersState;
+        const newState: CharactersState = { ...this.state };
 
         const index = newState.characters.findIndex(
             (character) => character._id === characterid
@@ -133,12 +144,95 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
     }
 
     showCreate() {
-        const newState: CharactersState = { ...this.state } as CharactersState;
+        const newState: CharactersState = { ...this.state };
 
         newState.edit = false;
         newState.create = true;
         newState.editingCharacter = this.getEmptyCharacter();
 
+        this.setState(newState);
+    }
+
+    closeDialog() {
+        const newState: CharactersState = { ...this.state };
+
+        newState.edit = false;
+        newState.create = false;
+        newState.editingCharacter = null;
+
+        this.setState(newState);
+    }
+
+    create(characterToEdit: Character) {
+        try {
+            const newCharacter = dbContext.Characters.create(characterToEdit);
+            const newState: CharactersState = {
+                ...this.state,
+            };
+
+            newState.characters.push(newCharacter);
+
+            this.setState(newState);
+        } catch (error) {
+            console.log("Error", error);
+        }
+    }
+
+    update(characterToEdit: Character) {
+        try {
+            const newCharacter = dbContext.Characters.update(characterToEdit);
+            const newState: CharactersState = {
+                ...this.state,
+            };
+
+            const index = newState.characters.findIndex(
+                (character) => character._id === newCharacter._id
+            );
+            if (index !== -1) {
+                newState.characters[index] = newCharacter;
+            }
+
+            this.setState(newState);
+        } catch (error) {
+            console.log("Error", error);
+        }
+    }
+
+    changeDbName(dbnameId: string | number) {
+        const newState: CharactersState = { ...this.state };
+
+        if (!dbnameId || dbnameId === "" || dbnameId === "undefined") {
+            newState.error = "No dbname to edit";
+            newState.openError = true;
+        } else {
+            const dbnameIdValue = parseInt(dbnameId.toString());
+            if (newState.editingCharacter) {
+                newState.editingCharacter.dbname =
+                    dbContext.DBNames.get(dbnameIdValue);
+            } else {
+                newState.error = "No faction to edit";
+                newState.openError = true;
+            }
+        }
+        this.setState(newState);
+    }
+
+    changeTimeline(timelineId: string | number) {
+        const newState: CharactersState = { ...this.state };
+
+        if (!timelineId || timelineId === "" || timelineId === "undefined") {
+            newState.error = "No timeline to edit";
+            newState.openError = true;
+        } else {
+            const timelineIdValue = parseInt(timelineId.toString());
+            if (newState.editingCharacter) {
+                newState.editingCharacter.timeline =
+                    dbContext.Timelines.get(timelineIdValue);
+            } else {
+                newState.error = "No faction to edit";
+                newState.openError = true;
+            }
+        }
         this.setState(newState);
     }
 
@@ -180,8 +274,11 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
                 </Snackbar>
 
                 <Dialog
-                    open={openDialog}
-                    onClose={() => dispatch(editCharacter_close())}
+                    open={
+                        (this.state.edit || this.state.create) &&
+                        this.state.editingCharacter !== null
+                    }
+                    onClose={() => this.closeDialog()}
                     aria-labelledby="form-dialog-title"
                     maxWidth="md"
                     fullWidth={true}
@@ -202,15 +299,13 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
                                         <IconButton
                                             edge="start"
                                             color="inherit"
-                                            onClick={() =>
-                                                dispatch(editCharacter_close())
-                                            }
+                                            onClick={() => this.closeDialog()}
                                             aria-label="close"
                                         >
                                             <CloseIcon />
                                         </IconButton>
                                         <Typography variant="h6">
-                                            {isCreate
+                                            {this.state.create
                                                 ? "Creating a new character"
                                                 : "Editing character"}
                                         </Typography>
@@ -223,23 +318,21 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
                                         autoFocus
                                         color="inherit"
                                         onClick={() => {
-                                            if (isCreate) {
-                                                dispatch(
-                                                    editCharacter_create(
-                                                        character
-                                                    )
+                                            if (this.state.create) {
+                                                this.create(
+                                                    this.state.editingCharacter
                                                 );
                                             } else {
-                                                dispatch(
-                                                    editCharacter_save(
-                                                        character
-                                                    )
+                                                this.update(
+                                                    this.state.editingCharacter
                                                 );
                                             }
                                         }}
                                     >
                                         <Typography variant="h6">
-                                            {isCreate ? "Create" : "Save"}
+                                            {this.state.create
+                                                ? "Create"
+                                                : "Save"}
                                         </Typography>
                                         <SaveIcon />
                                     </IconButton>
@@ -264,30 +357,33 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
                                             label="DBName"
                                             name="dbname"
                                             value={
-                                                character.dbname
-                                                    ? character.dbname.id ??
-                                                      "undefined"
-                                                    : "undefined"
+                                                this.state.editingCharacter
+                                                    .dbname
+                                                    ? this.state
+                                                          .editingCharacter
+                                                          .dbname._id ??
+                                                      undefined
+                                                    : undefined
                                             }
-                                            onChange={(dbname) => {
-                                                dispatch(
-                                                    editCharacter_changeDbName(
-                                                        dbname.target.value
-                                                    )
+                                            onChange={(event) => {
+                                                this.changeDbName(
+                                                    event.target.value
                                                 );
                                             }}
                                         >
                                             <MenuItem value="undefined">
                                                 Undefined
                                             </MenuItem>
-                                            {dbnames.map((dbname) => (
-                                                <MenuItem
-                                                    key={dbname.id}
-                                                    value={dbname.id}
-                                                >
-                                                    {dbname.name}
-                                                </MenuItem>
-                                            ))}
+                                            {this.state.dbnames.map(
+                                                (dbname) => (
+                                                    <MenuItem
+                                                        key={dbname._id}
+                                                        value={dbname._id}
+                                                    >
+                                                        {dbname.name}
+                                                    </MenuItem>
+                                                )
+                                            )}
                                         </Select>
                                     </FormControl>
 
@@ -303,32 +399,42 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
                                         <Select
                                             label="Timeline"
                                             name="timeline"
-                                            value={character.timeline}
+                                            value={
+                                                this.state.editingCharacter
+                                                    .timeline
+                                                    ? this.state
+                                                          .editingCharacter
+                                                          .timeline._id ??
+                                                      undefined
+                                                    : undefined
+                                            }
                                             onChange={(event) => {
-                                                dispatch(
-                                                    editCharacter_changeTimeline(
-                                                        event.target.value
-                                                    )
+                                                this.changeTimeline(
+                                                    event.target.value
                                                 );
                                             }}
                                         >
-                                            {Timelines.map((timeline) => (
-                                                <MenuItem
-                                                    key={timeline.value}
-                                                    value={timeline.value}
-                                                >
-                                                    <em>{timeline.name}</em>
-                                                </MenuItem>
-                                            ))}
+                                            {this.state.timelines.map(
+                                                (timeline) => (
+                                                    <MenuItem
+                                                        key={timeline._id}
+                                                        value={timeline._id}
+                                                    >
+                                                        <em>{timeline.name}</em>
+                                                    </MenuItem>
+                                                )
+                                            )}
                                         </Select>
                                     </FormControl>
 
-                                    {isCreate ? null : (
+                                    {this.state.create ? null : (
                                         <TextField
                                             disabled
                                             label="Unique Id"
                                             margin="dense"
-                                            value={character.id}
+                                            value={
+                                                this.state.editingCharacter._id
+                                            }
                                         />
                                     )}
                                 </Grid>

@@ -35,7 +35,6 @@ export enum Language {
 export function getEmptyLocale(key: string): Locale {
     return {
         _id: -1,
-        key: key,
         enUS: null,
 
         deDE: null,

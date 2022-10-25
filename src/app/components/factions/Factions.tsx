@@ -31,12 +31,17 @@ import { Faction } from "../../models/faction";
 import dbContext from "../../dbContext/dbContext";
 
 import { getEmptyLocale, cleanString } from "../../constants";
+import { DbName } from "../../models/dbname";
+import { Timeline } from "../../models/timeline";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface FactionsProps {}
 
 interface FactionsState {
     factions: Faction[];
+
+    dbnames: DbName[];
+    timelines: Timeline[];
 
     edit: boolean;
     create: boolean;
@@ -50,6 +55,9 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
         super(props);
         const initialState: FactionsState = {
             factions: [],
+
+            dbnames: dbContext.DBNames.findAll(),
+            timelines: dbContext.Timelines.findAll(),
 
             edit: false,
             create: false,
@@ -72,7 +80,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
     showError(error: string) {
         const newState: FactionsState = {
             ...this.state,
-        } as FactionsState;
+        };
 
         newState.openError = true;
         newState.error = error;
@@ -81,7 +89,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
     }
 
     showCreate() {
-        const newState: FactionsState = { ...this.state } as FactionsState;
+        const newState: FactionsState = { ...this.state };
 
         newState.edit = false;
         newState.create = true;
@@ -91,7 +99,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
     }
 
     factionDetails(factionid: number) {
-        const newState: FactionsState = { ...this.state } as FactionsState;
+        const newState: FactionsState = { ...this.state };
 
         const index = newState.factions.findIndex(
             (faction) => faction._id === factionid
@@ -106,7 +114,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
     }
 
     closeDialog() {
-        const newState: FactionsState = { ...this.state } as FactionsState;
+        const newState: FactionsState = { ...this.state };
 
         newState.edit = false;
         newState.create = false;
@@ -128,7 +136,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
     }
 
     closeError() {
-        const newState: FactionsState = { ...this.state } as FactionsState;
+        const newState: FactionsState = { ...this.state };
         newState.openError = false;
         newState.error = "";
         this.setState(newState);
@@ -137,7 +145,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
     factionDeleted(factionid: number) {
         const newState: FactionsState = {
             ...this.state,
-        } as FactionsState;
+        };
 
         const index = newState.factions.findIndex(
             (faction) => faction._id === factionid
@@ -154,7 +162,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
             const newFaction = dbContext.Factions.create(factionToEdit);
             const newState: FactionsState = {
                 ...this.state,
-            } as FactionsState;
+            };
 
             newState.factions.push(newFaction);
 
@@ -169,7 +177,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
             const newFaction = dbContext.Factions.update(factionToEdit);
             const newState: FactionsState = {
                 ...this.state,
-            } as FactionsState;
+            };
 
             const index = newState.factions.findIndex(
                 (faction) => faction._id === newFaction._id
@@ -185,7 +193,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
     }
 
     changeName(name: string) {
-        const newState: FactionsState = { ...this.state } as FactionsState;
+        const newState: FactionsState = { ...this.state };
         if (newState.editingFaction) {
             newState.editingFaction.name = name;
 
@@ -201,7 +209,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
     }
 
     changeDbName(dbnameId: string | number) {
-        const newState: FactionsState = { ...this.state } as FactionsState;
+        const newState: FactionsState = { ...this.state };
 
         if (!dbnameId || dbnameId === "" || dbnameId === "undefined") {
             newState.error = "No dbname to edit";
@@ -220,7 +228,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
     }
 
     changeTimeline(timelineId: string | number) {
-        const newState: FactionsState = { ...this.state } as FactionsState;
+        const newState: FactionsState = { ...this.state };
 
         if (!timelineId || timelineId === "" || timelineId === "undefined") {
             newState.error = "No timeline to edit";
@@ -241,7 +249,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
     descriptionUpdated(localeId: number) {
         const updatedLocale = dbContext.Locales.get(localeId);
 
-        const newState: FactionsState = { ...this.state } as FactionsState;
+        const newState: FactionsState = { ...this.state };
         if (newState.editingFaction) {
             newState.editingFaction.description = updatedLocale;
             newState.factions.filter(
@@ -257,7 +265,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
     labelUpdated(localeId: number) {
         const updatedLocale = dbContext.Locales.get(localeId);
 
-        const newState: FactionsState = { ...this.state } as FactionsState;
+        const newState: FactionsState = { ...this.state };
         if (newState.editingFaction) {
             newState.editingFaction.label = updatedLocale;
             newState.factions.filter(
@@ -404,16 +412,14 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
                                         <MenuItem value="undefined">
                                             Undefined
                                         </MenuItem>
-                                        {dbContext.DBNames.findAll().map(
-                                            (dbname) => (
-                                                <MenuItem
-                                                    key={dbname._id}
-                                                    value={dbname._id}
-                                                >
-                                                    {dbname.name}
-                                                </MenuItem>
-                                            )
-                                        )}
+                                        {this.state.dbnames.map((dbname) => (
+                                            <MenuItem
+                                                key={dbname._id}
+                                                value={dbname._id}
+                                            >
+                                                {dbname.name}
+                                            </MenuItem>
+                                        ))}
                                     </Select>
                                 </FormControl>
 
@@ -442,7 +448,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
                                             );
                                         }}
                                     >
-                                        {dbContext.Timelines.findAll().map(
+                                        {this.state.timelines.map(
                                             (timeline) => (
                                                 <MenuItem
                                                     key={timeline._id}
