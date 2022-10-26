@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Language } from "../../constants";
+import { Language, Timelines } from "../../constants";
 
 import {
     Timeline as TimelineUI,
@@ -24,22 +24,16 @@ import DoubleArrowIcon from "@mui/icons-material/DoubleArrow";
 
 import { Event } from "../../models/event";
 import dbContext from "../../dbContext/dbContext";
-import { Timeline } from "../../models/timeline";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface TimelinesViewProps {}
 
 interface TimelinesViewState {
     events: Event[];
-    timelines: Timeline[];
     selected: number | null;
     openError: boolean;
     error: string;
 }
-
-// interface TimelineItem extends Timeline {
-//     checked: boolean;
-// }
 
 class TimelinesView extends React.Component<
     TimelinesViewProps,
@@ -49,7 +43,6 @@ class TimelinesView extends React.Component<
         super(props);
         const initialState: TimelinesViewState = {
             events: [],
-            timelines: [],
             selected: null,
             openError: false,
             error: "",
@@ -57,12 +50,9 @@ class TimelinesView extends React.Component<
         try {
             const events = dbContext.Events.findAll();
             initialState.events = events;
-
-            const timelines = dbContext.Timelines.findAll();
-            initialState.timelines = timelines;
         } catch (error) {
             initialState.openError = true;
-            initialState.error = "Error loading events or timelines";
+            initialState.error = "Error loading events";
         }
 
         this.state = initialState;
@@ -100,8 +90,8 @@ class TimelinesView extends React.Component<
                             )
                         }
                     >
-                        {this.state.timelines.map((timeline) => (
-                            <MenuItem value={timeline.name} key={timeline._id}>
+                        {Timelines.map((timeline) => (
+                            <MenuItem value={timeline.name} key={timeline.id}>
                                 <em>{timeline.name}</em>
                             </MenuItem>
                         ))}
@@ -113,7 +103,7 @@ class TimelinesView extends React.Component<
                         .filter(
                             (event: Event) =>
                                 this.state.selected === null ||
-                                event.timeline._id === this.state.selected
+                                event.timeline === this.state.selected
                         )
                         .map((event) => (
                             <TimelineItem key={event._id}>

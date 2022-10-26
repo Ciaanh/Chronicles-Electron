@@ -125,7 +125,7 @@ class FactionRow extends React.Component<IFactionRowProps, IFactionRowState> {
                                         theme.palette.text.secondary,
                                 }}
                             >
-                                {this.state.faction.description.key}
+                                {this.state.faction.description.enUS}
                             </Typography>
                         </Grid>
                     </Grid>

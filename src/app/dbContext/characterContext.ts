@@ -2,7 +2,6 @@ import { Character, DB_Character } from "../models/character";
 import { DBNames } from "./dbNameContext";
 import { Factions } from "./factionContext";
 import { Locales } from "./localeContext";
-import { Timelines } from "./timelineContext";
 
 export interface CharacterContext {
     findAll: () => Character[];
@@ -81,7 +80,7 @@ export const CharacterMapper = (character: Character): DB_Character => {
         name: character.name,
         labelId: character.label._id,
         biographyId: character.biography._id,
-        timelineId: character.timeline._id,
+        timeline: character.timeline,
         factionIds: character.factions.map((faction) => faction._id),
         dbnameId: character.dbname._id,
     };
@@ -93,7 +92,7 @@ export const CharacterMapperFromDB = (character: DB_Character): Character => {
         name: character.name,
         label: Locales.get(character.labelId),
         biography: Locales.get(character.biographyId),
-        timeline: Timelines.get(character.timelineId),
+        timeline: character.timeline,
         factions: Factions.find(character.factionIds),
         dbname: DBNames.get(character.dbnameId),
     };

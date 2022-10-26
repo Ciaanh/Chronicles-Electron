@@ -33,12 +33,11 @@ import CharacterRow from "./CharacterRow";
 import NoData from "../NoData";
 import Locale from "../locales/LocaleView";
 
-import { ITEM_HEIGHT } from "../../constants";
+import { ITEM_HEIGHT, Timelines } from "../../constants";
 
 import { Character } from "../../models/character";
 import dbContext from "../../dbContext/dbContext";
 import { DbName } from "../../models/dbname";
-import { Timeline } from "../../models/timeline";
 import { Faction } from "../../models/faction";
 import { getEmptyLocale } from "../../models/locale";
 
@@ -49,7 +48,6 @@ interface CharactersState {
     characters: Character[];
 
     dbnames: DbName[];
-    timelines: Timeline[];
     factions: Faction[];
 
     edit: boolean;
@@ -69,7 +67,6 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
         const initialState: CharactersState = {
             characters: [],
             dbnames: dbContext.DBNames.findAll(),
-            timelines: dbContext.Timelines.findAll(),
             factions: dbContext.Factions.findAll(),
             edit: false,
             create: false,
@@ -162,7 +159,7 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
             name: "",
             label: getEmptyLocale(),
             biography: getEmptyLocale(),
-            timeline: dbContext.Timelines.findAll()[0],
+            timeline: Timelines[0].id,
             factions: [],
             dbname: dbContext.DBNames.findAll()[0],
         };
@@ -251,8 +248,7 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
         } else {
             const timelineIdValue = parseInt(timelineId.toString());
             if (newState.editingCharacter) {
-                newState.editingCharacter.timeline =
-                    dbContext.Timelines.get(timelineIdValue);
+                newState.editingCharacter.timeline = timelineIdValue;
             } else {
                 newState.error = "No character to edit";
                 newState.openError = true;
@@ -519,8 +515,7 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
                                                     .timeline
                                                     ? this.state
                                                           .editingCharacter
-                                                          .timeline._id ??
-                                                      undefined
+                                                          .timeline ?? undefined
                                                     : undefined
                                             }
                                             onChange={(event) => {
@@ -529,16 +524,14 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
                                                 );
                                             }}
                                         >
-                                            {this.state.timelines.map(
-                                                (timeline) => (
-                                                    <MenuItem
-                                                        key={timeline._id}
-                                                        value={timeline._id}
-                                                    >
-                                                        <em>{timeline.name}</em>
-                                                    </MenuItem>
-                                                )
-                                            )}
+                                            {Timelines.map((timeline) => (
+                                                <MenuItem
+                                                    key={timeline.id}
+                                                    value={timeline.id}
+                                                >
+                                                    <em>{timeline.name}</em>
+                                                </MenuItem>
+                                            ))}
                                         </Select>
                                     </FormControl>
 

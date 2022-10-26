@@ -1,8 +1,6 @@
 import { DB_Faction, Faction } from "../models/faction";
-import dbContext from "./dbContext";
 import { DBNames } from "./dbNameContext";
 import { Locales } from "./localeContext";
-import { Timelines } from "./timelineContext";
 
 export interface FactionContext {
     findAll: () => Faction[];
@@ -54,7 +52,7 @@ export const Factions: FactionContext = {
         if (faction.description._id === -1) {
             throw new Error("Faction description is required");
         }
-        
+
         const factions = window.database
             .getAll(window.database.tableNames.factions)
             .map((faction) => faction.id);
@@ -95,7 +93,7 @@ export const FactionMapper = (faction: Faction): DB_Faction => {
         name: faction.name,
         labelId: faction.label._id,
         descriptionId: faction.description._id,
-        timelineId: faction.timeline._id,
+        timeline: faction.timeline,
         dbnameId: faction.dbname._id,
     };
 };
@@ -106,7 +104,7 @@ export const FactionMapperFromDB = (faction: DB_Faction): Faction => {
         name: faction.name,
         label: Locales.get(faction.labelId),
         description: Locales.get(faction.descriptionId),
-        timeline: Timelines.get(faction.timelineId),
+        timeline: faction.timeline,
         dbname: DBNames.get(faction.dbnameId),
     };
 };

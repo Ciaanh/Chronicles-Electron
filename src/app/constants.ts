@@ -1,14 +1,27 @@
 export const AddonDownloadUrl =
     "https://www.curseforge.com/wow/addons/chronicles";
 
-export const EventTypes = [
-    { name: "Event", value: 0 },
-    { name: "Era", value: 1 },
-    { name: "War", value: 2 },
-    { name: "Battle", value: 3 },
-    { name: "Death", value: 4 },
-    { name: "Birth", value: 5 },
-    { name: "Other", value: 6 },
+interface ListItem {
+    name: string;
+    id: number;
+}
+
+export const EventTypes: ListItem[] = [
+    { name: "Event", id: 0 },
+    { name: "Era", id: 1 },
+    { name: "War", id: 2 },
+    { name: "Battle", id: 3 },
+    { name: "Death", id: 4 },
+    { name: "Birth", id: 5 },
+    { name: "Other", id: 6 },
+];
+
+export const Timelines: ListItem[] = [
+    { name: "Undefined", id: 0 },
+    { name: "Main", id: 1 },
+    { name: "Dreanor", id: 2 },
+    { name: "EndOfTime", id: 3 },
+    { name: "WarOfTheAncients", id: 4 },
 ];
 
 export enum Language {

@@ -3,7 +3,6 @@ import { Characters } from "./characterContext";
 import { DBNames } from "./dbNameContext";
 import { Factions } from "./factionContext";
 import { Locales } from "./localeContext";
-import { Timelines } from "./timelineContext";
 
 export interface EventContext {
     findAll: () => Event[];
@@ -78,7 +77,7 @@ export const EventMapper = (event: Event): DB_Event => {
         yearStart: event.yearStart,
         yearEnd: event.yearEnd,
         eventType: event.eventType,
-        timelineId: event.timeline._id,
+        timeline: event.timeline,
         link: event.link,
         factionIds: event.factions.map((faction) => faction._id),
         characterIds: event.characters.map((character) => character._id),
@@ -95,7 +94,7 @@ export const EventMapperFromDB = (event: DB_Event): Event => {
         yearStart: event.yearStart,
         yearEnd: event.yearEnd,
         eventType: event.eventType,
-        timeline: Timelines.get(event.timelineId),
+        timeline: event.timeline,
         link: event.link,
         factions: Factions.find(event.factionIds),
         characters: Characters.find(event.characterIds),

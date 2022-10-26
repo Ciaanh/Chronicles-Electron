@@ -3,14 +3,13 @@ import { DbName } from "./dbname";
 import { DbObject, Dto } from "./object_interfaces";
 import { Faction } from "./faction";
 import { Locale } from "./locale";
-import { Timeline } from "./timeline";
 
 export interface Event extends Dto {
     name: string;
     yearStart: number;
     yearEnd: number;
     eventType: number;
-    timeline: Timeline;
+    timeline: number;
     link: string;
     factions: Faction[];
     characters: Character[];
@@ -24,7 +23,7 @@ export interface DB_Event extends DbObject {
     yearStart: number;
     yearEnd: number;
     eventType: number;
-    timelineId: number;
+    timeline: number;
     link: string;
     factionIds: number[];
     characterIds: number[];

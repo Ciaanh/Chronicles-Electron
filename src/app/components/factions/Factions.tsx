@@ -31,8 +31,8 @@ import { Faction } from "../../models/faction";
 import dbContext from "../../dbContext/dbContext";
 
 import { DbName } from "../../models/dbname";
-import { Timeline } from "../../models/timeline";
 import { getEmptyLocale } from "../../models/locale";
+import { Timelines } from "../../constants";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface FactionsProps {}
@@ -41,7 +41,6 @@ interface FactionsState {
     factions: Faction[];
 
     dbnames: DbName[];
-    timelines: Timeline[];
 
     edit: boolean;
     create: boolean;
@@ -57,7 +56,6 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
             factions: [],
 
             dbnames: dbContext.DBNames.findAll(),
-            timelines: dbContext.Timelines.findAll(),
 
             edit: false,
             create: false,
@@ -130,7 +128,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
             name: "",
             label: getEmptyLocale(),
             description: getEmptyLocale(),
-            timeline: dbContext.Timelines.findAll()[0],
+            timeline: Timelines[0].id,
             dbname: dbContext.DBNames.findAll()[0],
         };
     }
@@ -231,8 +229,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
         } else {
             const timelineIdValue = parseInt(timelineId.toString());
             if (newState.editingFaction) {
-                newState.editingFaction.timeline =
-                    dbContext.Timelines.get(timelineIdValue);
+                newState.editingFaction.timeline = timelineIdValue;
             } else {
                 newState.error = "No faction to edit";
                 newState.openError = true;
@@ -433,8 +430,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
                                         value={
                                             this.state.editingFaction.timeline
                                                 ? this.state.editingFaction
-                                                      .timeline._id ??
-                                                  "undefined"
+                                                      .timeline ?? "undefined"
                                                 : "undefined"
                                         }
                                         onChange={(event) => {
@@ -443,16 +439,14 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
                                             );
                                         }}
                                     >
-                                        {this.state.timelines.map(
-                                            (timeline) => (
-                                                <MenuItem
-                                                    key={timeline._id}
-                                                    value={timeline._id}
-                                                >
-                                                    <em>{timeline.name}</em>
-                                                </MenuItem>
-                                            )
-                                        )}
+                                        {Timelines.map((timeline) => (
+                                            <MenuItem
+                                                key={timeline.id}
+                                                value={timeline.id}
+                                            >
+                                                <em>{timeline.name}</em>
+                                            </MenuItem>
+                                        ))}
                                     </Select>
                                 </FormControl>
 
