@@ -31,9 +31,11 @@ export class DBService {
         files.push(indexFile);
 
         // character db content
-        // const characterDbFile = this.CreateCharacterDbFile(request);
+        const characterDbFile = this.CreateCharacterDbFile(request);
+        files.push(...characterDbFile);
         // faction db content
-        // const factionDbFile = this.CreateFactionDbFile(request);
+        const factionDbFile = this.CreateFactionDbFile(request);
+        files.push(...factionDbFile);
         // event db content
         const eventDbFile = this.CreateEventDbFile(request);
         files.push(...eventDbFile);
@@ -53,10 +55,11 @@ export class DBService {
                 (event: Event) => String(event.dbname._id) == String(dbname._id)
             );
 
-            const eventDbContent = this.CreateEventDbContent(
-                dbName,
-                filteredEvents
-            );
+            const eventDbContent = `${this.dbHeader}
+
+    ${dbName} = {
+        ${filteredEvents.map(this.MapEventContent).join(",\n        ")}
+    }`;
 
             return {
                 content: eventDbContent,
@@ -66,31 +69,6 @@ export class DBService {
 
         return files;
     }
-
-    private CreateEventDbContent(
-        dbName: string,
-        filteredEvents: Event[]
-    ): string {
-        const eventDbContent = `${this.dbHeader}
-
-        ${dbName} = {
-            ${filteredEvents.map(this.MapEventContent).join(",\n")}
-        }`;
-        return eventDbContent;
-    }
-
-    // name: string;
-    // yearStart: number;
-    // yearEnd: number;
-    // eventType: number;
-    // timeline: Timeline;
-    // link: string;
-    // factions: Faction[];
-    // characters: Character[];
-    // label: Locale;
-    // description: Locale[];
-    // dbname: DbName;
-
     private MapEventContent(event: Event): string {
         const eventContent = `[${event._id}] = {
             id=${event._id},
@@ -110,11 +88,80 @@ export class DBService {
     }
 
     private CreateFactionDbFile(request: FileGenerationRequest) {
-        throw new Error("Method not implemented.");
+        const files = request.dbnames.map((dbname: FormatedDbName) => {
+            const dbFoldername = this.GetDbFolderName(
+                dbname.index,
+                dbname.name
+            );
+            const dbName = this.GetDbName(dbname.name, "Faction");
+
+            const filteredFactions = request.factions.filter(
+                (faction: Faction) =>
+                    String(faction.dbname._id) == String(dbname._id)
+            );
+
+            const factionDbContent = `${this.dbHeader}
+
+    ${dbName} = {
+        ${filteredFactions.map(this.MapFactionContent).join(",\n        ")}
+    }`;
+
+            return {
+                content: factionDbContent,
+                name: `Custom/DB/${dbFoldername}/${dbName}.lua`,
+            } as FileContent;
+        });
+
+        return files;
+    }
+
+    private MapFactionContent(faction: Faction): string {
+        const eventContent = `[${faction._id}] = {
+            id = ${faction._id},
+            name = Locale["${getLocaleKey(faction.label)}"],
+            description = Locale["${getLocaleKey(faction.description)}"],
+            timeline = ${faction.timeline._id}
+        }`;
+        return eventContent;
     }
 
     private CreateCharacterDbFile(request: FileGenerationRequest) {
-        throw new Error("Method not implemented.");
+        const files = request.dbnames.map((dbname: FormatedDbName) => {
+            const dbFoldername = this.GetDbFolderName(
+                dbname.index,
+                dbname.name
+            );
+            const dbName = this.GetDbName(dbname.name, "Character");
+
+            const filteredCharacters = request.characters.filter(
+                (character: Character) =>
+                    String(character.dbname._id) == String(dbname._id)
+            );
+
+            const characterDbContent = `${this.dbHeader}
+
+    ${dbName} = {
+        ${filteredCharacters.map(this.MapCharacterContent).join(",\n        ")}
+    }`;
+
+            return {
+                content: characterDbContent,
+                name: `Custom/DB/${dbFoldername}/${dbName}.lua`,
+            } as FileContent;
+        });
+
+        return files;
+    }
+
+    private MapCharacterContent(character: Character): string {
+        const eventContent = `[${character._id}] = {
+            id = ${character._id},
+            name = Locale["${getLocaleKey(character.label)}"],
+            biography = Locale["${getLocaleKey(character.biography)}"],
+            timeline = ${character.timeline._id},
+            factions = {${character.factions.map((fac) => fac._id).join(", ")}}
+        }`;
+        return eventContent;
     }
 
     private dbHeader = `local FOLDER_NAME, private = ...
