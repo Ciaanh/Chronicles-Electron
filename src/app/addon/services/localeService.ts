@@ -38,8 +38,6 @@ export class LocaleService {
         Language.zhTW
     ];
 
-    
-
     private FormatDbName(dbname: string) {
         return dbname.replace(/\w+/g, function (w) {
             return w[0].toUpperCase() + w.slice(1).toLowerCase();
@@ -198,11 +196,17 @@ export class LocaleService {
         events.forEach((event: Event) => {
             result.push(this.ExtractLocaleByLanguage(event.label, language));
 
-            event.description.forEach((descriptionPage: Locale) => {
-                result.push(
-                    this.ExtractLocaleByLanguage(descriptionPage, language)
-                );
-            });
+            event.description.forEach(
+                (descriptionPage: Locale, index: number) => {
+                    result.push(
+                        this.ExtractLocaleByLanguage(
+                            descriptionPage,
+                            language,
+                            index
+                        )
+                    );
+                }
+            );
         });
         return result;
     }
@@ -238,12 +242,13 @@ export class LocaleService {
 
     private ExtractLocaleByLanguage(
         locale: Locale,
-        language: string
+        language: string,
+        index?: number
     ): localeLine {
         const localeLine: localeLine = {
-            key: getLocaleKey(locale),
+            key: getLocaleKey(locale, index),
             value: this.FormatLocaleValue(
-                getLocaleKey(locale),
+                getLocaleKey(locale, index),
                 this.GetLocaleValueByLanguage(locale, language)
             ),
         };

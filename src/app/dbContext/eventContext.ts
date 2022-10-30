@@ -6,9 +6,9 @@ import { Locales } from "./localeContext";
 
 export interface EventContext {
     findAll: () => Event[];
-    find(ids: number[]): Event[];
+    findByIds(ids: number[]): Event[];
     findByDB(dbids: number[]): Event[];
-    get(id: number): Event;
+    findById(id: number): Event;
     create(event: Event): Event;
     update(event: Event): Event;
     delete(id: number): number;
@@ -21,7 +21,7 @@ export const Events: EventContext = {
         );
         return EventMapperFromDBs(events);
     },
-    find: function (ids) {
+    findByIds: function (ids) {
         const events: DB_Event[] = window.database.getAll(
             window.database.tableNames.events
         );
@@ -37,7 +37,7 @@ export const Events: EventContext = {
         );
         return EventMapperFromDBs(filteredEvents);
     },
-    get: function (id) {
+    findById: function (id) {
         const event: DB_Event = window.database.get(
             window.database.tableNames.events,
             id
@@ -96,11 +96,11 @@ export const EventMapperFromDB = (event: DB_Event): Event => {
         eventType: event.eventType,
         timeline: event.timeline,
         link: event.link,
-        factions: Factions.find(event.factionIds),
-        characters: Characters.find(event.characterIds),
-        label: Locales.get(event.labelId),
-        description: Locales.find(event.descriptionIds),
-        dbname: DBNames.get(event.dbnameId),
+        factions: Factions.findByIds(event.factionIds),
+        characters: Characters.findByIds(event.characterIds),
+        label: Locales.findById(event.labelId),
+        description: Locales.findByIds(event.descriptionIds),
+        dbname: DBNames.findById(event.dbnameId),
     };
 };
 

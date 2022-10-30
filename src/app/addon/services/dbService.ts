@@ -74,12 +74,12 @@ export class DBService {
             id=${event._id},
 			label=Locale["${getLocaleKey(event.label)}"],
 			description={${event.description
-                .map((desc) => `Locale["${getLocaleKey(desc)}"]`)
+                .map((desc, index) => `Locale["${getLocaleKey(desc, index)}"]`)
                 .join(", ")}},
 			yearStart=${event.yearStart},
 			yearEnd=${event.yearEnd},
 			eventType=${event.eventType},
-			timeline=${event.timeline._id},
+			timeline=${event.timeline},
 			-- date=[integer],
 			characters={${event.characters.map((char) => char._id).join(", ")}},
             factions={${event.factions.map((fac) => fac._id).join(", ")}},
@@ -120,7 +120,7 @@ export class DBService {
             id = ${faction._id},
             name = Locale["${getLocaleKey(faction.label)}"],
             description = Locale["${getLocaleKey(faction.description)}"],
-            timeline = ${faction.timeline._id}
+            timeline = ${faction.timeline}
         }`;
         return eventContent;
     }
@@ -158,7 +158,7 @@ export class DBService {
             id = ${character._id},
             name = Locale["${getLocaleKey(character.label)}"],
             biography = Locale["${getLocaleKey(character.biography)}"],
-            timeline = ${character.timeline._id},
+            timeline = ${character.timeline},
             factions = {${character.factions.map((fac) => fac._id).join(", ")}}
         }`;
         return eventContent;

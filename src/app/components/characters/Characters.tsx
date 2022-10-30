@@ -127,13 +127,18 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
     characterDetails(characterid: number) {
         const newState: CharactersState = { ...this.state };
 
-        const index = newState.characters.findIndex(
-            (character) => character._id === characterid
-        );
-        if (index !== -1) {
-            newState.editingCharacter = newState.characters[index];
+        const character = dbContext.Characters.findById(characterid);
+        if (character) {
+            newState.editingCharacter = character;
             newState.edit = true;
             newState.create = false;
+        } else {
+            newState.editingCharacter = null;
+            newState.edit = false;
+            newState.create = false;
+            newState.openError = true;
+
+            newState.error = "Character not found";
         }
 
         this.setState(newState);
@@ -230,7 +235,7 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
             const dbnameIdValue = parseInt(dbnameId.toString());
             if (newState.editingCharacter) {
                 newState.editingCharacter.dbname =
-                    dbContext.DBNames.get(dbnameIdValue);
+                    dbContext.DBNames.findById(dbnameIdValue);
             } else {
                 newState.error = "No character to edit";
                 newState.openError = true;
@@ -269,7 +274,7 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
     }
 
     labelUpdated(localeId: number) {
-        const updatedLocale = dbContext.Locales.get(localeId);
+        const updatedLocale = dbContext.Locales.findById(localeId);
 
         const newState: CharactersState = { ...this.state };
         if (newState.editingCharacter) {
@@ -285,7 +290,7 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
     }
 
     biographyUpdated(localeId: number) {
-        const updatedLocale = dbContext.Locales.get(localeId);
+        const updatedLocale = dbContext.Locales.findById(localeId);
 
         const newState: CharactersState = { ...this.state };
         if (newState.editingCharacter) {
@@ -315,7 +320,7 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
                     )
                 ) {
                     newState.editingCharacter.factions.push(
-                        dbContext.Factions.get(factionIdValue)
+                        dbContext.Factions.findById(factionIdValue)
                     );
                 }
             } else {

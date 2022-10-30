@@ -64,7 +64,7 @@ class Addon extends React.Component<AddonProps, AddonState> {
     }
 
     addon_generate_selected(dbids: number[]) {
-        const dbnames = dbContext.DBNames.find(dbids);
+        const dbnames = dbContext.DBNames.findByIds(dbids);
 
         const events = dbContext.Events.findByDB(dbids);
 

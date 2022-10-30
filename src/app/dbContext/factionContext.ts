@@ -4,9 +4,9 @@ import { Locales } from "./localeContext";
 
 export interface FactionContext {
     findAll: () => Faction[];
-    find(ids: number[]): Faction[];
+    findByIds(ids: number[]): Faction[];
     findByDB(dbids: number[]): Faction[];
-    get(id: number): Faction;
+    findById(id: number): Faction;
     create(faction: Faction): Faction;
     update(faction: Faction): Faction;
     delete(id: number): number;
@@ -19,7 +19,7 @@ export const Factions: FactionContext = {
         );
         return FactionMapperFromDBs(factions);
     },
-    find: function (ids) {
+    findByIds: function (ids) {
         const factions: DB_Faction[] = window.database.getAll(
             window.database.tableNames.factions
         );
@@ -37,7 +37,7 @@ export const Factions: FactionContext = {
         );
         return FactionMapperFromDBs(filteredFactions);
     },
-    get: function (id) {
+    findById: function (id) {
         const faction: DB_Faction = window.database.get(
             window.database.tableNames.factions,
             id
@@ -102,10 +102,10 @@ export const FactionMapperFromDB = (faction: DB_Faction): Faction => {
     return {
         _id: faction.id,
         name: faction.name,
-        label: Locales.get(faction.labelId),
-        description: Locales.get(faction.descriptionId),
+        label: Locales.findById(faction.labelId),
+        description: Locales.findById(faction.descriptionId),
         timeline: faction.timeline,
-        dbname: DBNames.get(faction.dbnameId),
+        dbname: DBNames.findById(faction.dbnameId),
     };
 };
 

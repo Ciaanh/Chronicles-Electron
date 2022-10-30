@@ -5,9 +5,9 @@ import { Locales } from "./localeContext";
 
 export interface CharacterContext {
     findAll: () => Character[];
-    find(ids: number[]): Character[];
+    findByIds(ids: number[]): Character[];
     findByDB(dbids: number[]): Character[];
-    get(id: number): Character;
+    findById(id: number): Character;
     create(character: Character): Character;
     update(character: Character): Character;
     delete(id: number): number;
@@ -20,7 +20,7 @@ export const Characters: CharacterContext = {
         );
         return CharacterMapperFromDBs(characters);
     },
-    find: function (ids) {
+    findByIds: function (ids) {
         const characters: DB_Character[] = window.database.getAll(
             window.database.tableNames.characters
         );
@@ -38,7 +38,7 @@ export const Characters: CharacterContext = {
         );
         return CharacterMapperFromDBs(filteredCharacters);
     },
-    get: function (id) {
+    findById: function (id) {
         const character: DB_Character = window.database.get(
             window.database.tableNames.characters,
             id
@@ -90,11 +90,11 @@ export const CharacterMapperFromDB = (character: DB_Character): Character => {
     return {
         _id: character.id,
         name: character.name,
-        label: Locales.get(character.labelId),
-        biography: Locales.get(character.biographyId),
+        label: Locales.findById(character.labelId),
+        biography: Locales.findById(character.biographyId),
         timeline: character.timeline,
-        factions: Factions.find(character.factionIds),
-        dbname: DBNames.get(character.dbnameId),
+        factions: Factions.findByIds(character.factionIds),
+        dbname: DBNames.findById(character.dbnameId),
     };
 };
 

@@ -1,16 +1,38 @@
-import React, { useEffect } from "react";
+import React from "react";
 
-import { Alert, Fab, Snackbar } from "@mui/material";
+import {
+    Alert,
+    AppBar,
+    Dialog,
+    DialogContent,
+    Divider,
+    Fab,
+    FormControl,
+    Grid,
+    IconButton,
+    InputLabel,
+    List,
+    ListItem,
+    ListItemText,
+    Menu,
+    MenuItem,
+    Paper,
+    Select,
+    Snackbar,
+    TextField,
+    Toolbar,
+    Typography,
+} from "@mui/material";
 
 import AddIcon from "@mui/icons-material/Add";
-
-import { events_load } from "../../reducers/events";
-
-import { editEvent_new } from "../../reducers/editEvent";
+import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
+import CloseIcon from "@mui/icons-material/Close";
+import SaveIcon from "@mui/icons-material/Save";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 import EventRow from "./EventRow";
-import EventEditor from "./EventEditor";
 import NoData from "../NoData";
+import Locale from "../locales/LocaleView";
 
 import { Event } from "../../models/event";
 import { Character } from "../../models/character";
@@ -18,7 +40,7 @@ import { Faction } from "../../models/faction";
 import { DbName } from "../../models/dbname";
 import dbContext from "../../dbContext/dbContext";
 import { getEmptyLocale } from "../../models/locale";
-import { Timelines } from "../../constants";
+import { ITEM_HEIGHT, Timelines, EventTypes } from "../../constants";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface EventsProps {}
@@ -28,6 +50,9 @@ interface EventsState {
 
     characters: Character[];
     factions: Faction[];
+
+    characterAnchor: any | null;
+    factionAnchor: any | null;
 
     dbnames: DbName[];
 
@@ -48,6 +73,9 @@ class Events extends React.Component<EventsProps, EventsState> {
 
             characters: [],
             factions: [],
+
+            characterAnchor: null,
+            factionAnchor: null,
 
             dbnames: dbContext.DBNames.findAll(),
 
@@ -83,13 +111,20 @@ class Events extends React.Component<EventsProps, EventsState> {
     eventDetails(eventid: number) {
         const newState: EventsState = { ...this.state };
 
-        const index = newState.events.findIndex(
-            (event) => event._id === eventid
-        );
-        if (index !== -1) {
-            newState.editingEvent = newState.events[index];
+        const event = dbContext.Events.findById(eventid);
+
+        if (event) {
+            newState.editingEvent = event;
             newState.edit = true;
             newState.create = false;
+        }
+        else {
+            newState.editingEvent = null;
+            newState.edit = false;
+            newState.create = false;
+
+            newState.openError = true;
+            newState.error = "Event not found";
         }
 
         this.setState(newState);
@@ -145,6 +180,344 @@ class Events extends React.Component<EventsProps, EventsState> {
         this.setState(newState);
     }
 
+    closeDialog() {
+        const newState: EventsState = { ...this.state };
+
+        newState.edit = false;
+        newState.create = false;
+        newState.editingEvent = null;
+
+        this.setState(newState);
+    }
+
+    create(eventToEdit: Event) {
+        try {
+            const newCharacter = dbContext.Events.create(eventToEdit);
+            const newState: EventsState = {
+                ...this.state,
+            };
+
+            newState.events.push(newCharacter);
+
+            this.setState(newState);
+        } catch (error) {
+            console.log("Error", error);
+        }
+    }
+
+    update(eventToEdit: Event) {
+        try {
+            const newEvent = dbContext.Events.update(eventToEdit);
+            const newState: EventsState = {
+                ...this.state,
+            };
+
+            const index = newState.events.findIndex(
+                (event) => event._id === newEvent._id
+            );
+            if (index !== -1) {
+                newState.events[index] = newEvent;
+            }
+
+            this.setState(newState);
+        } catch (error) {
+            console.log("Error", error);
+        }
+    }
+
+    changeDbName(dbnameId: string | number) {
+        const newState: EventsState = { ...this.state };
+
+        if (!dbnameId || dbnameId === "" || dbnameId === "undefined") {
+            newState.error = "No dbname to edit";
+            newState.openError = true;
+        } else {
+            const dbnameIdValue = parseInt(dbnameId.toString());
+            if (newState.editingEvent) {
+                newState.editingEvent.dbname =
+                    dbContext.DBNames.findById(dbnameIdValue);
+            } else {
+                newState.error = "No event to edit";
+                newState.openError = true;
+            }
+        }
+        this.setState(newState);
+    }
+
+    changeTimeline(timelineId: string | number) {
+        const newState: EventsState = { ...this.state };
+
+        if (!timelineId || timelineId === "" || timelineId === "undefined") {
+            newState.error = "No timeline to edit";
+            newState.openError = true;
+        } else {
+            const timelineIdValue = parseInt(timelineId.toString());
+            if (newState.editingEvent) {
+                newState.editingEvent.timeline = timelineIdValue;
+            } else {
+                newState.error = "No event to edit";
+                newState.openError = true;
+            }
+        }
+        this.setState(newState);
+    }
+
+    changeEventType(eventTypeId: string | number) {
+        const newState: EventsState = { ...this.state };
+
+        if (!eventTypeId || eventTypeId === "" || eventTypeId === "undefined") {
+            newState.error = "No eventType to edit";
+            newState.openError = true;
+        } else {
+            const eventTypeIdValue = parseInt(eventTypeId.toString());
+            if (newState.editingEvent) {
+                newState.editingEvent.eventType = eventTypeIdValue;
+            } else {
+                newState.error = "No event to edit";
+                newState.openError = true;
+            }
+        }
+        this.setState(newState);
+    }
+
+    changeLink(link: string) {
+        const newState: EventsState = { ...this.state };
+
+        if (newState.editingEvent) {
+            newState.editingEvent.link = link;
+        } else {
+            newState.error = "No event to edit";
+            newState.openError = true;
+        }
+
+        this.setState(newState);
+    }
+
+    changeName(name: string) {
+        const newState: EventsState = { ...this.state };
+        if (newState.editingEvent) {
+            newState.editingEvent.name = name;
+        } else {
+            newState.error = "No event to edit";
+            newState.openError = true;
+        }
+        this.setState(newState);
+    }
+
+    changeYearStart(yearStart: string) {
+        const newState: EventsState = { ...this.state };
+        if (newState.editingEvent) {
+            const yearStartValue = parseInt(yearStart.toString());
+            newState.editingEvent.yearStart = yearStartValue;
+        } else {
+            newState.error = "No event to edit";
+            newState.openError = true;
+        }
+        this.setState(newState);
+    }
+
+    changeYearEnd(yearEnd: string) {
+        const newState: EventsState = { ...this.state };
+        if (newState.editingEvent) {
+            const yearEndValue = parseInt(yearEnd.toString());
+            newState.editingEvent.yearEnd = yearEndValue;
+        } else {
+            newState.error = "No event to edit";
+            newState.openError = true;
+        }
+        this.setState(newState);
+    }
+
+    openCharacterList(event: any) {
+        const newState: EventsState = {
+            ...this.state,
+        };
+
+        newState.characterAnchor = event.currentTarget;
+
+        this.setState(newState);
+    }
+    closeCharacterList() {
+        const newState: EventsState = {
+            ...this.state,
+        };
+
+        newState.characterAnchor = null;
+
+        this.setState(newState);
+    }
+    addCharacter(characterId: string | number) {
+        const newState: EventsState = { ...this.state };
+
+        if (!characterId || characterId === "" || characterId === "undefined") {
+            newState.error = "No faction to add";
+            newState.openError = true;
+        } else {
+            const characterIdValue = parseInt(characterId.toString());
+            if (newState.editingEvent) {
+                if (
+                    !newState.editingEvent.factions.find(
+                        (faction) => faction._id === characterIdValue
+                    )
+                ) {
+                    newState.editingEvent.factions.push(
+                        dbContext.Factions.findById(characterIdValue)
+                    );
+                }
+            } else {
+                newState.error = "No character to edit";
+                newState.openError = true;
+            }
+        }
+        this.setState(newState);
+    }
+
+    removeCharacter(characterId: string | number) {
+        const newState: EventsState = { ...this.state };
+
+        if (!characterId || characterId === "" || characterId === "undefined") {
+            newState.error = "No faction to remove";
+            newState.openError = true;
+        } else {
+            const characterIdValue = parseInt(characterId.toString());
+            if (newState.editingEvent) {
+                newState.editingEvent.factions =
+                    newState.editingEvent.factions.filter(
+                        (faction) => faction._id !== characterIdValue
+                    );
+            } else {
+                newState.error = "No character to edit";
+                newState.openError = true;
+            }
+        }
+        this.setState(newState);
+    }
+
+    openFactionList(event: any) {
+        const newState: EventsState = {
+            ...this.state,
+        };
+
+        newState.factionAnchor = event.currentTarget;
+
+        this.setState(newState);
+    }
+    closeFactionList() {
+        const newState: EventsState = {
+            ...this.state,
+        };
+
+        newState.factionAnchor = null;
+
+        this.setState(newState);
+    }
+    addFaction(factionId: string | number) {
+        const newState: EventsState = { ...this.state };
+
+        if (!factionId || factionId === "" || factionId === "undefined") {
+            newState.error = "No faction to add";
+            newState.openError = true;
+        } else {
+            const factionIdValue = parseInt(factionId.toString());
+            if (newState.editingEvent) {
+                if (
+                    !newState.editingEvent.factions.find(
+                        (faction) => faction._id === factionIdValue
+                    )
+                ) {
+                    newState.editingEvent.factions.push(
+                        dbContext.Factions.findById(factionIdValue)
+                    );
+                }
+            } else {
+                newState.error = "No character to edit";
+                newState.openError = true;
+            }
+        }
+        this.setState(newState);
+    }
+
+    removeFaction(factionId: string | number) {
+        const newState: EventsState = { ...this.state };
+
+        if (!factionId || factionId === "" || factionId === "undefined") {
+            newState.error = "No faction to remove";
+            newState.openError = true;
+        } else {
+            const factionIdValue = parseInt(factionId.toString());
+            if (newState.editingEvent) {
+                newState.editingEvent.factions =
+                    newState.editingEvent.factions.filter(
+                        (faction) => faction._id !== factionIdValue
+                    );
+            } else {
+                newState.error = "No character to edit";
+                newState.openError = true;
+            }
+        }
+        this.setState(newState);
+    }
+
+    labelUpdated(localeId: number) {
+        const updatedLocale = dbContext.Locales.findById(localeId);
+
+        const newState: EventsState = { ...this.state };
+        if (newState.editingEvent) {
+            newState.editingEvent.label = updatedLocale;
+            newState.events.filter(
+                (event) => event._id === newState.editingEvent._id
+            )[0].label = updatedLocale;
+        } else {
+            newState.error = "No character to edit";
+            newState.openError = true;
+        }
+        this.setState(newState);
+    }
+
+    addDescriptionPage() {
+        const newState: EventsState = { ...this.state };
+        if (newState.editingEvent) {
+            newState.editingEvent.description.push(getEmptyLocale());
+        } else {
+            newState.error = "No event to edit";
+            newState.openError = true;
+        }
+
+        this.setState(newState);
+    }
+    descriptionUpdated(localeId: number) {
+        const updatedLocale = dbContext.Locales.findById(localeId);
+
+        const newState: EventsState = { ...this.state };
+        if (newState.editingEvent) {
+            const descriptionIndex =
+                newState.editingEvent.description.findIndex(
+                    (description) => description._id === updatedLocale._id
+                );
+
+            newState.editingEvent.description[descriptionIndex] = updatedLocale;
+        } else {
+            newState.error = "No character to edit";
+            newState.openError = true;
+        }
+        this.setState(newState);
+    }
+    descriptionRemoved(localeId: number) {
+        const updatedLocale = dbContext.Locales.findById(localeId);
+
+        const newState: EventsState = { ...this.state };
+        if (newState.editingEvent) {
+            newState.editingEvent.label = updatedLocale;
+            newState.events.filter(
+                (event) => event._id === newState.editingEvent._id
+            )[0].label = updatedLocale;
+        } else {
+            newState.error = "No character to edit";
+            newState.openError = true;
+        }
+        this.setState(newState);
+    }
+
     render() {
         return (
             <React.Fragment>
@@ -182,7 +555,606 @@ class Events extends React.Component<EventsProps, EventsState> {
                     </Alert>
                 </Snackbar>
 
-                <EventEditor />
+                <Dialog
+                    open={
+                        (this.state.edit || this.state.create) &&
+                        this.state.editingEvent !== null
+                    }
+                    onClose={() => this.closeDialog()}
+                    aria-labelledby="form-dialog-title"
+                    maxWidth="lg"
+                >
+                    <AppBar
+                        sx={{
+                            position: "relative",
+                        }}
+                    >
+                        <Toolbar>
+                            <Grid container alignItems="center" direction="row">
+                                <Grid
+                                    container
+                                    xs={9}
+                                    alignItems="center"
+                                    direction="row"
+                                >
+                                    <IconButton
+                                        edge="start"
+                                        color="inherit"
+                                        onClick={() => this.closeDialog()}
+                                        aria-label="close"
+                                    >
+                                        <CloseIcon />
+                                    </IconButton>
+                                    <Typography variant="h6">
+                                        {this.state.create
+                                            ? "Creating a new event"
+                                            : "Editing event"}
+                                    </Typography>
+                                </Grid>
+
+                                <Grid xs={2}></Grid>
+                                <Grid xs={1}>
+                                    <IconButton
+                                        autoFocus
+                                        color="inherit"
+                                        onClick={() => {
+                                            if (this.state.create) {
+                                                this.create(
+                                                    this.state.editingEvent
+                                                );
+                                            } else {
+                                                this.update(
+                                                    this.state.editingEvent
+                                                );
+                                            }
+                                        }}
+                                    >
+                                        <Typography variant="h6">
+                                            {this.state.create
+                                                ? "Create"
+                                                : "Save"}
+                                        </Typography>
+                                        <SaveIcon />
+                                    </IconButton>
+                                </Grid>
+                            </Grid>
+                        </Toolbar>
+                    </AppBar>
+                    <DialogContent>
+                        <Grid container spacing={5}>
+                            <Grid xs={12}>
+                                <Typography variant="h6">
+                                    Event details{" "}
+                                    {this.state.create
+                                        ? null
+                                        : "- Unique Id : " +
+                                          this.state.editingEvent._id}
+                                </Typography>
+                                <Grid
+                                    container
+                                    alignItems="center"
+                                    direction="row"
+                                >
+                                    <Grid xs={6}>
+                                        <FormControl
+                                            variant="outlined"
+                                            sx={{
+                                                margin: (theme) =>
+                                                    theme.spacing(1),
+                                                minWidth: 120,
+                                            }}
+                                            margin="dense"
+                                        >
+                                            <InputLabel>DB Name</InputLabel>
+                                            <Select
+                                                label="DBName"
+                                                name="dbname"
+                                                value={
+                                                    this.state.editingEvent
+                                                        .dbname
+                                                        ? this.state
+                                                              .editingEvent
+                                                              .dbname._id ??
+                                                          undefined
+                                                        : undefined
+                                                }
+                                                onChange={(event) => {
+                                                    this.changeDbName(
+                                                        event.target.value
+                                                    );
+                                                }}
+                                            >
+                                                <MenuItem value="undefined">
+                                                    Undefined
+                                                </MenuItem>
+                                                {this.state.dbnames.map(
+                                                    (dbname) => (
+                                                        <MenuItem
+                                                            key={dbname._id}
+                                                            value={dbname._id}
+                                                        >
+                                                            {dbname.name}
+                                                        </MenuItem>
+                                                    )
+                                                )}
+                                            </Select>
+                                        </FormControl>
+
+                                        <FormControl
+                                            variant="outlined"
+                                            sx={{
+                                                margin: (theme) =>
+                                                    theme.spacing(1),
+                                                minWidth: 120,
+                                            }}
+                                            margin="dense"
+                                        >
+                                            <InputLabel>Event Type</InputLabel>
+                                            <Select
+                                                label="Event Type"
+                                                name="eventType"
+                                                value={
+                                                    this.state.editingEvent
+                                                        .eventType
+                                                }
+                                                onChange={(eventType) =>
+                                                    this.changeEventType(
+                                                        eventType.target.value
+                                                    )
+                                                }
+                                                variant="outlined"
+                                            >
+                                                {EventTypes.map((eventType) => (
+                                                    <MenuItem
+                                                        key={eventType.id}
+                                                        value={eventType.id}
+                                                    >
+                                                        <em>
+                                                            {eventType.name}
+                                                        </em>
+                                                    </MenuItem>
+                                                ))}
+                                            </Select>
+                                        </FormControl>
+
+                                        <FormControl
+                                            variant="outlined"
+                                            sx={{
+                                                margin: (theme) =>
+                                                    theme.spacing(1),
+                                                minWidth: 120,
+                                            }}
+                                            margin="dense"
+                                        >
+                                            <InputLabel>Timeline</InputLabel>
+                                            <Select
+                                                label="Timeline"
+                                                name="timeline"
+                                                value={
+                                                    this.state.editingEvent
+                                                        .timeline
+                                                }
+                                                onChange={(timeline) =>
+                                                    this.changeTimeline(
+                                                        timeline.target.value
+                                                    )
+                                                }
+                                            >
+                                                {Timelines.map((timeline) => (
+                                                    <MenuItem
+                                                        key={timeline.id}
+                                                        value={timeline.id}
+                                                    >
+                                                        <em>{timeline.name}</em>
+                                                    </MenuItem>
+                                                ))}
+                                            </Select>
+                                        </FormControl>
+                                    </Grid>
+
+                                    <Grid xs={6}>
+                                        {" "}
+                                        <Divider
+                                            orientation="vertical"
+                                            flexItem
+                                        />
+                                        <TextField
+                                            label="Link"
+                                            sx={{
+                                                margin: (theme) =>
+                                                    theme.spacing(1),
+                                                minWidth: 500,
+                                            }}
+                                            value={this.state.editingEvent.link}
+                                            onChange={(link) =>
+                                                this.changeLink(
+                                                    link.target.value
+                                                )
+                                            }
+                                            margin="dense"
+                                            variant="outlined"
+                                        />
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+
+                            <Grid xs={12} container>
+                                <Grid xs={6} container>
+                                    <Grid xs={12}>
+                                        <TextField
+                                            label="Name"
+                                            sx={{
+                                                margin: (theme) =>
+                                                    theme.spacing(1),
+                                                minWidth: 120,
+                                            }}
+                                            value={this.state.editingEvent.name}
+                                            onChange={(changeEvent) =>
+                                                this.changeName(
+                                                    changeEvent.target.value
+                                                )
+                                            }
+                                            margin="dense"
+                                            variant="outlined"
+                                        />
+                                    </Grid>
+
+                                    <Grid xs={12}>
+                                        <TextField
+                                            label="Year Start"
+                                            sx={{
+                                                margin: (theme) =>
+                                                    theme.spacing(1),
+                                                minWidth: 120,
+                                                width: "25ch",
+                                            }}
+                                            value={
+                                                this.state.editingEvent
+                                                    .yearStart
+                                            }
+                                            onChange={(yearStart) =>
+                                                this.changeYearStart(
+                                                    yearStart.target.value
+                                                )
+                                            }
+                                            margin="dense"
+                                            variant="outlined"
+                                        />
+
+                                        <TextField
+                                            label="Year End"
+                                            sx={{
+                                                margin: (theme) =>
+                                                    theme.spacing(1),
+                                                minWidth: 120,
+                                                width: "25ch",
+                                            }}
+                                            value={
+                                                this.state.editingEvent.yearEnd
+                                            }
+                                            onChange={(yearEnd) =>
+                                                this.changeYearEnd(
+                                                    yearEnd.target.value
+                                                )
+                                            }
+                                            margin="dense"
+                                            variant="outlined"
+                                        />
+                                    </Grid>
+
+                                    <Grid container xs={12}>
+                                        <Grid
+                                            container
+                                            xs={6}
+                                            direction="column"
+                                        >
+                                            <Typography variant="h6">
+                                                Characters{" "}
+                                                <IconButton
+                                                    aria-label="more"
+                                                    aria-controls="long-menu"
+                                                    aria-haspopup="true"
+                                                    onClick={
+                                                        this.openCharacterList
+                                                    }
+                                                >
+                                                    <MoreVertIcon />
+                                                </IconButton>
+                                                <Menu
+                                                    id="long-menu"
+                                                    anchorEl={
+                                                        this.state
+                                                            .characterAnchor
+                                                    }
+                                                    keepMounted
+                                                    open={Boolean(
+                                                        this.state
+                                                            .characterAnchor
+                                                    )}
+                                                    onClose={
+                                                        this.closeFactionList
+                                                    }
+                                                    PaperProps={{
+                                                        elevation: 12,
+                                                        style: {
+                                                            maxHeight:
+                                                                ITEM_HEIGHT *
+                                                                4.5,
+                                                            width: "20ch",
+                                                        },
+                                                    }}
+                                                >
+                                                    {this.state.characters
+                                                        .filter((character) => {
+                                                            return (
+                                                                this.state
+                                                                    .editingEvent
+                                                                    .dbname &&
+                                                                character.dbname
+                                                                    ._id ===
+                                                                    this.state
+                                                                        .editingEvent
+                                                                        .dbname
+                                                                        ._id
+                                                            );
+                                                        })
+                                                        .map((character) => (
+                                                            <MenuItem
+                                                                key={
+                                                                    character._id
+                                                                }
+                                                                selected={
+                                                                    this.state.editingEvent.characters.find(
+                                                                        (f) =>
+                                                                            f._id ===
+                                                                            character._id
+                                                                    ) !==
+                                                                    undefined
+                                                                }
+                                                                onClick={() => {
+                                                                    this.addCharacter(
+                                                                        character._id
+                                                                    );
+                                                                    this.closeFactionList();
+                                                                }}
+                                                            >
+                                                                {character.name}
+                                                            </MenuItem>
+                                                        ))}
+                                                </Menu>
+                                            </Typography>
+
+                                            <Paper
+                                                elevation={5}
+                                                sx={{
+                                                    height: 230,
+                                                    width: 275,
+                                                    overflow: "auto",
+                                                    margin: (theme) =>
+                                                        theme.spacing(1),
+                                                }}
+                                            >
+                                                <List dense={true}>
+                                                    {this.state.editingEvent.characters.map(
+                                                        (character) => (
+                                                            <ListItem
+                                                                key={
+                                                                    character._id
+                                                                }
+                                                            >
+                                                                <ListItemText
+                                                                    primary={
+                                                                        character.name
+                                                                    }
+                                                                />
+                                                                <RemoveCircleIcon
+                                                                    onClick={() => {
+                                                                        this.removeCharacter(
+                                                                            character._id
+                                                                        );
+                                                                        this.closeFactionList();
+                                                                    }}
+                                                                />
+                                                            </ListItem>
+                                                        )
+                                                    )}
+                                                </List>
+                                            </Paper>
+                                        </Grid>
+
+                                        <Grid
+                                            item
+                                            xs={6}
+                                            container
+                                            direction="column"
+                                        >
+                                            <Typography variant="h6">
+                                                Factions{" "}
+                                                <IconButton
+                                                    aria-label="more"
+                                                    aria-controls="long-menu"
+                                                    aria-haspopup="true"
+                                                    onClick={
+                                                        this.openFactionList
+                                                    }
+                                                >
+                                                    <MoreVertIcon />
+                                                </IconButton>
+                                                <Menu
+                                                    id="long-menu"
+                                                    anchorEl={
+                                                        this.state.factionAnchor
+                                                    }
+                                                    keepMounted
+                                                    open={Boolean(
+                                                        this.state.factionAnchor
+                                                    )}
+                                                    onClose={
+                                                        this.closeFactionList
+                                                    }
+                                                    PaperProps={{
+                                                        style: {
+                                                            maxHeight:
+                                                                ITEM_HEIGHT *
+                                                                4.5,
+                                                            width: "20ch",
+                                                        },
+                                                    }}
+                                                >
+                                                    {this.state.factions
+                                                        .filter((faction) => {
+                                                            return (
+                                                                this.state
+                                                                    .editingEvent
+                                                                    .dbname &&
+                                                                faction.dbname
+                                                                    ._id ===
+                                                                    this.state
+                                                                        .editingEvent
+                                                                        .dbname
+                                                                        ._id
+                                                            );
+                                                        })
+                                                        .map((faction) => (
+                                                            <MenuItem
+                                                                key={
+                                                                    faction._id
+                                                                }
+                                                                selected={
+                                                                    this.state.editingEvent.factions.find(
+                                                                        (f) =>
+                                                                            f._id ===
+                                                                            faction._id
+                                                                    ) !==
+                                                                    undefined
+                                                                }
+                                                                onClick={() => {
+                                                                    this.addFaction(
+                                                                        faction._id
+                                                                    );
+                                                                    this.closeFactionList();
+                                                                }}
+                                                            >
+                                                                {faction.name}
+                                                            </MenuItem>
+                                                        ))}
+                                                </Menu>
+                                            </Typography>
+
+                                            <Paper
+                                                elevation={5}
+                                                sx={{
+                                                    height: 230,
+                                                    width: 275,
+                                                    overflow: "auto",
+                                                    margin: (theme) =>
+                                                        theme.spacing(1),
+                                                }}
+                                            >
+                                                <List dense={true}>
+                                                    {this.state.editingEvent.factions.map(
+                                                        (faction) => (
+                                                            <ListItem
+                                                                key={
+                                                                    faction._id
+                                                                }
+                                                            >
+                                                                <ListItemText
+                                                                    primary={
+                                                                        faction.name
+                                                                    }
+                                                                />
+                                                                <RemoveCircleIcon
+                                                                    onClick={() => {
+                                                                        this.removeFaction(
+                                                                            faction._id
+                                                                        );
+                                                                        this.closeFactionList();
+                                                                    }}
+                                                                />
+                                                            </ListItem>
+                                                        )
+                                                    )}
+                                                </List>
+                                            </Paper>
+                                        </Grid>
+                                    </Grid>
+                                </Grid>
+
+                                <Grid container xs={6}>
+                                    <Grid xs={12}>
+                                        <Typography
+                                            variant="subtitle2"
+                                            sx={{
+                                                margin: (theme) =>
+                                                    theme.spacing(1),
+                                                minWidth: 120,
+                                            }}
+                                        >
+                                            Label
+                                        </Typography>
+                                        <Locale
+                                            locale={
+                                                this.state.editingEvent.label
+                                            }
+                                            isRequired={true}
+                                            updated={this.labelUpdated}
+                                        />
+                                    </Grid>
+
+                                    <Grid xs={12}>
+                                        <Typography
+                                            variant="subtitle2"
+                                            sx={{
+                                                margin: (theme) =>
+                                                    theme.spacing(1),
+                                                minWidth: 120,
+                                            }}
+                                        >
+                                            Description (pages){" "}
+                                            <IconButton
+                                                edge="start"
+                                                color="inherit"
+                                                onClick={() =>
+                                                    this.addDescriptionPage()
+                                                }
+                                                aria-label="close"
+                                            >
+                                                <AddIcon />
+                                            </IconButton>
+                                        </Typography>
+                                        <Paper
+                                            elevation={5}
+                                            sx={{
+                                                height: 295,
+                                                overflow: "auto",
+                                                margin: (theme) =>
+                                                    theme.spacing(1),
+                                            }}
+                                        >
+                                            {this.state.editingEvent.description.map(
+                                                (page, index) => (
+                                                    <Locale
+                                                        locale={page}
+                                                        isRequired={false}
+                                                        deleted={
+                                                            this
+                                                                .descriptionRemoved
+                                                        }
+                                                        updated={
+                                                            this
+                                                                .descriptionUpdated
+                                                        }
+                                                    />
+                                                )
+                                            )}
+                                        </Paper>
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                    </DialogContent>
+                </Dialog>
             </React.Fragment>
         );
     }

@@ -99,15 +99,20 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
     factionDetails(factionid: number) {
         const newState: FactionsState = { ...this.state };
 
-        const index = newState.factions.findIndex(
-            (faction) => faction._id === factionid
-        );
-        if (index !== -1) {
-            newState.editingFaction = newState.factions[index];
+        const faction = dbContext.Factions.findById(factionid);
+
+        if (faction) {
+            newState.editingFaction = faction;
             newState.edit = true;
             newState.create = false;
-        }
+        } else {
+            newState.editingFaction = null;
+            newState.edit = false;
+            newState.create = false;
+            newState.openError = true;
 
+            newState.error = "Faction not found";
+        }
         this.setState(newState);
     }
 
@@ -211,7 +216,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
             const dbnameIdValue = parseInt(dbnameId.toString());
             if (newState.editingFaction) {
                 newState.editingFaction.dbname =
-                    dbContext.DBNames.get(dbnameIdValue);
+                    dbContext.DBNames.findById(dbnameIdValue);
             } else {
                 newState.error = "No faction to edit";
                 newState.openError = true;
@@ -239,7 +244,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
     }
 
     descriptionUpdated(localeId: number) {
-        const updatedLocale = dbContext.Locales.get(localeId);
+        const updatedLocale = dbContext.Locales.findById(localeId);
 
         const newState: FactionsState = { ...this.state };
         if (newState.editingFaction) {
@@ -255,7 +260,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
     }
 
     labelUpdated(localeId: number) {
-        const updatedLocale = dbContext.Locales.get(localeId);
+        const updatedLocale = dbContext.Locales.findById(localeId);
 
         const newState: FactionsState = { ...this.state };
         if (newState.editingFaction) {

@@ -2,8 +2,8 @@ import { DB_Locale, Locale } from "../models/locale";
 
 export interface LocaleContext {
     findAll: () => Locale[];
-    find(ids: number[]): Locale[];
-    get(id: number): Locale;
+    findByIds(ids: number[]): Locale[];
+    findById(id: number): Locale;
     create(locale: Locale): Locale;
     update(locale: Locale): Locale;
     delete(id: number): number;
@@ -16,7 +16,7 @@ export const Locales: LocaleContext = {
         );
         return LocaleMapperFromDBs(locales);
     },
-    find: function (ids) {
+    findByIds: function (ids) {
         const locales: DB_Locale[] = window.database.getAll(
             window.database.tableNames.locales
         );
@@ -25,7 +25,7 @@ export const Locales: LocaleContext = {
         );
         return LocaleMapperFromDBs(filteredLocales);
     },
-    get: function (id) {
+    findById: function (id) {
         const locale: DB_Locale = window.database.get(
             window.database.tableNames.locales,
             id

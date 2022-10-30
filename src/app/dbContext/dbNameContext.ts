@@ -2,8 +2,8 @@ import { DbName, DB_DbName } from "../models/dbname";
 
 export interface DBNameContext {
     findAll: () => DbName[];
-    find(ids: number[]): DbName[];
-    get(id: number): DbName;
+    findByIds(ids: number[]): DbName[];
+    findById(id: number): DbName;
     create(dbname: DbName): DbName;
     update(dbname: DbName): DbName;
     delete(id: number): number;
@@ -16,7 +16,7 @@ export const DBNames: DBNameContext = {
         );
         return DbNameMapperFromDBs(dbNames);
     },
-    find: function (ids) {
+    findByIds: function (ids) {
         const dbNames: DB_DbName[] = window.database.getAll(
             window.database.tableNames.dbnames
         );
@@ -25,7 +25,7 @@ export const DBNames: DBNameContext = {
         );
         return DbNameMapperFromDBs(filteredDBNames);
     },
-    get: function (id) {
+    findById: function (id) {
         const dbName: DB_DbName = window.database.get(
             window.database.tableNames.dbnames,
             id

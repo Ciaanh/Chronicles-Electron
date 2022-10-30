@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
-import { Route, HashRouter } from "react-router-dom";
+import * as ReactDOMClient from "react-dom/client";
+import { Route, HashRouter, Routes } from "react-router-dom";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { Box, CssBaseline, ThemeOptions } from "@mui/material";
 
@@ -11,7 +12,6 @@ import Events from "./components/events/Events";
 import Characters from "./components/characters/Characters";
 import Factions from "./components/factions/Factions";
 import DBNames from "./components/dbnames/DBNames";
-import ReactDOM from "react-dom";
 
 const themeOptions: ThemeOptions = {
     palette: { mode: "dark" },
@@ -74,16 +74,24 @@ const App = () => {
                             padding: theme.spacing(3),
                         }}
                     >
-                        <Route path="/" element={<Home />} />
+                        <Routes>
+                            <Route path="/" element={<Home />} />
 
-                        <Route path="/timelines" element={<TimelinesView />} />
+                            <Route
+                                path="/timelines"
+                                element={<TimelinesView />}
+                            />
 
-                        <Route path="/events" element={<Events />} />
-                        <Route path="/characters" element={<Characters />} />
-                        <Route path="/factions" element={<Factions />} />
-                        <Route path="/dbname" element={<DBNames />} />
+                            <Route path="/events" element={<Events />} />
+                            <Route
+                                path="/characters"
+                                element={<Characters />}
+                            />
+                            <Route path="/factions" element={<Factions />} />
+                            <Route path="/dbname" element={<DBNames />} />
 
-                        <Route path="/addon" element={<Addon />} />
+                            <Route path="/addon" element={<Addon />} />
+                        </Routes>
                     </Box>
                 </HashRouter>
             </Box>
@@ -92,7 +100,10 @@ const App = () => {
 };
 
 function render() {
-    ReactDOM.render(<App />, document.body);
+    const container = document.getElementById("root");
+
+    const root = ReactDOMClient.createRoot(container);
+    root.render(<App />);
 }
 
 render();
