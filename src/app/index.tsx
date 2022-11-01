@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import * as ReactDOMClient from "react-dom/client";
 import { Route, HashRouter, Routes } from "react-router-dom";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
@@ -50,54 +50,75 @@ const theme = createTheme(themeOptions);
 
 // https://bareynol.github.io/mui-theme-creator/
 
-const App = () => {
-    // https://blog.totominc.io/blog/how-to-handle-electron-ipc-events-with-typescript
-    // eslint-disable-next-line
-    useEffect(() => window.database.initDB(), []);
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+interface AppProps {}
 
-    return (
-        <ThemeProvider theme={theme}>
-            <Box
-                sx={{
-                    display: "flex",
-                }}
-            >
-                <CssBaseline />
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+interface AppState {}
+class App extends React.Component<AppProps, AppState> {
+    constructor(props: AppProps) {
+        super(props);
+    }
 
-                <HashRouter>
-                    <NavBar location={window.location} />
+   async componentDidMount() {
+        // https://blog.totominc.io/blog/how-to-handle-electron-ipc-events-with-typescript
+        // to check
+        // https://stackoverflow.com/questions/66152989/contextbridge-exposeinmainworld-and-ipc-with-typescript-in-electron-app-cannot
+        if (window.database) {
+            window.database.initDB();
+        } else {
+            console.log("window.database is undefined");
+        }
+    }
 
-                    <Box
-                        component="main"
-                        sx={{
-                            flexGrow: 1,
-                            padding: theme.spacing(3),
-                        }}
-                    >
-                        <Routes>
-                            <Route path="/" element={<Home />} />
+    render() {
+        return (
+            <ThemeProvider theme={theme}>
+                <Box
+                    sx={{
+                        display: "flex",
+                    }}
+                >
+                    <CssBaseline />
 
-                            <Route
-                                path="/timelines"
-                                element={<TimelinesView />}
-                            />
+                    <HashRouter>
+                        <NavBar location={window.location} />
 
-                            <Route path="/events" element={<Events />} />
-                            <Route
-                                path="/characters"
-                                element={<Characters />}
-                            />
-                            <Route path="/factions" element={<Factions />} />
-                            <Route path="/dbname" element={<DBNames />} />
+                        <Box
+                            component="main"
+                            sx={{
+                                flexGrow: 1,
+                                padding: theme.spacing(3),
+                            }}
+                        >
+                            <Routes>
+                                <Route path="/" element={<Home />} />
 
-                            <Route path="/addon" element={<Addon />} />
-                        </Routes>
-                    </Box>
-                </HashRouter>
-            </Box>
-        </ThemeProvider>
-    );
-};
+                                <Route
+                                    path="/timelines"
+                                    element={<TimelinesView />}
+                                />
+
+                                <Route path="/events" element={<Events />} />
+                                <Route
+                                    path="/characters"
+                                    element={<Characters />}
+                                />
+                                <Route
+                                    path="/factions"
+                                    element={<Factions />}
+                                />
+                                <Route path="/dbname" element={<DBNames />} />
+
+                                <Route path="/addon" element={<Addon />} />
+                            </Routes>
+                        </Box>
+                    </HashRouter>
+                </Box>
+            </ThemeProvider>
+        );
+    }
+}
 
 function render() {
     const container = document.getElementById("root");

@@ -1,13 +1,12 @@
-import { contextBridge, dialog } from "electron";
-import db from "electron-db";
+import * as electron from "electron";
 import path from "path";
-import { DbObject } from "./app/models/object_interfaces";
 import fs from "fs";
 import { FileContent } from "./app/addon/fileContent";
 import archiver from "archiver";
 import { WritableStreamBuffer } from "stream-buffers";
 
-// https://github.com/louischatriot/nedb ?
+import db from "neutron-db";
+import { DbObject } from "neutron-db/lib/types";
 
 export type TablesList = {
     events: string;
@@ -37,7 +36,9 @@ const databaseApi: DatabaseApi = {
         timelines: "timelines",
         locales: "locales",
     },
+
     location: path.join(__dirname, "database"),
+    //location: "C:\\ChroniclesDB",
 
     initDB: () => {
         const tables = [
@@ -182,7 +183,8 @@ const databaseApi: DatabaseApi = {
     },
 };
 
-contextBridge.exposeInMainWorld("database", databaseApi);
+electron.contextBridge.exposeInMainWorld("database", databaseApi);
+console.log("register window.database");
 
 export type FileApi = {
     pack: (zipContent: FileContent[]) => void;
@@ -219,7 +221,7 @@ const fileApi: FileApi = {
 
         outputStreamBuffer.on("finish", function () {
             const data = outputStreamBuffer.getContents();
-            dialog
+            electron.dialog
                 .showSaveDialog({
                     title: "Select the File Path to save",
                     defaultPath: "Chronicles.zip",
@@ -244,4 +246,4 @@ const fileApi: FileApi = {
     },
 };
 
-contextBridge.exposeInMainWorld("file", fileApi);
+electron.contextBridge.exposeInMainWorld("file", fileApi);

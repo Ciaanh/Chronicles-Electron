@@ -36,49 +36,50 @@
                     "config": {}
                 }
             ],
-            "plugins": [
-                [
-                    "@electron-forge/plugin-webpack",
-                    {
-                        "mainConfig": "./webpack.main.config.js",
-                        "renderer": {
-                            "config": "./webpack.renderer.config.js",
-                            "entryPoints": [{
-                                "html": "./src/index.html",
-                                "js": "./src/renderer.ts",
-                                "name": "main_window"
-                            }]
-                        }
+            "plugins": [{
+                "name": "@electron-forge/plugin-webpack",
+                "config": {
+                    "mainConfig": "./webpack.main.config.js",
+                    "renderer": {
+                        "config": "./webpack.renderer.config.js",
+                        "entryPoints": [{
+                            "html": "./src/index.html",
+                            "js": "./src/renderer.ts",
+                            "name": "main_window",
+                            "preload": {
+                                "js": "./src/preload.ts"
+                            }
+                        }]
                     }
-                ]
-            ]
+                }
+            }]
         }
     },
     "devDependencies": {
-        "@electron-forge/cli": "^6.0.0-beta.66",
-        "@electron-forge/maker-deb": "^6.0.0-beta.66",
-        "@electron-forge/maker-rpm": "^6.0.0-beta.66",
-        "@electron-forge/maker-squirrel": "^6.0.0-beta.66",
-        "@electron-forge/maker-zip": "^6.0.0-beta.66",
-        "@electron-forge/plugin-webpack": "^6.0.0-beta.66",
-        "@emotion/react": "^11.10.0",
-        "@emotion/styled": "^11.10.0",
-        "@mui/icons-material": "^5.8.4",
-        "@mui/lab": "^5.0.0-alpha.95",
-        "@mui/material": "^5.10.1",
-        "@mui/styled-engine": "^5.10.1",
-        "@mui/styled-engine-sc": "^5.10.1",
-        "@mui/system": "^5.10.1",
+        "@electron-forge/cli": "^6.0.0-beta.73",
+        "@electron-forge/maker-deb": "^6.0.0-beta.73",
+        "@electron-forge/maker-rpm": "^6.0.0-beta.73",
+        "@electron-forge/maker-squirrel": "^6.0.0-beta.73",
+        "@electron-forge/maker-zip": "^6.0.0-beta.73",
+        "@electron-forge/plugin-webpack": "^6.0.0-beta.73",
+        "@emotion/react": "^11.10.5",
+        "@emotion/styled": "^11.10.5",
+        "@mui/icons-material": "^5.10.9",
+        "@mui/lab": "^5.0.0-alpha.105",
+        "@mui/material": "^5.10.11",
+        "@mui/styled-engine": "^5.10.8",
+        "@mui/styled-engine-sc": "^5.10.6",
+        "@mui/system": "^5.10.10",
         "@types/react": "^18.0.24",
         "@types/react-dom": "^18.0.8",
         "@types/react-router-dom": "^5.3.3",
-        "@typescript-eslint/eslint-plugin": "^5.38.1",
-        "@typescript-eslint/parser": "^5.38.1",
+        "@typescript-eslint/eslint-plugin": "^5.41.0",
+        "@typescript-eslint/parser": "^5.41.0",
         "@vercel/webpack-asset-relocator-loader": "^1.7.3",
-        "classnames": "^2.3.1",
+        "classnames": "^2.3.2",
         "css-loader": "^6.7.1",
-        "electron": "21.0.0",
-        "eslint": "^8.24.0",
+        "electron": "^21.2.1",
+        "eslint": "^8.26.0",
         "eslint-plugin-import": "^2.26.0",
         "fork-ts-checker-webpack-plugin": "^7.2.13",
         "node-loader": "^2.0.0",
@@ -91,11 +92,11 @@
         "@types/archiver": "^5.3.1",
         "@types/stream-buffers": "^3.0.4",
         "archiver": "^5.3.1",
-        "electron-db": "^0.15.7",
         "electron-squirrel-startup": "^1.0.0",
+        "neutron-db": "^1.0.0",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
-        "react-router-dom": "^6.4.1",
+        "react-router-dom": "^6.4.2",
         "stream-buffers": "^3.0.2"
     }
 }
