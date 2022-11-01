@@ -10,7 +10,7 @@ export interface CharacterContext {
     findById(id: number): Character;
     create(character: Character): Character;
     update(character: Character): Character;
-    delete(id: number): number;
+    delete(id: number): void;
 }
 
 export const Characters: CharacterContext = {
@@ -40,8 +40,8 @@ export const Characters: CharacterContext = {
     },
     findById: function (id) {
         const character: DB_Character = window.database.get(
-            window.database.tableNames.characters,
-            id
+            id,
+            window.database.tableNames.characters
         );
         return CharacterMapperFromDB(character);
     },
@@ -54,23 +54,20 @@ export const Characters: CharacterContext = {
         character._id = newId;
 
         const createdCharacter = window.database.add(
-            window.database.tableNames.characters,
-            CharacterMapper(character)
+            CharacterMapper(character),
+            window.database.tableNames.characters
         );
         return CharacterMapperFromDB(createdCharacter);
     },
     update: function (character) {
         const updatedCharacter = window.database.update(
-            window.database.tableNames.characters,
-            CharacterMapper(character)
+            CharacterMapper(character),
+            window.database.tableNames.characters
         );
         return CharacterMapperFromDB(updatedCharacter);
     },
     delete: function (id) {
-        return window.database.delete(
-            window.database.tableNames.characters,
-            id
-        );
+        window.database.delete(id, window.database.tableNames.characters);
     },
 };
 

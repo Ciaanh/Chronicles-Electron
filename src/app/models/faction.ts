@@ -1,6 +1,7 @@
 import { DbName } from "./dbname";
-import type { DbObject, Dto } from "./object_interfaces";
+import type { Dto } from "./object_interfaces";
 import { Locale } from "./locale";
+import { DbObject } from "neutron-db/lib/types";
 
 export interface Faction extends Dto {
     name: string;

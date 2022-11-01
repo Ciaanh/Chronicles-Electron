@@ -5,8 +5,8 @@ import { FileContent } from "./app/addon/fileContent";
 import archiver from "archiver";
 import { WritableStreamBuffer } from "stream-buffers";
 
-import db from "neutron-db";
-import { DbObject } from "neutron-db/lib/types";
+import { Database } from "neutron-db";
+import { DbObject, Schema } from "neutron-db/lib/types";
 
 export type TablesList = {
     events: string;
@@ -14,174 +14,61 @@ export type TablesList = {
     factions: string;
     dbnames: string;
     locales: string;
-    timelines: string;
 };
-export type DatabaseApi = {
-    tableNames: TablesList;
-    location: string;
-    initDB: () => void;
-    getAll: <T extends DbObject>(dbName: string) => T[];
-    get: <T extends DbObject>(dbName: string, id: number) => T;
-    add: <T extends DbObject>(dbName: string, obj: T) => T;
-    update: <T extends DbObject>(dbName: string, obj: T) => T;
-    delete: (dbName: string, id: number) => number;
-};
-
-const databaseApi: DatabaseApi = {
-    tableNames: {
+export class DatabaseApi {
+    public tableNames: TablesList = {
         events: "events",
         characters: "characters",
         factions: "factions",
         dbnames: "dbnames",
-        timelines: "timelines",
         locales: "locales",
-    },
+    };
 
-    location: path.join(__dirname, "database"),
-    //location: "C:\\ChroniclesDB",
+    private readonly location: string;
 
-    initDB: () => {
-        const tables = [
-            { name: databaseApi.tableNames.events },
-            { name: databaseApi.tableNames.characters },
-            { name: databaseApi.tableNames.factions },
-            { name: databaseApi.tableNames.dbnames },
-            { name: databaseApi.tableNames.timelines },
-            { name: databaseApi.tableNames.locales },
-        ];
+    private readonly db: Database;
 
-        tables.forEach((element) => {
-            db.createTable(
-                element.name,
-                databaseApi.location,
-                (succ: boolean, msg: string) => {
-                    if (succ) {
-                        console.log("Created table " + element.name);
-                    } else {
-                        console.log(
-                            "Failed to create table " +
-                                element.name +
-                                " : " +
-                                msg
-                        );
-                    }
-                }
-            );
-        });
-    },
+    constructor() {
+        this.location = path.join(__dirname, "database");
+        //this.location: "C:\\ChroniclesDB",
 
-    getAll: <T extends DbObject>(dbName: string): T[] => {
-        if (db.valid(dbName)) {
-            db.getAll(
-                dbName,
-                databaseApi.location,
-                (succ: boolean, data: T[]) => {
-                    if (succ) {
-                        return data;
-                    } else {
-                        throw new Error(
-                            `Failed to get all data from ${dbName}`
-                        );
-                    }
-                }
-            );
-        }
-        throw new Error("Invalid database name: " + dbName);
-    },
+        const dbSchema: Schema = {
+            dbname: "ChroniclesDB",
+            tables: [
+                this.tableNames.events,
+                this.tableNames.characters,
+                this.tableNames.factions,
+                this.tableNames.dbnames,
+                this.tableNames.locales,
+            ],
+            location: this.location,
+        };
 
-    get: <T extends DbObject>(dbName: string, id: number): T => {
-        if (db.valid(dbName)) {
-            const where = {
-                id: id,
-            };
-            db.getRows(
-                dbName,
-                databaseApi.location,
-                where,
-                (succ: boolean, data: T) => {
-                    if (succ) {
-                        return data;
-                    } else {
-                        throw new Error(
-                            `Failed to get ${id} data from ${dbName}`
-                        );
-                    }
-                }
-            );
-        }
-        throw new Error("Invalid database name: " + dbName);
-    },
+        this.db = new Database(dbSchema);
+    }
 
-    add: <T extends DbObject>(dbName: string, obj: T): T => {
-        if (db.valid(dbName)) {
-            db.insertTableContent(
-                dbName,
-                databaseApi.location,
-                obj,
-                (succ: boolean, msg: string) => {
-                    if (succ) {
-                        return databaseApi.get<T>(dbName, obj.id);
-                    } else {
-                        throw new Error(
-                            `Failed to add ${obj.id} data from ${dbName} : ${msg}`
-                        );
-                    }
-                }
-            );
-        }
-        throw new Error("Invalid database name: " + dbName);
-    },
+    public getAll<T extends DbObject>(dbName: string): T[] {
+        return this.db.getAll<T>(dbName);
+    }
 
-    update: <T extends DbObject>(dbName: string, obj: T): T => {
-        if (db.valid(dbName)) {
-            const where = {
-                id: obj.id,
-            };
+    public get<T extends DbObject>(id: number, dbName: string): T {
+        return this.db.get<T>(id, dbName);
+    }
 
-            db.updateRow(
-                dbName,
-                databaseApi.location,
-                where,
-                obj,
-                (succ: boolean, msg: string) => {
-                    if (succ) {
-                        return databaseApi.get<T>(dbName, obj.id);
-                    } else {
-                        throw new Error(
-                            `Failed to update ${obj.id} data from ${dbName} : ${msg}`
-                        );
-                    }
-                }
-            );
-        }
-        throw new Error("Invalid database name: " + dbName);
-    },
+    public add<T extends DbObject>(row: T, dbName: string): T {
+        return this.db.insert<T>(row, dbName);
+    }
 
-    delete: (dbName, id): number => {
-        if (db.valid(dbName)) {
-            db.deleteRow(
-                dbName,
-                databaseApi.location,
-                { id: id },
-                (succ: boolean, msg: string) => {
-                    if (succ) {
-                        return id;
-                    } else {
-                        throw new Error(
-                            "Failed to delete " +
-                                id +
-                                " data from " +
-                                dbName +
-                                " : " +
-                                msg
-                        );
-                    }
-                }
-            );
-        }
-        throw new Error("Invalid database name: " + dbName);
-    },
-};
+    public update<T extends DbObject>(row: T, dbName: string): T {
+        return this.db.update<T>(row, dbName);
+    }
+
+    public delete(id: number, dbName: string): void {
+        this.db.delete(id, dbName);
+    }
+}
+
+const databaseApi: DatabaseApi = new DatabaseApi();
 
 electron.contextBridge.exposeInMainWorld("database", databaseApi);
 console.log("register window.database");

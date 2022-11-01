@@ -64,11 +64,11 @@ class App extends React.Component<AppProps, AppState> {
         // https://blog.totominc.io/blog/how-to-handle-electron-ipc-events-with-typescript
         // to check
         // https://stackoverflow.com/questions/66152989/contextbridge-exposeinmainworld-and-ipc-with-typescript-in-electron-app-cannot
-        if (window.database) {
-            window.database.initDB();
-        } else {
-            console.log("window.database is undefined");
-        }
+        // if (window.database) {
+        //     window.database.initDB();
+        // } else {
+        //     console.log("window.database is undefined");
+        // }
     }
 
     render() {

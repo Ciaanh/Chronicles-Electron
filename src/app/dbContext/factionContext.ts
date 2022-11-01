@@ -9,7 +9,7 @@ export interface FactionContext {
     findById(id: number): Faction;
     create(faction: Faction): Faction;
     update(faction: Faction): Faction;
-    delete(id: number): number;
+    delete(id: number): void;
 }
 
 export const Factions: FactionContext = {
@@ -39,8 +39,8 @@ export const Factions: FactionContext = {
     },
     findById: function (id) {
         const faction: DB_Faction = window.database.get(
-            window.database.tableNames.factions,
-            id
+            id,
+            window.database.tableNames.factions
         );
         return FactionMapperFromDB(faction);
     },
@@ -61,8 +61,8 @@ export const Factions: FactionContext = {
         faction._id = newId;
 
         const createdFaction: DB_Faction = window.database.add(
-            window.database.tableNames.factions,
-            FactionMapper(faction)
+            FactionMapper(faction),
+            window.database.tableNames.factions
         );
         return FactionMapperFromDB(createdFaction);
     },
@@ -76,14 +76,14 @@ export const Factions: FactionContext = {
         }
 
         const updatedFaction: DB_Faction = window.database.update(
-            window.database.tableNames.factions,
-            FactionMapper(faction)
+            FactionMapper(faction),
+            window.database.tableNames.factions
         );
 
         return FactionMapperFromDB(updatedFaction);
     },
     delete: function (id) {
-        return window.database.delete(window.database.tableNames.factions, id);
+        return window.database.delete(id, window.database.tableNames.factions);
     },
 };
 

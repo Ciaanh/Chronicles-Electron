@@ -133,10 +133,10 @@ class DBNames extends React.Component<DBNamesProps, DBNamesState> {
     delete(id: number) {
         const newState: DBNamesState = { ...this.state } as DBNamesState;
         try {
-            const deletedId = dbContext.DBNames.delete(id);
+            dbContext.DBNames.delete(id);
 
             const index = newState.dbnames.findIndex(
-                (dbname) => dbname._id === deletedId
+                (dbname) => dbname._id === id
             );
             if (index !== -1) {
                 newState.dbnames.splice(index, 1);

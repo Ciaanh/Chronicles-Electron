@@ -1,8 +1,9 @@
 import { Character } from "./character";
 import { DbName } from "./dbname";
-import { DbObject, Dto } from "./object_interfaces";
+import { Dto } from "./object_interfaces";
 import { Faction } from "./faction";
 import { Locale } from "./locale";
+import { DbObject } from "neutron-db/lib/types";
 
 export interface Event extends Dto {
     name: string;

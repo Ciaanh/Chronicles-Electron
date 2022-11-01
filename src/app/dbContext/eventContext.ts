@@ -11,7 +11,7 @@ export interface EventContext {
     findById(id: number): Event;
     create(event: Event): Event;
     update(event: Event): Event;
-    delete(id: number): number;
+    delete(id: number): void;
 }
 
 export const Events: EventContext = {
@@ -39,8 +39,8 @@ export const Events: EventContext = {
     },
     findById: function (id) {
         const event: DB_Event = window.database.get(
-            window.database.tableNames.events,
-            id
+            id,
+            window.database.tableNames.events
         );
         return EventMapperFromDB(event);
     },
@@ -53,20 +53,20 @@ export const Events: EventContext = {
         event._id = newId;
 
         const createdEvent: DB_Event = window.database.add(
-            window.database.tableNames.events,
-            EventMapper(event)
+            EventMapper(event),
+            window.database.tableNames.events
         );
         return EventMapperFromDB(createdEvent);
     },
     update: function (event) {
         const updatedEvent: DB_Event = window.database.update(
-            window.database.tableNames.events,
-            EventMapper(event)
+            EventMapper(event),
+            window.database.tableNames.events
         );
         return EventMapperFromDB(updatedEvent);
     },
     delete: function (id) {
-        return window.database.delete(window.database.tableNames.events, id);
+        window.database.delete(id, window.database.tableNames.events);
     },
 };
 

@@ -6,7 +6,7 @@ export interface DBNameContext {
     findById(id: number): DbName;
     create(dbname: DbName): DbName;
     update(dbname: DbName): DbName;
-    delete(id: number): number;
+    delete(id: number): void;
 }
 
 export const DBNames: DBNameContext = {
@@ -27,8 +27,8 @@ export const DBNames: DBNameContext = {
     },
     findById: function (id) {
         const dbName: DB_DbName = window.database.get(
-            window.database.tableNames.dbnames,
-            id
+            id,
+            window.database.tableNames.dbnames
         );
         return DbNameMapperFromDB(dbName);
     },
@@ -41,21 +41,20 @@ export const DBNames: DBNameContext = {
         dbName._id = newId;
 
         const createdDbName: DB_DbName = window.database.add(
-            window.database.tableNames.dbnames,
-            DbNameMapper(dbName)
+            DbNameMapper(dbName),
+            window.database.tableNames.dbnames
         );
         return DbNameMapperFromDB(createdDbName);
     },
     update: function (dbName) {
         const updatedDbName: DB_DbName = window.database.update(
-            window.database.tableNames.dbnames,
-
-            DbNameMapper(dbName)
+            DbNameMapper(dbName),
+            window.database.tableNames.dbnames
         );
         return DbNameMapperFromDB(updatedDbName);
     },
     delete: function (id) {
-        return window.database.delete(window.database.tableNames.dbnames, id);
+        window.database.delete(id, window.database.tableNames.dbnames);
     },
 };
 

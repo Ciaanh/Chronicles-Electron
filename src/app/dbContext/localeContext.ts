@@ -6,7 +6,7 @@ export interface LocaleContext {
     findById(id: number): Locale;
     create(locale: Locale): Locale;
     update(locale: Locale): Locale;
-    delete(id: number): number;
+    delete(id: number): void;
 }
 
 export const Locales: LocaleContext = {
@@ -27,8 +27,8 @@ export const Locales: LocaleContext = {
     },
     findById: function (id) {
         const locale: DB_Locale = window.database.get(
-            window.database.tableNames.locales,
-            id
+            id,
+            window.database.tableNames.locales
         );
         return LocaleMapperFromDB(locale);
     },
@@ -41,20 +41,20 @@ export const Locales: LocaleContext = {
         locale._id = newId;
 
         const createdLocale: DB_Locale = window.database.add(
-            window.database.tableNames.locales,
-            LocaleMapper(locale)
+            LocaleMapper(locale),
+            window.database.tableNames.locales
         );
         return LocaleMapperFromDB(createdLocale);
     },
     update: function (locale) {
         const updatedLocale: DB_Locale = window.database.update(
-            window.database.tableNames.locales,
-            LocaleMapper(locale)
+            LocaleMapper(locale),
+            window.database.tableNames.locales
         );
         return LocaleMapperFromDB(updatedLocale);
     },
     delete: function (id) {
-        return window.database.delete(window.database.tableNames.locales, id);
+        window.database.delete(id, window.database.tableNames.locales);
     },
 };
 

@@ -1,4 +1,5 @@
-import type { DbObject, Dto } from "./object_interfaces";
+import { DbObject } from "neutron-db/lib/types";
+import type { Dto } from "./object_interfaces";
 
 export interface DbName extends Dto {
     name: string;

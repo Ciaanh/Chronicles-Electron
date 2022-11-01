@@ -1,5 +1,5 @@
-import { Language } from "../constants";
-import { DbObject, Dto } from "./object_interfaces";
+import { DbObject } from "neutron-db/lib/types";
+import { Dto } from "./object_interfaces";
 
 export interface Locale extends Dto {
     enUS: string;
