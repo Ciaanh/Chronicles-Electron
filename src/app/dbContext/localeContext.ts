@@ -12,13 +12,13 @@ export interface LocaleContext {
 export const Locales: LocaleContext = {
     findAll: function () {
         const locales: DB_Locale[] = window.database.getAll(
-            window.database.tableNames.locales
+            window.database.tables.locales
         );
         return LocaleMapperFromDBs(locales);
     },
     findByIds: function (ids) {
         const locales: DB_Locale[] = window.database.getAll(
-            window.database.tableNames.locales
+            window.database.tables.locales
         );
         const filteredLocales = locales.filter((locale) =>
             ids.includes(locale.id)
@@ -28,33 +28,28 @@ export const Locales: LocaleContext = {
     findById: function (id) {
         const locale: DB_Locale = window.database.get(
             id,
-            window.database.tableNames.locales
+            window.database.tables.locales
         );
         return LocaleMapperFromDB(locale);
     },
     create: function (locale) {
-        const locales = window.database
-            .getAll(window.database.tableNames.locales)
-            .map((locale) => locale.id);
-
-        const newId = locales.length > 0 ? Math.max(...locales) + 1 : 1;
-        locale._id = newId;
+        locale._id = null;
 
         const createdLocale: DB_Locale = window.database.add(
             LocaleMapper(locale),
-            window.database.tableNames.locales
+            window.database.tables.locales
         );
         return LocaleMapperFromDB(createdLocale);
     },
     update: function (locale) {
         const updatedLocale: DB_Locale = window.database.update(
             LocaleMapper(locale),
-            window.database.tableNames.locales
+            window.database.tables.locales
         );
         return LocaleMapperFromDB(updatedLocale);
     },
     delete: function (id) {
-        window.database.delete(id, window.database.tableNames.locales);
+        window.database.delete(id, window.database.tables.locales);
     },
 };
 

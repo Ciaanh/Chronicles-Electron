@@ -2,6 +2,7 @@ import React from "react";
 
 import {
     Alert,
+    AlertTitle,
     AppBar,
     Dialog,
     DialogContent,
@@ -551,6 +552,7 @@ class Events extends React.Component<EventsProps, EventsState> {
                         onClose={this.closeError}
                         severity="error"
                     >
+                        <AlertTitle>Error</AlertTitle>
                         {this.state.error}
                     </Alert>
                 </Snackbar>

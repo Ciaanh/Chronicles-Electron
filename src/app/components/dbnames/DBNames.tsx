@@ -8,6 +8,9 @@ import {
     List,
     ListItem,
     TextField,
+    Snackbar,
+    Alert,
+    AlertTitle,
 } from "@mui/material";
 
 import AddIcon from "@mui/icons-material/Add";
@@ -50,8 +53,9 @@ class DBNames extends React.Component<DBNamesProps, DBNamesState> {
                 return { ...db, checked: false };
             });
         } catch (error) {
+            console.log(error);
             initialState.openError = true;
-            initialState.error = "Error loading dbnames";
+            initialState.error = error.toString();
         }
 
         this.state = initialState;
@@ -106,7 +110,7 @@ class DBNames extends React.Component<DBNamesProps, DBNamesState> {
             newState.editingDbName = null;
         } catch (error) {
             newState.openError = true;
-            newState.error = "Error creating dbname";
+            newState.error = error.toString();
         } finally {
             this.setState(newState);
         }
@@ -124,7 +128,7 @@ class DBNames extends React.Component<DBNamesProps, DBNamesState> {
             }
         } catch (error) {
             newState.openError = true;
-            newState.error = "Error saving dbname";
+            newState.error = error.toString();
         } finally {
             this.setState(newState);
         }
@@ -143,10 +147,17 @@ class DBNames extends React.Component<DBNamesProps, DBNamesState> {
             }
         } catch (error) {
             newState.openError = true;
-            newState.error = "Error deleting dbname";
+            newState.error = error.toString();
         } finally {
             this.setState(newState);
         }
+    }
+
+    closeError() {
+        const newState: DBNamesState = { ...this.state };
+        newState.openError = false;
+        newState.error = "";
+        this.setState(newState);
     }
 
     render() {
@@ -240,6 +251,21 @@ class DBNames extends React.Component<DBNamesProps, DBNamesState> {
                 >
                     <AddIcon />
                 </Fab>
+
+                <Snackbar
+                    open={this.state.openError}
+                    onClose={() => this.closeError()}
+                >
+                    <Alert
+                        elevation={10}
+                        variant="filled"
+                        onClose={() => this.closeError()}
+                        severity="error"
+                    >
+                        <AlertTitle>Error</AlertTitle>
+                        {this.state.error}
+                    </Alert>
+                </Snackbar>
             </React.Fragment>
         );
     }

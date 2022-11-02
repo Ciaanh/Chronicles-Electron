@@ -16,13 +16,13 @@ export interface CharacterContext {
 export const Characters: CharacterContext = {
     findAll: function (): Character[] {
         const characters: DB_Character[] = window.database.getAll(
-            window.database.tableNames.characters
+            window.database.tables.characters
         );
         return CharacterMapperFromDBs(characters);
     },
     findByIds: function (ids) {
         const characters: DB_Character[] = window.database.getAll(
-            window.database.tableNames.characters
+            window.database.tables.characters
         );
         const filteredCharacters = characters.filter((character) =>
             ids.includes(character.id)
@@ -31,7 +31,7 @@ export const Characters: CharacterContext = {
     },
     findByDB: function (dbids) {
         const characters: DB_Character[] = window.database.getAll(
-            window.database.tableNames.characters
+            window.database.tables.characters
         );
         const filteredCharacters = characters.filter((character) =>
             dbids.includes(character.dbnameId)
@@ -41,33 +41,28 @@ export const Characters: CharacterContext = {
     findById: function (id) {
         const character: DB_Character = window.database.get(
             id,
-            window.database.tableNames.characters
+            window.database.tables.characters
         );
         return CharacterMapperFromDB(character);
     },
     create: function (character) {
-        const characters = window.database
-            .getAll(window.database.tableNames.characters)
-            .map((character) => character.id);
-
-        const newId = characters.length > 0 ? Math.max(...characters) + 1 : 1;
-        character._id = newId;
+        character._id = null;
 
         const createdCharacter = window.database.add(
             CharacterMapper(character),
-            window.database.tableNames.characters
+            window.database.tables.characters
         );
         return CharacterMapperFromDB(createdCharacter);
     },
     update: function (character) {
         const updatedCharacter = window.database.update(
             CharacterMapper(character),
-            window.database.tableNames.characters
+            window.database.tables.characters
         );
         return CharacterMapperFromDB(updatedCharacter);
     },
     delete: function (id) {
-        window.database.delete(id, window.database.tableNames.characters);
+        window.database.delete(id, window.database.tables.characters);
     },
 };
 

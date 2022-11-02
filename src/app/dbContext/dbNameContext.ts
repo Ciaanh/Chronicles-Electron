@@ -12,13 +12,13 @@ export interface DBNameContext {
 export const DBNames: DBNameContext = {
     findAll: function () {
         const dbNames: DB_DbName[] = window.database.getAll(
-            window.database.tableNames.dbnames
+            window.database.tables.dbnames
         );
         return DbNameMapperFromDBs(dbNames);
     },
     findByIds: function (ids) {
         const dbNames: DB_DbName[] = window.database.getAll(
-            window.database.tableNames.dbnames
+            window.database.tables.dbnames
         );
         const filteredDBNames = dbNames.filter((dbName) =>
             ids.includes(dbName.id)
@@ -28,33 +28,28 @@ export const DBNames: DBNameContext = {
     findById: function (id) {
         const dbName: DB_DbName = window.database.get(
             id,
-            window.database.tableNames.dbnames
+            window.database.tables.dbnames
         );
         return DbNameMapperFromDB(dbName);
     },
     create: function (dbName) {
-        const dbNames = window.database
-            .getAll(window.database.tableNames.dbnames)
-            .map((dbName) => dbName.id);
-
-        const newId = dbNames.length > 0 ? Math.max(...dbNames) + 1 : 1;
-        dbName._id = newId;
+        dbName._id = null;
 
         const createdDbName: DB_DbName = window.database.add(
             DbNameMapper(dbName),
-            window.database.tableNames.dbnames
+            window.database.tables.dbnames
         );
         return DbNameMapperFromDB(createdDbName);
     },
     update: function (dbName) {
         const updatedDbName: DB_DbName = window.database.update(
             DbNameMapper(dbName),
-            window.database.tableNames.dbnames
+            window.database.tables.dbnames
         );
         return DbNameMapperFromDB(updatedDbName);
     },
     delete: function (id) {
-        window.database.delete(id, window.database.tableNames.dbnames);
+        window.database.delete(id, window.database.tables.dbnames);
     },
 };
 

@@ -17,20 +17,20 @@ export interface EventContext {
 export const Events: EventContext = {
     findAll: function () {
         const events: DB_Event[] = window.database.getAll(
-            window.database.tableNames.events
+            window.database.tables.events
         );
         return EventMapperFromDBs(events);
     },
     findByIds: function (ids) {
         const events: DB_Event[] = window.database.getAll(
-            window.database.tableNames.events
+            window.database.tables.events
         );
         const filteredEvents = events.filter((event) => ids.includes(event.id));
         return EventMapperFromDBs(filteredEvents);
     },
     findByDB(dbids) {
         const events: DB_Event[] = window.database.getAll(
-            window.database.tableNames.events
+            window.database.tables.events
         );
         const filteredEvents = events.filter((event) =>
             dbids.includes(event.dbnameId)
@@ -40,33 +40,28 @@ export const Events: EventContext = {
     findById: function (id) {
         const event: DB_Event = window.database.get(
             id,
-            window.database.tableNames.events
+            window.database.tables.events
         );
         return EventMapperFromDB(event);
     },
     create: function (event) {
-        const events = window.database
-            .getAll(window.database.tableNames.events)
-            .map((event) => event.id);
-
-        const newId = events.length > 0 ? Math.max(...events) + 1 : 1;
-        event._id = newId;
+        event._id = null;
 
         const createdEvent: DB_Event = window.database.add(
             EventMapper(event),
-            window.database.tableNames.events
+            window.database.tables.events
         );
         return EventMapperFromDB(createdEvent);
     },
     update: function (event) {
         const updatedEvent: DB_Event = window.database.update(
             EventMapper(event),
-            window.database.tableNames.events
+            window.database.tables.events
         );
         return EventMapperFromDB(updatedEvent);
     },
     delete: function (id) {
-        window.database.delete(id, window.database.tableNames.events);
+        window.database.delete(id, window.database.tables.events);
     },
 };
 

@@ -15,13 +15,13 @@ export interface FactionContext {
 export const Factions: FactionContext = {
     findAll: function () {
         const factions: DB_Faction[] = window.database.getAll(
-            window.database.tableNames.factions
+            window.database.tables.factions
         );
         return FactionMapperFromDBs(factions);
     },
     findByIds: function (ids) {
         const factions: DB_Faction[] = window.database.getAll(
-            window.database.tableNames.factions
+            window.database.tables.factions
         );
         const filteredFactions = factions.filter((faction) =>
             ids.includes(faction.id)
@@ -30,7 +30,7 @@ export const Factions: FactionContext = {
     },
     findByDB: function (dbids) {
         const factions: DB_Faction[] = window.database.getAll(
-            window.database.tableNames.factions
+            window.database.tables.factions
         );
         const filteredFactions = factions.filter((faction) =>
             dbids.includes(faction.dbnameId)
@@ -40,7 +40,7 @@ export const Factions: FactionContext = {
     findById: function (id) {
         const faction: DB_Faction = window.database.get(
             id,
-            window.database.tableNames.factions
+            window.database.tables.factions
         );
         return FactionMapperFromDB(faction);
     },
@@ -53,16 +53,11 @@ export const Factions: FactionContext = {
             throw new Error("Faction description is required");
         }
 
-        const factions = window.database
-            .getAll(window.database.tableNames.factions)
-            .map((faction) => faction.id);
-
-        const newId = factions.length > 0 ? Math.max(...factions) + 1 : 1;
-        faction._id = newId;
+        faction._id = null;
 
         const createdFaction: DB_Faction = window.database.add(
             FactionMapper(faction),
-            window.database.tableNames.factions
+            window.database.tables.factions
         );
         return FactionMapperFromDB(createdFaction);
     },
@@ -77,13 +72,13 @@ export const Factions: FactionContext = {
 
         const updatedFaction: DB_Faction = window.database.update(
             FactionMapper(faction),
-            window.database.tableNames.factions
+            window.database.tables.factions
         );
 
         return FactionMapperFromDB(updatedFaction);
     },
     delete: function (id) {
-        return window.database.delete(id, window.database.tableNames.factions);
+        return window.database.delete(id, window.database.tables.factions);
     },
 };
 

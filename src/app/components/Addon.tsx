@@ -2,6 +2,7 @@ import React from "react";
 
 import {
     Alert,
+    AlertTitle,
     AppBar,
     Box,
     Button,
@@ -202,6 +203,7 @@ class Addon extends React.Component<AddonProps, AddonState> {
                         onClose={() => this.addon_closeError()}
                         severity="error"
                     >
+                        <AlertTitle>Error</AlertTitle>
                         {this.state.error}
                     </Alert>
                 </Snackbar>

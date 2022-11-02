@@ -15,63 +15,72 @@ export type TablesList = {
     dbnames: string;
     locales: string;
 };
-export class DatabaseApi {
-    public tableNames: TablesList = {
+
+export interface DatabaseApi {
+    tables: TablesList;
+    getAll<T extends DbObject>(dbName: string): T[];
+    get<T extends DbObject>(id: number, dbName: string): T;
+    add<T extends DbObject>(row: T, dbName: string): T;
+    update<T extends DbObject>(row: T, dbName: string): T;
+    delete(id: number, dbName: string): void;
+}
+
+const location: string = path.join(__dirname, "");
+//const location: string=  "C:\\ChroniclesDB",
+
+const tableNames: TablesList = {
+    events: "events",
+    characters: "characters",
+    factions: "factions",
+    dbnames: "dbnames",
+    locales: "locales",
+};
+
+const dbSchema: Schema = {
+    dbname: "ChroniclesDB",
+    tables: [
+        tableNames.events,
+        tableNames.characters,
+        tableNames.factions,
+        tableNames.dbnames,
+        tableNames.locales,
+    ],
+    location: location,
+};
+
+const db: Database = new Database(dbSchema);
+
+const databaseApi: DatabaseApi = {
+    tables: {
         events: "events",
         characters: "characters",
         factions: "factions",
         dbnames: "dbnames",
         locales: "locales",
-    };
+    },
 
-    private readonly location: string;
+    getAll<T extends DbObject>(dbName: string): T[] {
+        return db.getAll<T>(dbName);
+    },
 
-    private readonly db: Database;
+    get<T extends DbObject>(id: number, dbName: string): T {
+        return db.get<T>(id, dbName);
+    },
 
-    constructor() {
-        this.location = path.join(__dirname, "database");
-        //this.location: "C:\\ChroniclesDB",
+    add<T extends DbObject>(row: T, dbName: string): T {
+        return db.insert<T>(row, dbName);
+    },
 
-        const dbSchema: Schema = {
-            dbname: "ChroniclesDB",
-            tables: [
-                this.tableNames.events,
-                this.tableNames.characters,
-                this.tableNames.factions,
-                this.tableNames.dbnames,
-                this.tableNames.locales,
-            ],
-            location: this.location,
-        };
+    update<T extends DbObject>(row: T, dbName: string): T {
+        return db.update<T>(row, dbName);
+    },
 
-        this.db = new Database(dbSchema);
-    }
-
-    public getAll<T extends DbObject>(dbName: string): T[] {
-        return this.db.getAll<T>(dbName);
-    }
-
-    public get<T extends DbObject>(id: number, dbName: string): T {
-        return this.db.get<T>(id, dbName);
-    }
-
-    public add<T extends DbObject>(row: T, dbName: string): T {
-        return this.db.insert<T>(row, dbName);
-    }
-
-    public update<T extends DbObject>(row: T, dbName: string): T {
-        return this.db.update<T>(row, dbName);
-    }
-
-    public delete(id: number, dbName: string): void {
-        this.db.delete(id, dbName);
-    }
-}
-
-const databaseApi: DatabaseApi = new DatabaseApi();
+    delete(id: number, dbName: string): void {
+        db.delete(id, dbName);
+    },
+};
 
 electron.contextBridge.exposeInMainWorld("database", databaseApi);
-console.log("register window.database");
 
 export type FileApi = {
     pack: (zipContent: FileContent[]) => void;

@@ -16,6 +16,7 @@ import {
     InputLabel,
     Select,
     MenuItem,
+    AlertTitle,
 } from "@mui/material";
 
 import AddIcon from "@mui/icons-material/Add";
@@ -308,6 +309,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
                         onClose={this.closeError}
                         severity="error"
                     >
+                        <AlertTitle>Error</AlertTitle>
                         {this.state.error}
                     </Alert>
                 </Snackbar>

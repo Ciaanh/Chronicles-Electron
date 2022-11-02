@@ -2,6 +2,7 @@ import React from "react";
 
 import {
     Alert,
+    AlertTitle,
     AppBar,
     Dialog,
     DialogContent,
@@ -385,6 +386,7 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
                         onClose={this.closeError}
                         severity="error"
                     >
+                        <AlertTitle>Error</AlertTitle>
                         {this.state.error}
                     </Alert>
                 </Snackbar>
