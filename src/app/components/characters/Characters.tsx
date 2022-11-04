@@ -200,6 +200,10 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
 
             newState.characters.push(newCharacter);
 
+            newState.edit = false;
+            newState.create = false;
+            newState.editingCharacter = null;
+
             this.setState(newState);
         } catch (error) {
             console.log("Error", error);
@@ -219,6 +223,10 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
             if (index !== -1) {
                 newState.characters[index] = newCharacter;
             }
+
+            newState.edit = false;
+            newState.create = false;
+            newState.editingCharacter = null;
 
             this.setState(newState);
         } catch (error) {
@@ -280,9 +288,6 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
         const newState: CharactersState = { ...this.state };
         if (newState.editingCharacter) {
             newState.editingCharacter.label = updatedLocale;
-            newState.characters.filter(
-                (character) => character._id === newState.editingCharacter._id
-            )[0].label = updatedLocale;
         } else {
             newState.error = "No character to edit";
             newState.openError = true;
@@ -296,9 +301,6 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
         const newState: CharactersState = { ...this.state };
         if (newState.editingCharacter) {
             newState.editingCharacter.biography = updatedLocale;
-            newState.characters.filter(
-                (character) => character._id === newState.editingCharacter._id
-            )[0].biography = updatedLocale;
         } else {
             newState.error = "No character to edit";
             newState.openError = true;
@@ -361,9 +363,13 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
                     <CharacterRow
                         key={character._id}
                         character={character}
-                        characterDetails={this.characterDetails}
-                        characterDeleted={this.characterDeleted}
-                        showError={this.showError}
+                        characterDetails={(characterid: number) =>
+                            this.characterDetails(characterid)
+                        }
+                        characterDeleted={(characterid: number) =>
+                            this.characterDeleted(characterid)
+                        }
+                        showError={(error: string) => this.showError(error)}
                     />
                 ))}
 
@@ -379,11 +385,14 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
                     <AddIcon />
                 </Fab>
 
-                <Snackbar open={this.state.openError} onClose={this.closeError}>
+                <Snackbar
+                    open={this.state.openError}
+                    onClose={() => this.closeError()}
+                >
                     <Alert
                         elevation={10}
                         variant="filled"
-                        onClose={this.closeError}
+                        onClose={() => this.closeError()}
                         severity="error"
                     >
                         <AlertTitle>Error</AlertTitle>
@@ -391,336 +400,374 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
                     </Alert>
                 </Snackbar>
 
-                <Dialog
-                    open={
-                        (this.state.edit || this.state.create) &&
-                        this.state.editingCharacter !== null
-                    }
-                    onClose={() => this.closeDialog()}
-                    aria-labelledby="form-dialog-title"
-                    maxWidth="md"
-                    fullWidth={true}
-                >
-                    <AppBar
-                        sx={{
-                            position: "relative",
-                        }}
+                {this.state.editingCharacter && (
+                    <Dialog
+                        open={this.state.edit || this.state.create}
+                        onClose={() => this.closeDialog()}
+                        aria-labelledby="form-dialog-title"
+                        maxWidth="md"
+                        fullWidth={true}
                     >
-                        <Toolbar>
-                            <Grid container alignItems="center" direction="row">
-                                <Grid xs={9}>
-                                    <Grid
-                                        container
-                                        alignItems="center"
-                                        direction="row"
-                                    >
-                                        <IconButton
-                                            edge="start"
-                                            color="inherit"
-                                            onClick={() => this.closeDialog()}
-                                            aria-label="close"
+                        <AppBar
+                            sx={{
+                                position: "relative",
+                            }}
+                        >
+                            <Toolbar>
+                                <Grid
+                                    container
+                                    alignItems="center"
+                                    direction="row"
+                                >
+                                    <Grid xs={9}>
+                                        <Grid
+                                            container
+                                            alignItems="center"
+                                            direction="row"
                                         >
-                                            <CloseIcon />
-                                        </IconButton>
-                                        <Typography variant="h6">
-                                            {this.state.create
-                                                ? "Creating a new character"
-                                                : "Editing character"}
-                                        </Typography>
+                                            <IconButton
+                                                edge="start"
+                                                color="inherit"
+                                                onClick={() =>
+                                                    this.closeDialog()
+                                                }
+                                                aria-label="close"
+                                            >
+                                                <CloseIcon />
+                                            </IconButton>
+                                            <Typography variant="h6">
+                                                {this.state.create
+                                                    ? "Creating a new character"
+                                                    : "Editing character"}
+                                            </Typography>
+                                        </Grid>
                                     </Grid>
-                                </Grid>
 
-                                <Grid xs={2}></Grid>
-                                <Grid xs={1}>
-                                    <IconButton
-                                        autoFocus
-                                        color="inherit"
-                                        onClick={() => {
-                                            if (this.state.create) {
-                                                this.create(
-                                                    this.state.editingCharacter
-                                                );
-                                            } else {
-                                                this.update(
-                                                    this.state.editingCharacter
-                                                );
-                                            }
-                                        }}
-                                    >
-                                        <Typography variant="h6">
-                                            {this.state.create
-                                                ? "Create"
-                                                : "Save"}
-                                        </Typography>
-                                        <SaveIcon />
-                                    </IconButton>
-                                </Grid>
-                            </Grid>
-                        </Toolbar>
-                    </AppBar>
-                    <DialogContent>
-                        <Grid container spacing={2} direction="row">
-                            <Grid xs={8}>
-                                <Grid container xs={12} direction="row">
-                                    <FormControl
-                                        variant="outlined"
-                                        margin="dense"
-                                        sx={{
-                                            margin: (theme) => theme.spacing(1),
-                                            minWidth: 120,
-                                        }}
-                                    >
-                                        <InputLabel>DB Name</InputLabel>
-                                        <Select
-                                            label="DBName"
-                                            name="dbname"
-                                            value={
-                                                this.state.editingCharacter
-                                                    .dbname
-                                                    ? this.state
-                                                          .editingCharacter
-                                                          .dbname._id ??
-                                                      undefined
-                                                    : undefined
-                                            }
-                                            onChange={(event) => {
-                                                this.changeDbName(
-                                                    event.target.value
-                                                );
-                                            }}
-                                        >
-                                            <MenuItem value="undefined">
-                                                Undefined
-                                            </MenuItem>
-                                            {this.state.dbnames.map(
-                                                (dbname) => (
-                                                    <MenuItem
-                                                        key={dbname._id}
-                                                        value={dbname._id}
-                                                    >
-                                                        {dbname.name}
-                                                    </MenuItem>
-                                                )
-                                            )}
-                                        </Select>
-                                    </FormControl>
-
-                                    <FormControl
-                                        variant="outlined"
-                                        margin="dense"
-                                        sx={{
-                                            margin: (theme) => theme.spacing(1),
-                                            minWidth: 120,
-                                        }}
-                                    >
-                                        <InputLabel>Timeline</InputLabel>
-                                        <Select
-                                            label="Timeline"
-                                            name="timeline"
-                                            value={
-                                                this.state.editingCharacter
-                                                    .timeline
-                                                    ? this.state
-                                                          .editingCharacter
-                                                          .timeline ?? undefined
-                                                    : undefined
-                                            }
-                                            onChange={(event) => {
-                                                this.changeTimeline(
-                                                    event.target.value
-                                                );
-                                            }}
-                                        >
-                                            {Timelines.map((timeline) => (
-                                                <MenuItem
-                                                    key={timeline.id}
-                                                    value={timeline.id}
-                                                >
-                                                    <em>{timeline.name}</em>
-                                                </MenuItem>
-                                            ))}
-                                        </Select>
-                                    </FormControl>
-
-                                    {this.state.create ? null : (
-                                        <TextField
-                                            disabled
-                                            label="Unique Id"
-                                            margin="dense"
-                                            value={
-                                                this.state.editingCharacter._id
-                                            }
-                                        />
-                                    )}
-                                </Grid>
-
-                                <Grid
-                                    item
-                                    xs={12}
-                                    sx={{
-                                        marginLeft: (theme) => theme.spacing(1),
-                                        marginRight: (theme) =>
-                                            theme.spacing(1),
-                                    }}
-                                >
-                                    <TextField
-                                        label="Name"
-                                        sx={{
-                                            margin: (theme) => theme.spacing(1),
-                                            minWidth: 120,
-                                        }}
-                                        value={this.state.editingCharacter.name}
-                                        onChange={(event) =>
-                                            this.changeName(event.target.value)
-                                        }
-                                        margin="dense"
-                                        variant="outlined"
-                                    />
-                                </Grid>
-                                <Grid
-                                    item
-                                    xs={12}
-                                    sx={{
-                                        marginLeft: (theme) => theme.spacing(1),
-                                        marginRight: (theme) =>
-                                            theme.spacing(1),
-                                    }}
-                                >
-                                    <Typography
-                                        variant="subtitle2"
-                                        sx={{
-                                            margin: (theme) => theme.spacing(1),
-                                            minWidth: 120,
-                                        }}
-                                    >
-                                        Label
-                                    </Typography>
-                                    <Locale
-                                        locale={
-                                            this.state.editingCharacter.label
-                                        }
-                                        isRequired={true}
-                                        updated={this.labelUpdated}
-                                    />
-                                </Grid>
-
-                                <Grid
-                                    item
-                                    xs={12}
-                                    sx={{
-                                        marginLeft: (theme) => theme.spacing(1),
-                                        marginRight: (theme) =>
-                                            theme.spacing(1),
-                                    }}
-                                >
-                                    <Typography
-                                        variant="subtitle2"
-                                        sx={{
-                                            margin: (theme) => theme.spacing(1),
-                                            minWidth: 120,
-                                        }}
-                                    >
-                                        Biography
-                                    </Typography>
-                                    <Locale
-                                        locale={
-                                            this.state.editingCharacter
-                                                .biography
-                                        }
-                                        isRequired={true}
-                                        updated={this.biographyUpdated}
-                                    />
-                                </Grid>
-                            </Grid>
-                            <Grid xs={4}>
-                                <Typography variant="h6">
-                                    Factions{" "}
-                                    <IconButton
-                                        aria-label="more"
-                                        aria-controls="long-menu"
-                                        aria-haspopup="true"
-                                        onClick={this.openFactionList}
-                                    >
-                                        <MoreVertIcon />
-                                    </IconButton>
-                                    <Menu
-                                        id="long-menu"
-                                        anchorEl={this.state.factionAnchor}
-                                        keepMounted
-                                        open={Boolean(this.state.factionAnchor)}
-                                        onClose={this.closeFactionList}
-                                        PaperProps={{
-                                            style: {
-                                                maxHeight: ITEM_HEIGHT * 4.5,
-                                                width: "20ch",
-                                            },
-                                        }}
-                                    >
-                                        {this.state.factions
-                                            .filter((faction) => {
-                                                return (
-                                                    this.state.editingCharacter
-                                                        .dbname &&
-                                                    faction.dbname._id ===
+                                    <Grid xs={2}></Grid>
+                                    <Grid xs={1}>
+                                        <IconButton
+                                            autoFocus
+                                            color="inherit"
+                                            onClick={() => {
+                                                if (this.state.create) {
+                                                    this.create(
                                                         this.state
                                                             .editingCharacter
-                                                            .dbname._id
-                                                );
-                                            })
-                                            .map((faction) => (
-                                                <MenuItem
-                                                    key={faction._id}
-                                                    selected={
-                                                        this.state.editingCharacter.factions.find(
-                                                            (f) =>
-                                                                f._id ===
-                                                                faction._id
-                                                        ) !== undefined
-                                                    }
-                                                    onClick={() => {
-                                                        this.addFaction(
-                                                            faction._id
-                                                        );
-                                                        this.closeFactionList();
-                                                    }}
-                                                >
-                                                    {faction.name}
+                                                    );
+                                                } else {
+                                                    this.update(
+                                                        this.state
+                                                            .editingCharacter
+                                                    );
+                                                }
+                                            }}
+                                        >
+                                            <Typography variant="h6">
+                                                {this.state.create
+                                                    ? "Create"
+                                                    : "Save"}
+                                            </Typography>
+                                            <SaveIcon />
+                                        </IconButton>
+                                    </Grid>
+                                </Grid>
+                            </Toolbar>
+                        </AppBar>
+                        <DialogContent>
+                            <Grid container spacing={2} direction="row">
+                                <Grid xs={8}>
+                                    <Grid container xs={12} direction="row">
+                                        <FormControl
+                                            variant="outlined"
+                                            margin="dense"
+                                            sx={{
+                                                margin: (theme) =>
+                                                    theme.spacing(1),
+                                                minWidth: 120,
+                                            }}
+                                        >
+                                            <InputLabel>DB Name</InputLabel>
+                                            <Select
+                                                label="DBName"
+                                                name="dbname"
+                                                value={
+                                                    this.state.editingCharacter
+                                                        .dbname
+                                                        ? this.state
+                                                              .editingCharacter
+                                                              .dbname._id ??
+                                                          undefined
+                                                        : undefined
+                                                }
+                                                onChange={(event) => {
+                                                    this.changeDbName(
+                                                        event.target.value
+                                                    );
+                                                }}
+                                            >
+                                                <MenuItem value="undefined">
+                                                    Undefined
                                                 </MenuItem>
-                                            ))}
-                                    </Menu>
-                                </Typography>
+                                                {this.state.dbnames.map(
+                                                    (dbname) => (
+                                                        <MenuItem
+                                                            key={dbname._id}
+                                                            value={dbname._id}
+                                                        >
+                                                            {dbname.name}
+                                                        </MenuItem>
+                                                    )
+                                                )}
+                                            </Select>
+                                        </FormControl>
 
-                                <Paper
-                                    sx={{
-                                        height: 235,
-                                        //width: 300,
-                                        overflow: "auto",
-                                    }}
-                                >
-                                    <List dense={true}>
-                                        {this.state.editingCharacter.factions.map(
-                                            (faction) => (
-                                                <ListItem key={faction._id}>
-                                                    <ListItemText
-                                                        primary={faction.name}
-                                                    />
-                                                    <RemoveCircleIcon
+                                        <FormControl
+                                            variant="outlined"
+                                            margin="dense"
+                                            sx={{
+                                                margin: (theme) =>
+                                                    theme.spacing(1),
+                                                minWidth: 120,
+                                            }}
+                                        >
+                                            <InputLabel>Timeline</InputLabel>
+                                            <Select
+                                                label="Timeline"
+                                                name="timeline"
+                                                value={
+                                                    this.state.editingCharacter
+                                                        .timeline
+                                                        ? this.state
+                                                              .editingCharacter
+                                                              .timeline ??
+                                                          undefined
+                                                        : undefined
+                                                }
+                                                onChange={(event) => {
+                                                    this.changeTimeline(
+                                                        event.target.value
+                                                    );
+                                                }}
+                                            >
+                                                {Timelines.map((timeline) => (
+                                                    <MenuItem
+                                                        key={timeline.id}
+                                                        value={timeline.id}
+                                                    >
+                                                        <em>{timeline.name}</em>
+                                                    </MenuItem>
+                                                ))}
+                                            </Select>
+                                        </FormControl>
+
+                                        {this.state.create ? null : (
+                                            <TextField
+                                                disabled
+                                                label="Unique Id"
+                                                margin="dense"
+                                                value={
+                                                    this.state.editingCharacter
+                                                        ._id
+                                                }
+                                            />
+                                        )}
+                                    </Grid>
+
+                                    <Grid
+                                        item
+                                        xs={12}
+                                        sx={{
+                                            marginLeft: (theme) =>
+                                                theme.spacing(1),
+                                            marginRight: (theme) =>
+                                                theme.spacing(1),
+                                        }}
+                                    >
+                                        <TextField
+                                            label="Name"
+                                            sx={{
+                                                margin: (theme) =>
+                                                    theme.spacing(1),
+                                                minWidth: 120,
+                                            }}
+                                            value={
+                                                this.state.editingCharacter.name
+                                            }
+                                            onChange={(event) =>
+                                                this.changeName(
+                                                    event.target.value
+                                                )
+                                            }
+                                            margin="dense"
+                                            variant="outlined"
+                                        />
+                                    </Grid>
+                                    <Grid
+                                        item
+                                        xs={12}
+                                        sx={{
+                                            marginLeft: (theme) =>
+                                                theme.spacing(1),
+                                            marginRight: (theme) =>
+                                                theme.spacing(1),
+                                        }}
+                                    >
+                                        <Typography
+                                            variant="subtitle2"
+                                            sx={{
+                                                margin: (theme) =>
+                                                    theme.spacing(1),
+                                                minWidth: 120,
+                                            }}
+                                        >
+                                            Label
+                                        </Typography>
+                                        <Locale
+                                            locale={
+                                                this.state.editingCharacter
+                                                    .label
+                                            }
+                                            isRequired={true}
+                                            updated={(labelid: number) =>
+                                                this.labelUpdated(labelid)
+                                            }
+                                        />
+                                    </Grid>
+
+                                    <Grid
+                                        item
+                                        xs={12}
+                                        sx={{
+                                            marginLeft: (theme) =>
+                                                theme.spacing(1),
+                                            marginRight: (theme) =>
+                                                theme.spacing(1),
+                                        }}
+                                    >
+                                        <Typography
+                                            variant="subtitle2"
+                                            sx={{
+                                                margin: (theme) =>
+                                                    theme.spacing(1),
+                                                minWidth: 120,
+                                            }}
+                                        >
+                                            Biography
+                                        </Typography>
+                                        <Locale
+                                            locale={
+                                                this.state.editingCharacter
+                                                    .biography
+                                            }
+                                            isRequired={true}
+                                            updated={(biographyid: number) =>
+                                                this.biographyUpdated(
+                                                    biographyid
+                                                )
+                                            }
+                                        />
+                                    </Grid>
+                                </Grid>
+                                <Grid xs={4}>
+                                    <Typography variant="h6">
+                                        Factions{" "}
+                                        <IconButton
+                                            aria-label="more"
+                                            aria-controls="long-menu"
+                                            aria-haspopup="true"
+                                            onClick={(event) =>
+                                                this.openFactionList(event)
+                                            }
+                                        >
+                                            <MoreVertIcon />
+                                        </IconButton>
+                                        <Menu
+                                            id="long-menu"
+                                            anchorEl={this.state.factionAnchor}
+                                            keepMounted
+                                            open={Boolean(
+                                                this.state.factionAnchor
+                                            )}
+                                            onClose={() =>
+                                                this.closeFactionList()
+                                            }
+                                            PaperProps={{
+                                                style: {
+                                                    maxHeight:
+                                                        ITEM_HEIGHT * 4.5,
+                                                    width: "20ch",
+                                                },
+                                            }}
+                                        >
+                                            {this.state.factions
+                                                .filter((faction) => {
+                                                    return (
+                                                        this.state
+                                                            .editingCharacter
+                                                            .dbname &&
+                                                        faction.dbname._id ===
+                                                            this.state
+                                                                .editingCharacter
+                                                                .dbname._id
+                                                    );
+                                                })
+                                                .map((faction) => (
+                                                    <MenuItem
+                                                        key={faction._id}
+                                                        selected={
+                                                            this.state.editingCharacter.factions.find(
+                                                                (f) =>
+                                                                    f._id ===
+                                                                    faction._id
+                                                            ) !== undefined
+                                                        }
                                                         onClick={() => {
-                                                            this.removeFaction(
+                                                            this.addFaction(
                                                                 faction._id
                                                             );
                                                             this.closeFactionList();
                                                         }}
-                                                    />
-                                                </ListItem>
-                                            )
-                                        )}
-                                    </List>
-                                </Paper>
+                                                    >
+                                                        {faction.name}
+                                                    </MenuItem>
+                                                ))}
+                                        </Menu>
+                                    </Typography>
+
+                                    <Paper
+                                        sx={{
+                                            height: 235,
+                                            //width: 300,
+                                            overflow: "auto",
+                                        }}
+                                    >
+                                        <List dense={true}>
+                                            {this.state.editingCharacter.factions.map(
+                                                (faction) => (
+                                                    <ListItem key={faction._id}>
+                                                        <ListItemText
+                                                            primary={
+                                                                faction.name
+                                                            }
+                                                        />
+                                                        <RemoveCircleIcon
+                                                            onClick={() => {
+                                                                this.removeFaction(
+                                                                    faction._id
+                                                                );
+                                                                this.closeFactionList();
+                                                            }}
+                                                        />
+                                                    </ListItem>
+                                                )
+                                            )}
+                                        </List>
+                                    </Paper>
+                                </Grid>
                             </Grid>
-                        </Grid>
-                    </DialogContent>
-                </Dialog>
+                        </DialogContent>
+                    </Dialog>
+                )}
             </React.Fragment>
         );
     }

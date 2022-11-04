@@ -121,17 +121,17 @@ class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
         this.setState(newState);
     }
 
-    save(locale: Locale) {
+    save() {
         const newState: ILocaleState = { ...this.state };
         newState.open = false;
 
-        if (newState.locale._id === -1) {
-            dbContext.Locales.create(locale);
+        if (newState.locale._id === -1 || newState.locale._id === null) {
+            newState.locale = dbContext.Locales.create(newState.locale);
         } else {
-            dbContext.Locales.update(locale);
+            newState.locale = dbContext.Locales.update(newState.locale);
         }
-        
-        this.props.updated(locale._id);
+
+        this.props.updated(newState.locale._id);
         this.setState(newState);
     }
 
@@ -147,19 +147,19 @@ class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
                             </Typography>
                         </Grid>
                         <Grid xs={1}>
-                            (!this.props.isRequired ? (
-                            <IconButton
-                                edge="start"
-                                color="inherit"
-                                onClick={(event) => {
-                                    event.stopPropagation();
-                                    this.delete(this.state.locale._id);
-                                }}
-                                aria-label="close"
-                            >
-                                <DeleteIcon />
-                            </IconButton>
-                            )
+                            {!this.props.isRequired ? (
+                                <IconButton
+                                    edge="start"
+                                    color="inherit"
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        this.delete(this.state.locale._id);
+                                    }}
+                                    aria-label="close"
+                                >
+                                    <DeleteIcon />
+                                </IconButton>
+                            ) : null}
                         </Grid>
 
                         <Grid xs={11}>
@@ -168,7 +168,10 @@ class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
                             </Typography>
                         </Grid>
                         <Grid xs={1}>
-                            <IconButton size="small" onClick={this.open}>
+                            <IconButton
+                                size="small"
+                                onClick={() => this.open()}
+                            >
                                 <EditIcon />
                             </IconButton>
                         </Grid>
@@ -176,7 +179,7 @@ class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
                 </Item>
 
                 <Dialog
-                    onClose={this.close}
+                    onClose={() => this.close()}
                     aria-labelledby="customized-dialog-title"
                     open={this.state.open}
                     maxWidth="lg"
@@ -190,7 +193,7 @@ class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
                             Modal title
                             <IconButton
                                 aria-label="close"
-                                onClick={this.close}
+                                onClick={() => this.close()}
                                 sx={{
                                     position: "absolute",
                                     right: 8,
@@ -202,7 +205,7 @@ class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
                             </IconButton>
                             <IconButton
                                 aria-label="save"
-                                onClick={() => this.save(this.state.locale)}
+                                onClick={() => this.save()}
                                 sx={{
                                     position: "absolute",
                                     right: 32,

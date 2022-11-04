@@ -42,6 +42,9 @@ function cleanString(value: string): string {
 }
 
 export function getLocaleKey(locale: Locale, index?: number): string {
+    if(locale.enUS === null) {
+        return "<not set>";
+    }
     if (index) {
         return `${cleanString(locale.enUS)}_${index}`;
     }

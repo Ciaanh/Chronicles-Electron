@@ -1,16 +1,18 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow } from "electron";
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
+import * as remoteMain from "@electron/remote/main";
+remoteMain.initialize();
 
-if (require('electron-squirrel-startup')) {
+if (require("electron-squirrel-startup")) {
     // eslint-disable-line global-require
     app.quit();
-  }
+}
 
-const createWindow= (): void => {
-   const mainWindow = new BrowserWindow({
+const createWindow = (): void => {
+    const mainWindow = new BrowserWindow({
         width: 1200,
         height: 900,
         darkTheme: true,
@@ -20,22 +22,27 @@ const createWindow= (): void => {
         webPreferences: {
             preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
             sandbox: false,
+            nodeIntegration: true,
         },
     });
     mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
     mainWindow.webContents.openDevTools();
-}
 
-app.on('ready', createWindow);
+    remoteMain.enable(mainWindow.webContents);
+};
 
-app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-      app.quit();
+app.whenReady().then(() => {
+    createWindow();
+
+    app.on("activate", () => {
+        if (BrowserWindow.getAllWindows().length === 0) {
+            createWindow();
+        }
+    });
+});
+
+app.on("window-all-closed", () => {
+    if (process.platform !== "darwin") {
+        app.quit();
     }
-  });
-
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
-    }
-  });
+});

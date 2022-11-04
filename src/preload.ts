@@ -1,5 +1,7 @@
 import * as electron from "electron";
-import path from "path";
+//import { dialog } from 'electron';
+//const dialog = require('electron').remote.dialog
+import * as remote from "@electron/remote";
 import fs from "fs";
 import { FileContent } from "./app/addon/fileContent";
 import archiver from "archiver";
@@ -25,30 +27,47 @@ export interface DatabaseApi {
     delete(id: number, dbName: string): void;
 }
 
-const location: string = path.join(__dirname, "");
-//const location: string=  "C:\\ChroniclesDB",
+const initDB = () => {
+    const blanck = "about:blank";
+    if (location.href === blanck) {
+        return null;
+    }
 
-const tableNames: TablesList = {
-    events: "events",
-    characters: "characters",
-    factions: "factions",
-    dbnames: "dbnames",
-    locales: "locales",
+    const tableNames: TablesList = {
+        events: "events",
+        characters: "characters",
+        factions: "factions",
+        dbnames: "dbnames",
+        locales: "locales",
+    };
+
+    const dirpath = remote.dialog.showOpenDialogSync({
+        title: "Select the path of the database",
+        defaultPath: "C:\\",
+        buttonLabel: "Select",
+        properties: ["openDirectory", "promptToCreate", "dontAddToRecent"],
+    });
+
+    if (dirpath === undefined || dirpath.length === 0) {
+        dirpath[0] = "C:\\ChroniclesDB";
+    }
+    
+    const dbSchema: Schema = {
+        dbname: "ChroniclesDB",
+        tables: [
+            tableNames.events,
+            tableNames.characters,
+            tableNames.factions,
+            tableNames.dbnames,
+            tableNames.locales,
+        ],
+        location: dirpath[0],
+    };
+
+    return new Database(dbSchema);
 };
 
-const dbSchema: Schema = {
-    dbname: "ChroniclesDB",
-    tables: [
-        tableNames.events,
-        tableNames.characters,
-        tableNames.factions,
-        tableNames.dbnames,
-        tableNames.locales,
-    ],
-    location: location,
-};
-
-const db: Database = new Database(dbSchema);
+const db = initDB();
 
 const databaseApi: DatabaseApi = {
     tables: {
