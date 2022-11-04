@@ -26,6 +26,7 @@ const drawerWidth = 240;
 
 const NavBar = (props: any) => {
     const activeRoute = (routeName: string) => {
+        console.log(props.location);
         return props.location.pathname === routeName ? true : false;
     };
     return (
@@ -102,6 +103,17 @@ const NavBar = (props: any) => {
                                 <GroupIcon />
                             </ListItemIcon>
                             <ListItemText primary="Factions" />
+                        </ListItem>
+                    </NavLink>
+
+                    <Divider variant="middle" />
+                    
+                    <NavLink to="/locales" className="link">
+                        <ListItem button selected={activeRoute("/locales")}>
+                            <ListItemIcon>
+                                <MoreVertIcon />
+                            </ListItemIcon>
+                            <ListItemText primary="Locales" />
                         </ListItem>
                     </NavLink>
 

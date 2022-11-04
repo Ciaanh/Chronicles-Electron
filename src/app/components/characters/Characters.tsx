@@ -67,8 +67,8 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
 
         const initialState: CharactersState = {
             characters: [],
-            dbnames: dbContext.DBNames.findAll(),
-            factions: dbContext.Factions.findAll(),
+            dbnames: [],
+            factions: [],
             edit: false,
             create: false,
             editingCharacter: null,
@@ -78,9 +78,11 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
             openError: false,
             error: "",
         };
+
         try {
-            const characters = dbContext.Characters.findAll();
-            initialState.characters = characters;
+            initialState.characters = dbContext.Characters.findAll();
+            initialState.dbnames = dbContext.DBNames.findAll();
+            initialState.factions = dbContext.Factions.findAll();
         } catch (error) {
             initialState.openError = true;
             initialState.error = "Error loading characters";

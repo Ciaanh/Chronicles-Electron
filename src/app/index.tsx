@@ -12,6 +12,7 @@ import Events from "./components/events/Events";
 import Characters from "./components/characters/Characters";
 import Factions from "./components/factions/Factions";
 import DBNames from "./components/dbnames/DBNames";
+import { Locales } from "./components/locales/Locales";
 
 const themeOptions: ThemeOptions = {
     palette: { mode: "dark" },
@@ -100,14 +101,19 @@ class App extends React.Component<AppProps, AppState> {
                                 />
 
                                 <Route path="/events" element={<Events />} />
+
                                 <Route
                                     path="/characters"
                                     element={<Characters />}
                                 />
+
                                 <Route
                                     path="/factions"
                                     element={<Factions />}
                                 />
+
+                                <Route path="/locales" element={<Locales />} />
+
                                 <Route path="/dbname" element={<DBNames />} />
 
                                 <Route path="/addon" element={<Addon />} />
