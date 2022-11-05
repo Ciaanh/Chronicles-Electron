@@ -1,12 +1,12 @@
 export const AddonDownloadUrl =
     "https://www.curseforge.com/wow/addons/chronicles";
 
-interface ListItem {
+export interface ListElement {
     name: string;
     id: number;
 }
 
-export const EventTypes: ListItem[] = [
+export const EventTypes: ListElement[] = [
     { name: "Event", id: 0 },
     { name: "Era", id: 1 },
     { name: "War", id: 2 },
@@ -16,7 +16,7 @@ export const EventTypes: ListItem[] = [
     { name: "Other", id: 6 },
 ];
 
-export const Timelines: ListItem[] = [
+export const Timelines: ListElement[] = [
     { name: "Undefined", id: 0 },
     { name: "Main", id: 1 },
     { name: "Dreanor", id: 2 },

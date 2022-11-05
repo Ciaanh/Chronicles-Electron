@@ -96,25 +96,6 @@ const Home = () => {
                 </p>
                 Any help is welcomed ^^ !
                 <br />
-                {/* <img
-                src="https://raw.githubusercontent.com/Ciaanh/Chronicles/main/Images/Interface.jpg"
-                alt="Chronicles Interface"
-                sx={{
-                    width: 800,
-
-                    margin: "50px auto 0px auto",
-                }}
-            ></img> */}
-                <Box
-                    component="img"
-                    src="https://raw.githubusercontent.com/Ciaanh/Chronicles/main/Images/Interface.jpg"
-                    alt="Chronicles Interface"
-                    sx={{
-                        width: 800,
-
-                        margin: "50px auto 0px auto",
-                    }}
-                ></Box>
             </Box>
         </React.Fragment>
     );

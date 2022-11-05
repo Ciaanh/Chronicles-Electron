@@ -8,6 +8,7 @@ export interface EventContext {
     findAll: () => Event[];
     findByIds(ids: number[]): Event[];
     findByDB(dbids: number[]): Event[];
+    findByTimeline(timelineid: number): Event[];
     findById(id: number): Event;
     create(event: Event): Event;
     update(event: Event): Event;
@@ -34,6 +35,15 @@ export const Events: EventContext = {
         );
         const filteredEvents = events.filter((event) =>
             dbids.includes(event.dbnameId)
+        );
+        return EventMapperFromDBs(filteredEvents);
+    },
+    findByTimeline(timelineid) {
+        const events: DB_Event[] = window.database.getAll(
+            window.database.tables.events
+        );
+        const filteredEvents = events.filter(
+            (event) => timelineid === event.timeline
         );
         return EventMapperFromDBs(filteredEvents);
     },

@@ -83,34 +83,29 @@ class App extends React.Component<AppProps, AppState> {
                     <CssBaseline />
 
                     <HashRouter>
-                        
-                            <Routes>
-                                <Route path="/" element={<Home />} />
+                        <Routes>
+                            <Route path="/" element={<Home />} />
 
-                                <Route
-                                    path="/timelines"
-                                    element={<TimelinesView />}
-                                />
+                            <Route
+                                path="/timelines"
+                                element={<TimelinesView />}
+                            />
 
-                                <Route path="/events" element={<Events />} />
+                            <Route path="/events" element={<Events />} />
 
-                                <Route
-                                    path="/characters"
-                                    element={<Characters />}
-                                />
+                            <Route
+                                path="/characters"
+                                element={<Characters />}
+                            />
 
-                                <Route
-                                    path="/factions"
-                                    element={<Factions />}
-                                />
+                            <Route path="/factions" element={<Factions />} />
 
-                                <Route path="/locales" element={<Locales />} />
+                            <Route path="/locales" element={<Locales />} />
 
-                                <Route path="/dbname" element={<DBNames />} />
+                            <Route path="/dbname" element={<DBNames />} />
 
-                                <Route path="/addon" element={<Addon />} />
-                            </Routes>
-                       
+                            <Route path="/addon" element={<Addon />} />
+                        </Routes>
                     </HashRouter>
                 </Box>
             </ThemeProvider>

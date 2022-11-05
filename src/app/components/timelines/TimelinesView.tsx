@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Language, Timelines } from "../../constants";
+import { Language, ListElement, Timelines } from "../../constants";
 
 import {
     Timeline as TimelineUI,
@@ -32,7 +32,8 @@ interface TimelinesViewProps {}
 
 interface TimelinesViewState {
     events: Event[];
-    selected: number | null;
+    timelines: ListElement[];
+    selected: number;
     openError: boolean;
     error: string;
 }
@@ -45,27 +46,35 @@ class TimelinesView extends React.Component<
         super(props);
         const initialState: TimelinesViewState = {
             events: [],
-            selected: null,
+            timelines: Timelines,
+            selected: 0,
             openError: false,
             error: "",
         };
-        try {
-            const events = dbContext.Events.findAll();
-            initialState.events = events;
-        } catch (error) {
-            initialState.openError = true;
-            initialState.error = "Error loading events";
-        }
 
         this.state = initialState;
     }
 
+    componentDidMount(): void {
+        const newState = { ...this.state };
+
+        try {
+            newState.selected = 0;
+
+            newState.events = dbContext.Events.findByTimeline(0);
+        } catch (error) {
+            newState.openError = true;
+            newState.error = "Error loading component data";
+        }
+
+        this.setState(newState);
+    }
+
     changeSelectedTimeline(timelineid: number) {
-        const newState: TimelinesViewState = {
-            ...this.state,
-        } as TimelinesViewState;
+        const newState = { ...this.state };
 
         newState.selected = timelineid;
+        newState.events = dbContext.Events.findByTimeline(timelineid);
 
         this.setState(newState);
     }
@@ -101,10 +110,13 @@ class TimelinesView extends React.Component<
                                 )
                             }
                         >
-                            {Timelines.map((timeline) => (
+                            {this.state.timelines.map((timeline) => (
                                 <MenuItem
                                     value={timeline.name}
                                     key={timeline.id}
+                                    selected={
+                                        timeline.id === this.state.selected
+                                    }
                                 >
                                     <em>{timeline.name}</em>
                                 </MenuItem>
