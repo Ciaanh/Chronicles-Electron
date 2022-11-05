@@ -18,12 +18,14 @@ import {
     Select,
     MenuItem,
     Typography,
+    Box,
 } from "@mui/material";
 
 import DoubleArrowIcon from "@mui/icons-material/DoubleArrow";
 
 import { Event } from "../../models/event";
 import dbContext from "../../dbContext/dbContext";
+import NavBar from "../NavBar";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface TimelinesViewProps {}
@@ -71,69 +73,85 @@ class TimelinesView extends React.Component<
     render() {
         return (
             <React.Fragment>
-                <FormControl
-                    variant="outlined"
+                <NavBar />
+
+                <Box
+                    component="main"
                     sx={{
-                        margin: (theme) => theme.spacing(1),
-                        minWidth: 120,
+                        flexGrow: 1,
+                        padding: (theme) => theme.spacing(3),
                     }}
-                    margin="dense"
                 >
-                    <InputLabel>Timeline</InputLabel>
-                    <Select
-                        label="Timeline"
-                        name="timeline"
-                        value={this.state.selected}
-                        onChange={(timeline) =>
-                            this.changeSelectedTimeline(
-                                timeline.target.value as number
-                            )
-                        }
+                    <FormControl
+                        variant="outlined"
+                        sx={{
+                            margin: (theme) => theme.spacing(1),
+                            minWidth: 120,
+                        }}
+                        margin="dense"
                     >
-                        {Timelines.map((timeline) => (
-                            <MenuItem value={timeline.name} key={timeline.id}>
-                                <em>{timeline.name}</em>
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
-
-                <TimelineUI position="right">
-                    {this.state.events
-                        .filter(
-                            (event: Event) =>
-                                this.state.selected === null ||
-                                event.timeline === this.state.selected
-                        )
-                        .map((event) => (
-                            <TimelineItem key={event._id}>
-                                <TimelineOppositeContent
-                                    sx={{ m: "auto 0" }}
-                                    align="right"
-                                    variant="body2"
-                                    color="text.secondary"
+                        <InputLabel>Timeline</InputLabel>
+                        <Select
+                            label="Timeline"
+                            name="timeline"
+                            value={this.state.selected}
+                            onChange={(timeline) =>
+                                this.changeSelectedTimeline(
+                                    timeline.target.value as number
+                                )
+                            }
+                        >
+                            {Timelines.map((timeline) => (
+                                <MenuItem
+                                    value={timeline.name}
+                                    key={timeline.id}
                                 >
-                                    {event.yearStart}
-                                </TimelineOppositeContent>
+                                    <em>{timeline.name}</em>
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
 
-                                <TimelineSeparator>
-                                    <TimelineConnector />
-                                    <TimelineDot>
-                                        <DoubleArrowIcon />
-                                    </TimelineDot>
-                                </TimelineSeparator>
+                    <TimelineUI position="right">
+                        {this.state.events
+                            .filter(
+                                (event: Event) =>
+                                    this.state.selected === null ||
+                                    event.timeline === this.state.selected
+                            )
+                            .map((event) => (
+                                <TimelineItem key={event._id}>
+                                    <TimelineOppositeContent
+                                        sx={{ m: "auto 0" }}
+                                        align="right"
+                                        variant="body2"
+                                        color="text.secondary"
+                                    >
+                                        {event.yearStart}
+                                    </TimelineOppositeContent>
 
-                                <TimelineContent sx={{ py: "12px", px: 2 }}>
-                                    <Typography variant="h6" component="span">
-                                        {event.label[Language.enUS]}
-                                    </Typography>
-                                    <Typography>
-                                        Because you need strength
-                                    </Typography>
-                                </TimelineContent>
-                            </TimelineItem>
-                        ))}
-                </TimelineUI>
+                                    <TimelineSeparator>
+                                        <TimelineConnector />
+                                        <TimelineDot>
+                                            <DoubleArrowIcon />
+                                        </TimelineDot>
+                                    </TimelineSeparator>
+
+                                    <TimelineContent sx={{ py: "12px", px: 2 }}>
+                                        <Typography
+                                            variant="h6"
+                                            component="span"
+                                        >
+                                            {event.label[Language.enUS]}
+                                        </Typography>
+                                        <Typography>
+                                            Because you need strength
+                                        </Typography>
+                                    </TimelineContent>
+                                </TimelineItem>
+                            ))}
+                    </TimelineUI>
+                </Box>
             </React.Fragment>
         );
     }

@@ -11,6 +11,7 @@ import {
     Snackbar,
     Alert,
     AlertTitle,
+    Box,
 } from "@mui/material";
 
 import AddIcon from "@mui/icons-material/Add";
@@ -19,6 +20,7 @@ import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 
 import { DbName } from "../../models/dbname";
 import dbContext from "../../dbContext/dbContext";
+import NavBar from "../NavBar";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface DBNamesProps {}
@@ -163,82 +165,98 @@ class DBNames extends React.Component<DBNamesProps, DBNamesState> {
     render() {
         return (
             <React.Fragment>
-                <List>
-                    {this.state.dbnames.map((dbname) => (
-                        <ListItem key={dbname._id}>
-                            <React.Fragment>
-                                <IconButton
-                                    aria-label="delete"
-                                    size="small"
-                                    onClick={(event) => {
-                                        event.stopPropagation();
-                                        this.delete(dbname._id);
-                                    }}
-                                >
-                                    <HighlightOffIcon />
-                                </IconButton>
-                                <IconButton
-                                    aria-label="edit"
-                                    size="small"
-                                    onClick={(event) => {
-                                        event.stopPropagation();
-                                        this.showedit(dbname);
-                                    }}
-                                >
-                                    <EditIcon />
-                                </IconButton>
-                            </React.Fragment>
+                <NavBar />
 
-                            {this.state.edit && this.state.editingDbName ? (
+                <Box
+                    component="main"
+                    sx={{
+                        flexGrow: 1,
+                        padding: (theme) => theme.spacing(3),
+                    }}
+                >
+                    <List>
+                        {this.state.dbnames.map((dbname) => (
+                            <ListItem key={dbname._id}>
                                 <React.Fragment>
-                                    <TextField
-                                        label="Name"
-                                        value={this.state.editingDbName.name}
-                                        onChange={(event) =>
-                                            this.changeEditingName(
-                                                event.target.value
-                                            )
-                                        }
-                                        margin="dense"
-                                        variant="outlined"
-                                    />
-                                    <Button
-                                        onClick={() => {
-                                            this.update(dbname);
+                                    <IconButton
+                                        aria-label="delete"
+                                        size="small"
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            this.delete(dbname._id);
                                         }}
-                                        color="primary"
                                     >
-                                        Save
-                                    </Button>
+                                        <HighlightOffIcon />
+                                    </IconButton>
+                                    <IconButton
+                                        aria-label="edit"
+                                        size="small"
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            this.showedit(dbname);
+                                        }}
+                                    >
+                                        <EditIcon />
+                                    </IconButton>
                                 </React.Fragment>
-                            ) : (
-                                <Typography>{dbname.name}</Typography>
-                            )}
-                        </ListItem>
-                    ))}
 
-                    {this.state.create && this.state.editingDbName ? (
-                        <React.Fragment>
-                            <TextField
-                                label="Name"
-                                value={this.state.editingDbName.name}
-                                onChange={(event) =>
-                                    this.changeEditingName(event.target.value)
-                                }
-                                margin="dense"
-                                variant="outlined"
-                            />
-                            <Button
-                                onClick={() =>
-                                    this.create(this.state.editingDbName.name)
-                                }
-                                color="primary"
-                            >
-                                Save
-                            </Button>
-                        </React.Fragment>
-                    ) : null}
-                </List>
+                                {this.state.edit && this.state.editingDbName ? (
+                                    <React.Fragment>
+                                        <TextField
+                                            label="Name"
+                                            value={
+                                                this.state.editingDbName.name
+                                            }
+                                            onChange={(event) =>
+                                                this.changeEditingName(
+                                                    event.target.value
+                                                )
+                                            }
+                                            margin="dense"
+                                            variant="outlined"
+                                        />
+                                        <Button
+                                            onClick={() => {
+                                                this.update(dbname);
+                                            }}
+                                            color="primary"
+                                        >
+                                            Save
+                                        </Button>
+                                    </React.Fragment>
+                                ) : (
+                                    <Typography>{dbname.name}</Typography>
+                                )}
+                            </ListItem>
+                        ))}
+
+                        {this.state.create && this.state.editingDbName ? (
+                            <React.Fragment>
+                                <TextField
+                                    label="Name"
+                                    value={this.state.editingDbName.name}
+                                    onChange={(event) =>
+                                        this.changeEditingName(
+                                            event.target.value
+                                        )
+                                    }
+                                    margin="dense"
+                                    variant="outlined"
+                                />
+                                <Button
+                                    onClick={() =>
+                                        this.create(
+                                            this.state.editingDbName.name
+                                        )
+                                    }
+                                    color="primary"
+                                >
+                                    Save
+                                </Button>
+                            </React.Fragment>
+                        ) : null}
+                    </List>
+                </Box>
 
                 <Fab
                     color="primary"

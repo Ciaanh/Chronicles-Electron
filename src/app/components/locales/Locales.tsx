@@ -1,6 +1,8 @@
 import * as React from "react";
 import { getLocaleKey, Locale } from "../../models/locale";
 import dbContext from "../../dbContext/dbContext";
+import { Box } from "@mui/material";
+import NavBar from "../NavBar";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface LocalesProps {}
@@ -49,19 +51,31 @@ export class Locales extends React.Component<LocalesProps, LocalesState> {
 
     render() {
         return (
-            <div>
-                <h1>Locales</h1>
-                <ul>
-                    {this.state.locales.map((locale) => (
-                        <li key={locale._id}>
-                            Key (estimated): {getLocaleKey(locale)}
-                            {/* <button onClick={() => this.removeLocale(locale)}>
+            <React.Fragment>
+                <NavBar />
+
+                <Box
+                    component="main"
+                    sx={{
+                        flexGrow: 1,
+                        padding: (theme) => theme.spacing(3),
+                    }}
+                >
+                    <div>
+                        <h1>Locales</h1>
+                        <ul>
+                            {this.state.locales.map((locale) => (
+                                <li key={locale._id}>
+                                    Key (estimated): {getLocaleKey(locale)}
+                                    {/* <button onClick={() => this.removeLocale(locale)}>
                                 Remove
                             </button> */}
-                        </li>
-                    ))}
-                </ul>
-            </div>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                </Box>
+            </React.Fragment>
         );
     }
 }

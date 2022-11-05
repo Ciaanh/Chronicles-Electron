@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, session } from "electron";
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
@@ -11,6 +11,22 @@ if (require("electron-squirrel-startup")) {
     app.quit();
 }
 
+// https://www.electronjs.org/docs/latest/tutorial/security#7-define-a-content-security-policy
+session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    callback({
+        responseHeaders: {
+            ...details.responseHeaders,
+            "Content-Security-Policy": [
+                "default-src 'none'",
+                "script-src 'self'",
+                "style-src 'self' https://fonts.googleapis.com",
+                "img-src 'self'",
+                "font-src 'self'",
+            ],
+        },
+    });
+});
+
 // https://medium.com/folkdevelopers/the-ultimate-guide-to-electron-with-react-8df8d73f4c97
 const createWindow = (): void => {
     const mainWindow = new BrowserWindow({
@@ -19,7 +35,7 @@ const createWindow = (): void => {
         darkTheme: true,
         maximizable: false,
         resizable: false,
-        frame: false,
+        //frame: false,
         icon: "favicon.ico",
         webPreferences: {
             preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,

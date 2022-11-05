@@ -23,6 +23,7 @@ import DownloadIcon from "@mui/icons-material/Download";
 import { DbName } from "../models/dbname";
 import dbContext from "../dbContext/dbContext";
 import { AddonGenerator, GenerationRequest } from "../addon/generator";
+import NavBar from "./NavBar";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface AddonProps {}
@@ -107,107 +108,120 @@ class Addon extends React.Component<AddonProps, AddonState> {
 
     render() {
         return (
-            <Box sx={{ flexGrow: 1 }}>
-                <AppBar position="static">
-                    <Toolbar>
-                        <IconButton
-                            size="large"
-                            edge="start"
-                            color="inherit"
-                            aria-label="menu"
-                            sx={{ mr: 2 }}
-                        >
-                            <MenuIcon />
-                        </IconButton>
-                        <Typography
-                            variant="h6"
-                            component="div"
-                            sx={{ flexGrow: 1 }}
-                        >
-                            Addon
-                        </Typography>
-                        <Button color="inherit">Login</Button>
-                    </Toolbar>
-                </AppBar>
-                <List>
-                    {this.state.dbnames.map((dbname) => {
-                        const labelId = `checkbox-list-label-${dbname._id}`;
-                        return (
-                            <ListItem
-                                key={dbname._id}
-                                value={dbname.name}
-                                secondaryAction={
-                                    <Button
-                                        variant="contained"
-                                        onClick={() =>
-                                            this.addon_generate_selected([
-                                                dbname._id,
-                                            ])
-                                        }
-                                    >
-                                        Generate
-                                    </Button>
-                                }
-                                disablePadding
-                            >
-                                <ListItemButton
-                                    role={undefined}
-                                    onClick={() =>
-                                        this.addon_checkDbName_toggle(
-                                            dbname._id
-                                        )
-                                    }
-                                    dense
-                                >
-                                    <ListItemIcon>
-                                        <Checkbox
-                                            checked={dbname.checked}
-                                            tabIndex={-1}
-                                            disableRipple
-                                            inputProps={{
-                                                "aria-labelledby": labelId,
-                                            }}
-                                        />
-                                    </ListItemIcon>
-                                    <ListItemText
-                                        id={labelId}
-                                        primary={dbname.name}
-                                    />
-                                </ListItemButton>
-                            </ListItem>
-                        );
-                    })}
-                </List>
-                <Button
-                    variant="contained"
-                    onClick={() =>
-                        this.addon_generate_selected(
-                            this.state.dbnames
-                                .filter((dbname) => dbname.checked)
-                                .map((dbname) => {
-                                    return dbname._id;
-                                })
-                        )
-                    }
-                >
-                    Generate Selected <DownloadIcon />
-                </Button>
+            <React.Fragment>
+                <NavBar />
 
-                <Snackbar
-                    open={this.state.openError}
-                    onClose={() => this.addon_closeError()}
+                <Box
+                    component="main"
+                    sx={{
+                        flexGrow: 1,
+                        padding: (theme) => theme.spacing(3),
+                    }}
                 >
-                    <Alert
-                        elevation={1}
-                        variant="filled"
-                        onClose={() => this.addon_closeError()}
-                        severity="error"
-                    >
-                        <AlertTitle>Error</AlertTitle>
-                        {this.state.error}
-                    </Alert>
-                </Snackbar>
-            </Box>
+                    <Box sx={{ flexGrow: 1 }}>
+                        <AppBar position="static">
+                            <Toolbar>
+                                <IconButton
+                                    size="large"
+                                    edge="start"
+                                    color="inherit"
+                                    aria-label="menu"
+                                    sx={{ mr: 2 }}
+                                >
+                                    <MenuIcon />
+                                </IconButton>
+                                <Typography
+                                    variant="h6"
+                                    component="div"
+                                    sx={{ flexGrow: 1 }}
+                                >
+                                    Addon
+                                </Typography>
+                                <Button color="inherit">Login</Button>
+                            </Toolbar>
+                        </AppBar>
+                        <List>
+                            {this.state.dbnames.map((dbname) => {
+                                const labelId = `checkbox-list-label-${dbname._id}`;
+                                return (
+                                    <ListItem
+                                        key={dbname._id}
+                                        value={dbname.name}
+                                        secondaryAction={
+                                            <Button
+                                                variant="contained"
+                                                onClick={() =>
+                                                    this.addon_generate_selected(
+                                                        [dbname._id]
+                                                    )
+                                                }
+                                            >
+                                                Generate
+                                            </Button>
+                                        }
+                                        disablePadding
+                                    >
+                                        <ListItemButton
+                                            role={undefined}
+                                            onClick={() =>
+                                                this.addon_checkDbName_toggle(
+                                                    dbname._id
+                                                )
+                                            }
+                                            dense
+                                        >
+                                            <ListItemIcon>
+                                                <Checkbox
+                                                    checked={dbname.checked}
+                                                    tabIndex={-1}
+                                                    disableRipple
+                                                    inputProps={{
+                                                        "aria-labelledby":
+                                                            labelId,
+                                                    }}
+                                                />
+                                            </ListItemIcon>
+                                            <ListItemText
+                                                id={labelId}
+                                                primary={dbname.name}
+                                            />
+                                        </ListItemButton>
+                                    </ListItem>
+                                );
+                            })}
+                        </List>
+                        <Button
+                            variant="contained"
+                            onClick={() =>
+                                this.addon_generate_selected(
+                                    this.state.dbnames
+                                        .filter((dbname) => dbname.checked)
+                                        .map((dbname) => {
+                                            return dbname._id;
+                                        })
+                                )
+                            }
+                        >
+                            Generate Selected <DownloadIcon />
+                        </Button>
+
+                        <Snackbar
+                            open={this.state.openError}
+                            onClose={() => this.addon_closeError()}
+                        >
+                            <Alert
+                                elevation={1}
+                                variant="filled"
+                                onClose={() => this.addon_closeError()}
+                                severity="error"
+                            >
+                                <AlertTitle>Error</AlertTitle>
+                                {this.state.error}
+                            </Alert>
+                        </Snackbar>
+                    </Box>
+                </Box>
+            </React.Fragment>
         );
     }
 }

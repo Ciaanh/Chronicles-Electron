@@ -83,15 +83,7 @@ class App extends React.Component<AppProps, AppState> {
                     <CssBaseline />
 
                     <HashRouter>
-                        <NavBar location={window.location} />
-
-                        <Box
-                            component="main"
-                            sx={{
-                                flexGrow: 1,
-                                padding: theme.spacing(3),
-                            }}
-                        >
+                        
                             <Routes>
                                 <Route path="/" element={<Home />} />
 
@@ -118,7 +110,7 @@ class App extends React.Component<AppProps, AppState> {
 
                                 <Route path="/addon" element={<Addon />} />
                             </Routes>
-                        </Box>
+                       
                     </HashRouter>
                 </Box>
             </ThemeProvider>
