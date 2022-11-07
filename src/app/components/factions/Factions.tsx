@@ -136,7 +136,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
             name: "",
             label: getEmptyLocale(),
             description: getEmptyLocale(),
-            timeline: Timelines[0].id,
+            timeline: 0,
             dbname: dbContext.DBNames.findAll()[0],
         };
     }
@@ -305,303 +305,270 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
                             showError={(error: string) => this.showError(error)}
                         />
                     ))}
+                </Box>
+                <Fab
+                    color="primary"
+                    sx={{
+                        position: "fixed",
+                        bottom: (theme) => theme.spacing(2),
+                        right: (theme) => theme.spacing(2),
+                    }}
+                    onClick={() => this.showCreate()}
+                >
+                    <AddIcon />
+                </Fab>
 
-                    <Fab
-                        color="primary"
-                        sx={{
-                            position: "fixed",
-                            bottom: (theme) => theme.spacing(2),
-                            right: (theme) => theme.spacing(2),
-                        }}
-                        onClick={() => this.showCreate()}
+                <Snackbar
+                    open={this.state.openError}
+                    onClose={() => this.closeError()}
+                >
+                    <Alert
+                        elevation={10}
+                        variant="filled"
+                        onClose={this.closeError}
+                        severity="error"
                     >
-                        <AddIcon />
-                    </Fab>
+                        <AlertTitle>Error</AlertTitle>
+                        {this.state.error}
+                    </Alert>
+                </Snackbar>
 
-                    <Snackbar
-                        open={this.state.openError}
-                        onClose={() => this.closeError()}
+                {this.state.editingFaction && (
+                    <Dialog
+                        open={this.state.edit || this.state.create}
+                        onClose={() => this.closeDialog()}
+                        aria-labelledby="form-dialog-title"
+                        maxWidth="md"
+                        fullWidth={true}
                     >
-                        <Alert
-                            elevation={10}
-                            variant="filled"
-                            onClose={this.closeError}
-                            severity="error"
+                        <AppBar
+                            sx={{
+                                position: "relative",
+                            }}
                         >
-                            <AlertTitle>Error</AlertTitle>
-                            {this.state.error}
-                        </Alert>
-                    </Snackbar>
+                            <Toolbar>
+                                <Typography variant="h6">
+                                    {this.state.create
+                                        ? "Creating a faction"
+                                        : "Editing faction"}
+                                </Typography>
+                                <IconButton
+                                    onClick={() => this.closeDialog()}
+                                    aria-label="close"
+                                    sx={{
+                                        position: "absolute",
+                                        right: 8,
+                                        top: 8,
+                                        color: (theme) =>
+                                            theme.palette.grey[500],
+                                    }}
+                                >
+                                    <CloseIcon />
+                                </IconButton>
 
-                    {this.state.editingFaction && (
-                        <Dialog
-                            open={this.state.edit || this.state.create}
-                            onClose={() => this.closeDialog()}
-                            aria-labelledby="form-dialog-title"
-                            maxWidth="md"
-                            fullWidth={true}
-                        >
-                            <AppBar
-                                sx={{
-                                    position: "relative",
-                                }}
-                            >
-                                <Toolbar>
-                                    <Grid
-                                        container
-                                        alignItems="center"
-                                        direction="row"
-                                    >
-                                        <Grid xs={9}>
-                                            <Grid
-                                                container
-                                                alignItems="center"
-                                                direction="row"
-                                            >
-                                                <IconButton
-                                                    edge="start"
-                                                    color="inherit"
-                                                    onClick={() =>
-                                                        this.closeDialog()
-                                                    }
-                                                    aria-label="close"
-                                                >
-                                                    <CloseIcon />
-                                                </IconButton>
-                                                <Typography variant="h6">
-                                                    {this.state.create
-                                                        ? "Creating a faction"
-                                                        : "Editing faction"}
-                                                </Typography>
-                                            </Grid>
-                                        </Grid>
-
-                                        <Grid xs={2}></Grid>
-                                        <Grid xs={1}>
-                                            <IconButton
-                                                autoFocus
-                                                color="inherit"
-                                                onClick={() => {
-                                                    if (this.state.create) {
-                                                        this.create(
-                                                            this.state
-                                                                .editingFaction
-                                                        );
-                                                    } else {
-                                                        this.update(
-                                                            this.state
-                                                                .editingFaction
-                                                        );
-                                                    }
-                                                }}
-                                            >
-                                                <Typography variant="h6">
-                                                    {this.state.create
-                                                        ? "Create"
-                                                        : "Save"}
-                                                </Typography>
-                                                <SaveIcon />
-                                            </IconButton>
-                                        </Grid>
-                                    </Grid>
-                                </Toolbar>
-                            </AppBar>
-                            <DialogContent>
-                                <Grid container spacing={2}>
-                                    <Grid xs={12} direction="row">
-                                        <FormControl
-                                            variant="outlined"
-                                            margin="dense"
-                                            sx={{
-                                                margin: (theme) =>
-                                                    theme.spacing(1),
-                                                minWidth: 120,
-                                            }}
-                                        >
-                                            <InputLabel>DB Name</InputLabel>
-                                            <Select
-                                                label="DBName"
-                                                name="dbname"
-                                                value={
-                                                    this.state.editingFaction
-                                                        .dbname
-                                                        ? this.state
-                                                              .editingFaction
-                                                              .dbname._id ??
-                                                          undefined
-                                                        : undefined
-                                                }
-                                                onChange={(dbname) => {
-                                                    this.changeDbName(
-                                                        dbname.target.value
-                                                    );
-                                                }}
-                                            >
-                                                <MenuItem value="undefined">
-                                                    Undefined
-                                                </MenuItem>
-                                                {this.state.dbnames.map(
-                                                    (dbname) => (
-                                                        <MenuItem
-                                                            key={dbname._id}
-                                                            value={dbname._id}
-                                                        >
-                                                            {dbname.name}
-                                                        </MenuItem>
-                                                    )
-                                                )}
-                                            </Select>
-                                        </FormControl>
-
-                                        <FormControl
-                                            variant="outlined"
-                                            margin="dense"
-                                            sx={{
-                                                margin: (theme) =>
-                                                    theme.spacing(1),
-                                                minWidth: 120,
-                                            }}
-                                        >
-                                            <InputLabel>Timeline</InputLabel>
-                                            <Select
-                                                label="Timeline"
-                                                name="timeline"
-                                                value={
-                                                    this.state.editingFaction
-                                                        .timeline
-                                                        ? this.state
-                                                              .editingFaction
-                                                              .timeline ??
-                                                          "undefined"
-                                                        : "undefined"
-                                                }
-                                                onChange={(event) => {
-                                                    this.changeTimeline(
-                                                        event.target.value
-                                                    );
-                                                }}
-                                            >
-                                                {Timelines.map((timeline) => (
-                                                    <MenuItem
-                                                        key={timeline.id}
-                                                        value={timeline.id}
-                                                    >
-                                                        <em>{timeline.name}</em>
-                                                    </MenuItem>
-                                                ))}
-                                            </Select>
-                                        </FormControl>
-
-                                        {this.state.create ? null : (
-                                            <TextField
-                                                disabled
-                                                label="Unique Id"
-                                                margin="dense"
-                                                value={
-                                                    this.state.editingFaction
-                                                        ._id ?? ""
-                                                }
-                                            />
-                                        )}
-                                    </Grid>
-
-                                    <Grid
-                                        xs={12}
+                                <IconButton
+                                    sx={{
+                                        position: "absolute",
+                                        right: 32,
+                                        top: 8,
+                                        color: (theme) =>
+                                            theme.palette.grey[500],
+                                    }}
+                                    onClick={() => {
+                                        if (this.state.create) {
+                                            this.create(
+                                                this.state.editingFaction
+                                            );
+                                        } else {
+                                            this.update(
+                                                this.state.editingFaction
+                                            );
+                                        }
+                                    }}
+                                    aria-label="save"
+                                >
+                                    <SaveIcon />
+                                </IconButton>
+                            </Toolbar>
+                        </AppBar>
+                        <DialogContent>
+                            <Grid container spacing={2}>
+                                <Grid xs={12} direction="row">
+                                    <FormControl
+                                        variant="outlined"
+                                        margin="dense"
                                         sx={{
-                                            marginLeft: (theme) =>
-                                                theme.spacing(1),
-                                            marginRight: (theme) =>
-                                                theme.spacing(1),
+                                            margin: (theme) => theme.spacing(1),
+                                            minWidth: 120,
                                         }}
                                     >
-                                        <TextField
-                                            label="Name"
-                                            sx={{
-                                                margin: (theme) =>
-                                                    theme.spacing(1),
-                                                minWidth: 120,
-                                            }}
+                                        <InputLabel>DB Name</InputLabel>
+                                        <Select
+                                            label="DBName"
+                                            name="dbname"
                                             value={
-                                                this.state.editingFaction
-                                                    .name ?? ""
+                                                this.state.editingFaction.dbname
+                                                    ._id
                                             }
-                                            onChange={(changeFaction) => {
-                                                this.changeName(
-                                                    changeFaction.target.value
+                                            onChange={(dbname) => {
+                                                this.changeDbName(
+                                                    dbname.target.value
                                                 );
                                             }}
-                                            margin="dense"
-                                            variant="outlined"
-                                        />
-                                    </Grid>
-
-                                    <Grid
-                                        xs={12}
-                                        sx={{
-                                            marginLeft: (theme) =>
-                                                theme.spacing(1),
-                                            marginRight: (theme) =>
-                                                theme.spacing(1),
-                                        }}
-                                    >
-                                        <Typography
-                                            variant="subtitle2"
-                                            sx={{
-                                                margin: (theme) =>
-                                                    theme.spacing(1),
-                                                minWidth: 120,
-                                            }}
                                         >
-                                            Label
-                                        </Typography>
-                                        <Locale
-                                            locale={
-                                                this.state.editingFaction.label
-                                            }
-                                            isRequired={true}
-                                            updated={(labelid: number) =>
-                                                this.labelUpdated(labelid)
-                                            }
-                                        />
-                                    </Grid>
-
-                                    <Grid
-                                        xs={12}
-                                        sx={{
-                                            marginLeft: (theme) =>
-                                                theme.spacing(1),
-                                            marginRight: (theme) =>
-                                                theme.spacing(1),
-                                        }}
-                                    >
-                                        <Typography
-                                            variant="subtitle2"
-                                            sx={{
-                                                margin: (theme) =>
-                                                    theme.spacing(1),
-                                                minWidth: 120,
-                                            }}
-                                        >
-                                            Description
-                                        </Typography>
-                                        <Locale
-                                            locale={
-                                                this.state.editingFaction
-                                                    .description
-                                            }
-                                            isRequired={true}
-                                            updated={(descriptionid: number) =>
-                                                this.descriptionUpdated(
-                                                    descriptionid
+                                            {this.state.dbnames.map(
+                                                (dbname) => (
+                                                    <MenuItem
+                                                        key={dbname._id}
+                                                        value={dbname._id}
+                                                    >
+                                                        {dbname.name}
+                                                    </MenuItem>
                                                 )
+                                            )}
+                                        </Select>
+                                    </FormControl>
+
+                                    <FormControl
+                                        variant="outlined"
+                                        margin="dense"
+                                        sx={{
+                                            margin: (theme) => theme.spacing(1),
+                                            minWidth: 120,
+                                        }}
+                                    >
+                                        <InputLabel>Timeline</InputLabel>
+                                        <Select
+                                            label="Timeline"
+                                            name="timeline"
+                                            value={
+                                                this.state.editingFaction
+                                                    .timeline
+                                                    ? this.state.editingFaction
+                                                          .timeline ??
+                                                      "undefined"
+                                                    : "undefined"
+                                            }
+                                            onChange={(event) => {
+                                                this.changeTimeline(
+                                                    event.target.value
+                                                );
+                                            }}
+                                        >
+                                            <MenuItem value="0" key="0">
+                                                <em>Undefined</em>
+                                            </MenuItem>
+                                            {Timelines.map((timeline) => (
+                                                <MenuItem
+                                                    key={timeline.id}
+                                                    value={timeline.id}
+                                                >
+                                                    <em>{timeline.name}</em>
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+
+                                    {this.state.create ? null : (
+                                        <TextField
+                                            disabled
+                                            label="Unique Id"
+                                            margin="dense"
+                                            value={
+                                                this.state.editingFaction._id ??
+                                                ""
                                             }
                                         />
-                                    </Grid>
+                                    )}
                                 </Grid>
-                            </DialogContent>
-                        </Dialog>
-                    )}
-                </Box>
+
+                                <Grid
+                                    xs={12}
+                                    sx={{
+                                        marginLeft: (theme) => theme.spacing(1),
+                                        marginRight: (theme) =>
+                                            theme.spacing(1),
+                                    }}
+                                >
+                                    <TextField
+                                        label="Name"
+                                        sx={{
+                                            margin: (theme) => theme.spacing(1),
+                                            minWidth: 120,
+                                        }}
+                                        value={
+                                            this.state.editingFaction.name ?? ""
+                                        }
+                                        onChange={(changeFaction) => {
+                                            this.changeName(
+                                                changeFaction.target.value
+                                            );
+                                        }}
+                                        margin="dense"
+                                        variant="outlined"
+                                    />
+                                </Grid>
+
+                                <Grid
+                                    xs={12}
+                                    sx={{
+                                        marginLeft: (theme) => theme.spacing(1),
+                                        marginRight: (theme) =>
+                                            theme.spacing(1),
+                                    }}
+                                >
+                                    <Typography
+                                        variant="subtitle2"
+                                        sx={{
+                                            margin: (theme) => theme.spacing(1),
+                                            minWidth: 120,
+                                        }}
+                                    >
+                                        Label
+                                    </Typography>
+                                    <Locale
+                                        locale={this.state.editingFaction.label}
+                                        isRequired={true}
+                                        updated={(labelid: number) =>
+                                            this.labelUpdated(labelid)
+                                        }
+                                    />
+                                </Grid>
+
+                                <Grid
+                                    xs={12}
+                                    sx={{
+                                        marginLeft: (theme) => theme.spacing(1),
+                                        marginRight: (theme) =>
+                                            theme.spacing(1),
+                                    }}
+                                >
+                                    <Typography
+                                        variant="subtitle2"
+                                        sx={{
+                                            margin: (theme) => theme.spacing(1),
+                                            minWidth: 120,
+                                        }}
+                                    >
+                                        Description
+                                    </Typography>
+                                    <Locale
+                                        locale={
+                                            this.state.editingFaction
+                                                .description
+                                        }
+                                        isRequired={true}
+                                        updated={(descriptionid: number) =>
+                                            this.descriptionUpdated(
+                                                descriptionid
+                                            )
+                                        }
+                                    />
+                                </Grid>
+                            </Grid>
+                        </DialogContent>
+                    </Dialog>
+                )}
             </React.Fragment>
         );
     }

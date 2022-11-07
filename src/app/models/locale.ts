@@ -33,22 +33,26 @@ export interface DB_Locale extends DbObject {
 
 function cleanString(value: string): string {
     const cleaned = value
-        .replace(" ", "_")
-        .toLowerCase()
+        .replace(/(?:\r\n|\r|\n)/g, " ")
+        .replace(/\s\s+/g, " ")
         .trim()
+        .replace(/\s/g, "_")
+        .substring(0, 50)
+        .toLowerCase()
         .normalize("NFD")
         .replace(/\p{Diacritic}/gu, "");
+
     return cleaned;
 }
 
 export function getLocaleKey(locale: Locale, index?: number): string {
-    if(locale.enUS === null) {
+    if (locale.enUS === null) {
         return "<not set>";
     }
     if (index) {
         return `${cleanString(locale.enUS)}_${index}`;
     }
-    return `${cleanString(locale.enUS)}_{}`;
+    return `${cleanString(locale.enUS)}`;
 }
 
 export function getEmptyLocale(): Locale {

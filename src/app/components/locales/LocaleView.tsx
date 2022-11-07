@@ -190,7 +190,8 @@ class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
                         }}
                     >
                         <Toolbar>
-                            Modal title
+                            Editing locale (estimated key):{" "}
+                            {getLocaleKey(this.state.locale)}
                             <IconButton
                                 aria-label="close"
                                 onClick={() => this.close()}
@@ -218,7 +219,13 @@ class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
                         </Toolbar>
                     </AppBar>
                     <DialogContent dividers>
-                        <Grid container spacing={0.5}>
+                        <Grid
+                            container
+                            spacing={0.5}
+                            sx={{
+                                minWidth: 800,
+                            }}
+                        >
                             <Grid xs={4}>
                                 <Item>
                                     <List dense={true}>
@@ -245,12 +252,7 @@ class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
                                     </List>
                                 </Item>
                             </Grid>
-                            <Grid
-                                xs={8}
-                                sx={{
-                                    minWidth: 400,
-                                }}
-                            >
+                            <Grid xs={8}>
                                 <TextField
                                     id="filled-multiline-static"
                                     label="Multiline"
@@ -268,6 +270,9 @@ class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
                                         )
                                     }
                                     variant="filled"
+                                    sx={{
+                                        width: "100%",
+                                    }}
                                 />
                             </Grid>
                         </Grid>

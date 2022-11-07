@@ -1,7 +1,11 @@
 import { DB_Locale, Locale } from "../models/locale";
+import { Characters } from "./characterContext";
+import { Events } from "./eventContext";
+import { Factions } from "./factionContext";
 
 export interface LocaleContext {
     findAll: () => Locale[];
+    findAllAlone: () => Locale[];
     findByIds(ids: number[]): Locale[];
     findById(id: number): Locale;
     create(locale: Locale): Locale;
@@ -15,6 +19,37 @@ export const Locales: LocaleContext = {
             window.database.tables.locales
         );
         return LocaleMapperFromDBs(locales);
+    },
+    findAllAlone: function () {
+        const locales: DB_Locale[] = window.database.getAll(
+            window.database.tables.locales
+        );
+
+        const events = Events.findAll();
+        const characters = Characters.findAll();
+        const factions = Factions.findAll();
+
+        // filter locales not referened by any other table
+        const filteredLocales = locales.filter((locale) => {
+            const event = events.find(
+                (event) =>
+                    event.label._id === locale.id ||
+                    event.description.find((desc) => desc._id === locale.id)
+            );
+            const character = characters.find(
+                (character) =>
+                    character.label._id === locale.id ||
+                    character.biography._id === locale.id
+            );
+            const faction = factions.find(
+                (faction) =>
+                    faction.label._id === locale.id ||
+                    faction.description._id === locale.id
+            );
+            return !event && !character && !faction;
+        });
+
+        return LocaleMapperFromDBs(filteredLocales);
     },
     findByIds: function (ids) {
         const locales: DB_Locale[] = window.database.getAll(
@@ -90,5 +125,6 @@ export const LocaleMapperFromDB = (locale: DB_Locale): Locale => {
 };
 
 export const LocaleMapperFromDBs = (locales: DB_Locale[]): Locale[] => {
+    if (!locales) return [];
     return locales.map((locale) => LocaleMapperFromDB(locale));
 };

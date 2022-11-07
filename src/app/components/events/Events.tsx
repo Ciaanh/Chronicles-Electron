@@ -1,5 +1,6 @@
 import React from "react";
 
+import Grid from "@mui/material/Unstable_Grid2";
 import {
     Alert,
     AlertTitle,
@@ -10,7 +11,6 @@ import {
     Divider,
     Fab,
     FormControl,
-    Grid,
     IconButton,
     InputLabel,
     List,
@@ -165,7 +165,7 @@ class Events extends React.Component<EventsProps, EventsState> {
             yearStart: 0,
             yearEnd: 0,
             eventType: 0,
-            timeline: Timelines[0].id,
+            timeline: 0,
             link: "",
             factions: [],
             characters: [],
@@ -551,743 +551,686 @@ class Events extends React.Component<EventsProps, EventsState> {
                             showError={(error: string) => this.showError(error)}
                         />
                     ))}
+                </Box>
+                <Fab
+                    color="primary"
+                    sx={{
+                        position: "fixed",
+                        bottom: (theme) => theme.spacing(2),
+                        right: (theme) => theme.spacing(2),
+                    }}
+                    onClick={() => this.showCreate()}
+                >
+                    <AddIcon />
+                </Fab>
 
-                    <Fab
-                        color="primary"
-                        sx={{
-                            position: "fixed",
-                            bottom: (theme) => theme.spacing(2),
-                            right: (theme) => theme.spacing(2),
-                        }}
-                        onClick={() => this.showCreate()}
-                    >
-                        <AddIcon />
-                    </Fab>
-
-                    <Snackbar
-                        open={this.state.openError}
+                <Snackbar
+                    open={this.state.openError}
+                    onClose={() => this.closeError()}
+                >
+                    <Alert
+                        elevation={10}
+                        variant="filled"
                         onClose={() => this.closeError()}
+                        severity="error"
                     >
-                        <Alert
-                            elevation={10}
-                            variant="filled"
-                            onClose={() => this.closeError()}
-                            severity="error"
-                        >
-                            <AlertTitle>Error</AlertTitle>
-                            {this.state.error}
-                        </Alert>
-                    </Snackbar>
+                        <AlertTitle>Error</AlertTitle>
+                        {this.state.error}
+                    </Alert>
+                </Snackbar>
 
-                    {this.state.editingEvent && (
-                        <Dialog
-                            open={this.state.edit || this.state.create}
-                            onClose={() => this.closeDialog()}
-                            aria-labelledby="form-dialog-title"
-                            maxWidth="lg"
+                {this.state.editingEvent && (
+                    <Dialog
+                        open={this.state.edit || this.state.create}
+                        onClose={() => this.closeDialog()}
+                        aria-labelledby="form-dialog-title"
+                        maxWidth="lg"
+                    >
+                        <AppBar
+                            sx={{
+                                position: "relative",
+                            }}
                         >
-                            <AppBar
-                                sx={{
-                                    position: "relative",
-                                }}
-                            >
-                                <Toolbar>
+                            <Toolbar>
+                                <Typography variant="h6">
+                                    {this.state.create
+                                        ? "Creating a new event"
+                                        : "Editing event"}
+                                </Typography>
+                                <IconButton
+                                    onClick={() => this.closeDialog()}
+                                    aria-label="close"
+                                    sx={{
+                                        position: "absolute",
+                                        right: 8,
+                                        top: 8,
+                                        color: (theme) =>
+                                            theme.palette.grey[500],
+                                    }}
+                                >
+                                    <CloseIcon />
+                                </IconButton>
+
+                                <IconButton
+                                    aria-label="save"
+                                    onClick={() => {
+                                        if (this.state.create) {
+                                            this.create(
+                                                this.state.editingEvent
+                                            );
+                                        } else {
+                                            this.update(
+                                                this.state.editingEvent
+                                            );
+                                        }
+                                    }}
+                                    sx={{
+                                        position: "absolute",
+                                        right: 32,
+                                        top: 8,
+                                        color: (theme) =>
+                                            theme.palette.grey[500],
+                                    }}
+                                >
+                                    <SaveIcon />
+                                </IconButton>
+                            </Toolbar>
+                        </AppBar>
+                        <DialogContent>
+                            <Grid container spacing={5}>
+                                <Grid xs={12}>
+                                    <Typography variant="h6">
+                                        Event details{" "}
+                                        {this.state.create
+                                            ? null
+                                            : "- Unique Id : " +
+                                              this.state.editingEvent._id}
+                                    </Typography>
                                     <Grid
                                         container
                                         alignItems="center"
                                         direction="row"
                                     >
-                                        <Grid
-                                            container
-                                            xs={9}
-                                            alignItems="center"
-                                            direction="row"
-                                        >
-                                            <IconButton
-                                                edge="start"
-                                                color="inherit"
-                                                onClick={() =>
-                                                    this.closeDialog()
-                                                }
-                                                aria-label="close"
+                                        <Grid xs={6}>
+                                            <FormControl
+                                                variant="outlined"
+                                                sx={{
+                                                    margin: (theme) =>
+                                                        theme.spacing(1),
+                                                    minWidth: 120,
+                                                }}
+                                                margin="dense"
                                             >
-                                                <CloseIcon />
-                                            </IconButton>
-                                            <Typography variant="h6">
-                                                {this.state.create
-                                                    ? "Creating a new event"
-                                                    : "Editing event"}
-                                            </Typography>
+                                                <InputLabel>DB Name</InputLabel>
+                                                <Select
+                                                    label="DBName"
+                                                    name="dbname"
+                                                    value={
+                                                        this.state.editingEvent
+                                                            .dbname._id
+                                                    }
+                                                    onChange={(event) => {
+                                                        this.changeDbName(
+                                                            event.target.value
+                                                        );
+                                                    }}
+                                                >
+                                                    {this.state.dbnames.map(
+                                                        (dbname) => (
+                                                            <MenuItem
+                                                                key={dbname._id}
+                                                                value={
+                                                                    dbname._id
+                                                                }
+                                                            >
+                                                                {dbname.name}
+                                                            </MenuItem>
+                                                        )
+                                                    )}
+                                                </Select>
+                                            </FormControl>
+
+                                            <FormControl
+                                                variant="outlined"
+                                                sx={{
+                                                    margin: (theme) =>
+                                                        theme.spacing(1),
+                                                    minWidth: 120,
+                                                }}
+                                                margin="dense"
+                                            >
+                                                <InputLabel>
+                                                    Event Type
+                                                </InputLabel>
+                                                <Select
+                                                    label="Event Type"
+                                                    name="eventType"
+                                                    value={
+                                                        this.state.editingEvent
+                                                            .eventType
+                                                    }
+                                                    onChange={(eventType) =>
+                                                        this.changeEventType(
+                                                            eventType.target
+                                                                .value
+                                                        )
+                                                    }
+                                                    variant="outlined"
+                                                >
+                                                    <MenuItem value="0" key="0">
+                                                        <em>Undefined</em>
+                                                    </MenuItem>
+                                                    {EventTypes.map(
+                                                        (eventType) => (
+                                                            <MenuItem
+                                                                key={
+                                                                    eventType.id
+                                                                }
+                                                                value={
+                                                                    eventType.id
+                                                                }
+                                                            >
+                                                                <em>
+                                                                    {
+                                                                        eventType.name
+                                                                    }
+                                                                </em>
+                                                            </MenuItem>
+                                                        )
+                                                    )}
+                                                </Select>
+                                            </FormControl>
+
+                                            <FormControl
+                                                variant="outlined"
+                                                sx={{
+                                                    margin: (theme) =>
+                                                        theme.spacing(1),
+                                                    minWidth: 120,
+                                                }}
+                                                margin="dense"
+                                            >
+                                                <InputLabel>
+                                                    Timeline
+                                                </InputLabel>
+                                                <Select
+                                                    label="Timeline"
+                                                    name="timeline"
+                                                    value={
+                                                        this.state.editingEvent
+                                                            .timeline
+                                                    }
+                                                    onChange={(timeline) =>
+                                                        this.changeTimeline(
+                                                            timeline.target
+                                                                .value
+                                                        )
+                                                    }
+                                                >
+                                                    <MenuItem value="0" key="0">
+                                                        <em>Undefined</em>
+                                                    </MenuItem>
+                                                    {Timelines.map(
+                                                        (timeline) => (
+                                                            <MenuItem
+                                                                key={
+                                                                    timeline.id
+                                                                }
+                                                                value={
+                                                                    timeline.id
+                                                                }
+                                                            >
+                                                                <em>
+                                                                    {
+                                                                        timeline.name
+                                                                    }
+                                                                </em>
+                                                            </MenuItem>
+                                                        )
+                                                    )}
+                                                </Select>
+                                            </FormControl>
                                         </Grid>
 
-                                        <Grid xs={2}></Grid>
-                                        <Grid xs={1}>
-                                            <IconButton
-                                                autoFocus
-                                                color="inherit"
-                                                onClick={() => {
-                                                    if (this.state.create) {
-                                                        this.create(
-                                                            this.state
-                                                                .editingEvent
-                                                        );
-                                                    } else {
-                                                        this.update(
-                                                            this.state
-                                                                .editingEvent
-                                                        );
-                                                    }
+                                        <Grid xs={6}>
+                                            {" "}
+                                            <Divider
+                                                orientation="vertical"
+                                                flexItem
+                                            />
+                                            <TextField
+                                                label="Link"
+                                                sx={{
+                                                    margin: (theme) =>
+                                                        theme.spacing(1),
+                                                    minWidth: 500,
                                                 }}
+                                                value={
+                                                    this.state.editingEvent.link
+                                                }
+                                                onChange={(link) =>
+                                                    this.changeLink(
+                                                        link.target.value
+                                                    )
+                                                }
+                                                margin="dense"
+                                                variant="outlined"
+                                            />
+                                        </Grid>
+                                    </Grid>
+                                </Grid>
+
+                                <Grid xs={12} container>
+                                    <Grid xs={6} container>
+                                        <Grid xs={12}>
+                                            <TextField
+                                                label="Name"
+                                                sx={{
+                                                    margin: (theme) =>
+                                                        theme.spacing(1),
+                                                    minWidth: 120,
+                                                }}
+                                                value={
+                                                    this.state.editingEvent.name
+                                                }
+                                                onChange={(changeEvent) =>
+                                                    this.changeName(
+                                                        changeEvent.target.value
+                                                    )
+                                                }
+                                                margin="dense"
+                                                variant="outlined"
+                                            />
+                                        </Grid>
+
+                                        <Grid xs={12}>
+                                            <TextField
+                                                label="Year Start"
+                                                sx={{
+                                                    margin: (theme) =>
+                                                        theme.spacing(1),
+                                                    minWidth: 120,
+                                                    width: "25ch",
+                                                }}
+                                                value={
+                                                    this.state.editingEvent
+                                                        .yearStart
+                                                }
+                                                onChange={(yearStart) =>
+                                                    this.changeYearStart(
+                                                        yearStart.target.value
+                                                    )
+                                                }
+                                                margin="dense"
+                                                variant="outlined"
+                                            />
+
+                                            <TextField
+                                                label="Year End"
+                                                sx={{
+                                                    margin: (theme) =>
+                                                        theme.spacing(1),
+                                                    minWidth: 120,
+                                                    width: "25ch",
+                                                }}
+                                                value={
+                                                    this.state.editingEvent
+                                                        .yearEnd
+                                                }
+                                                onChange={(yearEnd) =>
+                                                    this.changeYearEnd(
+                                                        yearEnd.target.value
+                                                    )
+                                                }
+                                                margin="dense"
+                                                variant="outlined"
+                                            />
+                                        </Grid>
+
+                                        <Grid container xs={12}>
+                                            <Grid
+                                                container
+                                                xs={6}
+                                                direction="column"
                                             >
                                                 <Typography variant="h6">
-                                                    {this.state.create
-                                                        ? "Create"
-                                                        : "Save"}
-                                                </Typography>
-                                                <SaveIcon />
-                                            </IconButton>
-                                        </Grid>
-                                    </Grid>
-                                </Toolbar>
-                            </AppBar>
-                            <DialogContent>
-                                <Grid container spacing={5}>
-                                    <Grid xs={12}>
-                                        <Typography variant="h6">
-                                            Event details{" "}
-                                            {this.state.create
-                                                ? null
-                                                : "- Unique Id : " +
-                                                  this.state.editingEvent._id}
-                                        </Typography>
-                                        <Grid
-                                            container
-                                            alignItems="center"
-                                            direction="row"
-                                        >
-                                            <Grid xs={6}>
-                                                <FormControl
-                                                    variant="outlined"
-                                                    sx={{
-                                                        margin: (theme) =>
-                                                            theme.spacing(1),
-                                                        minWidth: 120,
-                                                    }}
-                                                    margin="dense"
-                                                >
-                                                    <InputLabel>
-                                                        DB Name
-                                                    </InputLabel>
-                                                    <Select
-                                                        label="DBName"
-                                                        name="dbname"
-                                                        value={
-                                                            this.state
-                                                                .editingEvent
-                                                                .dbname
-                                                                ? this.state
-                                                                      .editingEvent
-                                                                      .dbname
-                                                                      ._id ??
-                                                                  undefined
-                                                                : undefined
+                                                    Characters{" "}
+                                                    <IconButton
+                                                        aria-label="more"
+                                                        aria-controls="long-menu"
+                                                        aria-haspopup="true"
+                                                        onClick={(event) =>
+                                                            this.openCharacterList(
+                                                                event
+                                                            )
                                                         }
-                                                        onChange={(event) => {
-                                                            this.changeDbName(
-                                                                event.target
-                                                                    .value
-                                                            );
+                                                    >
+                                                        <MoreVertIcon />
+                                                    </IconButton>
+                                                    <Menu
+                                                        id="long-menu"
+                                                        anchorEl={
+                                                            this.state
+                                                                .characterAnchor
+                                                        }
+                                                        keepMounted
+                                                        open={Boolean(
+                                                            this.state
+                                                                .characterAnchor
+                                                        )}
+                                                        onClose={() =>
+                                                            this.closeFactionList()
+                                                        }
+                                                        PaperProps={{
+                                                            elevation: 12,
+                                                            style: {
+                                                                maxHeight:
+                                                                    ITEM_HEIGHT *
+                                                                    4.5,
+                                                                width: "20ch",
+                                                            },
                                                         }}
                                                     >
-                                                        <MenuItem value="undefined">
-                                                            Undefined
-                                                        </MenuItem>
-                                                        {this.state.dbnames.map(
-                                                            (dbname) => (
-                                                                <MenuItem
-                                                                    key={
-                                                                        dbname._id
-                                                                    }
-                                                                    value={
-                                                                        dbname._id
-                                                                    }
-                                                                >
-                                                                    {
-                                                                        dbname.name
-                                                                    }
-                                                                </MenuItem>
-                                                            )
-                                                        )}
-                                                    </Select>
-                                                </FormControl>
-
-                                                <FormControl
-                                                    variant="outlined"
-                                                    sx={{
-                                                        margin: (theme) =>
-                                                            theme.spacing(1),
-                                                        minWidth: 120,
-                                                    }}
-                                                    margin="dense"
-                                                >
-                                                    <InputLabel>
-                                                        Event Type
-                                                    </InputLabel>
-                                                    <Select
-                                                        label="Event Type"
-                                                        name="eventType"
-                                                        value={
-                                                            this.state
-                                                                .editingEvent
-                                                                .eventType
-                                                        }
-                                                        onChange={(eventType) =>
-                                                            this.changeEventType(
-                                                                eventType.target
-                                                                    .value
-                                                            )
-                                                        }
-                                                        variant="outlined"
-                                                    >
-                                                        {EventTypes.map(
-                                                            (eventType) => (
-                                                                <MenuItem
-                                                                    key={
-                                                                        eventType.id
-                                                                    }
-                                                                    value={
-                                                                        eventType.id
-                                                                    }
-                                                                >
-                                                                    <em>
-                                                                        {
-                                                                            eventType.name
-                                                                        }
-                                                                    </em>
-                                                                </MenuItem>
-                                                            )
-                                                        )}
-                                                    </Select>
-                                                </FormControl>
-
-                                                <FormControl
-                                                    variant="outlined"
-                                                    sx={{
-                                                        margin: (theme) =>
-                                                            theme.spacing(1),
-                                                        minWidth: 120,
-                                                    }}
-                                                    margin="dense"
-                                                >
-                                                    <InputLabel>
-                                                        Timeline
-                                                    </InputLabel>
-                                                    <Select
-                                                        label="Timeline"
-                                                        name="timeline"
-                                                        value={
-                                                            this.state
-                                                                .editingEvent
-                                                                .timeline
-                                                        }
-                                                        onChange={(timeline) =>
-                                                            this.changeTimeline(
-                                                                timeline.target
-                                                                    .value
-                                                            )
-                                                        }
-                                                    >
-                                                        {Timelines.map(
-                                                            (timeline) => (
-                                                                <MenuItem
-                                                                    key={
-                                                                        timeline.id
-                                                                    }
-                                                                    value={
-                                                                        timeline.id
-                                                                    }
-                                                                >
-                                                                    <em>
-                                                                        {
-                                                                            timeline.name
-                                                                        }
-                                                                    </em>
-                                                                </MenuItem>
-                                                            )
-                                                        )}
-                                                    </Select>
-                                                </FormControl>
-                                            </Grid>
-
-                                            <Grid xs={6}>
-                                                {" "}
-                                                <Divider
-                                                    orientation="vertical"
-                                                    flexItem
-                                                />
-                                                <TextField
-                                                    label="Link"
-                                                    sx={{
-                                                        margin: (theme) =>
-                                                            theme.spacing(1),
-                                                        minWidth: 500,
-                                                    }}
-                                                    value={
-                                                        this.state.editingEvent
-                                                            .link
-                                                    }
-                                                    onChange={(link) =>
-                                                        this.changeLink(
-                                                            link.target.value
-                                                        )
-                                                    }
-                                                    margin="dense"
-                                                    variant="outlined"
-                                                />
-                                            </Grid>
-                                        </Grid>
-                                    </Grid>
-
-                                    <Grid xs={12} container>
-                                        <Grid xs={6} container>
-                                            <Grid xs={12}>
-                                                <TextField
-                                                    label="Name"
-                                                    sx={{
-                                                        margin: (theme) =>
-                                                            theme.spacing(1),
-                                                        minWidth: 120,
-                                                    }}
-                                                    value={
-                                                        this.state.editingEvent
-                                                            .name
-                                                    }
-                                                    onChange={(changeEvent) =>
-                                                        this.changeName(
-                                                            changeEvent.target
-                                                                .value
-                                                        )
-                                                    }
-                                                    margin="dense"
-                                                    variant="outlined"
-                                                />
-                                            </Grid>
-
-                                            <Grid xs={12}>
-                                                <TextField
-                                                    label="Year Start"
-                                                    sx={{
-                                                        margin: (theme) =>
-                                                            theme.spacing(1),
-                                                        minWidth: 120,
-                                                        width: "25ch",
-                                                    }}
-                                                    value={
-                                                        this.state.editingEvent
-                                                            .yearStart
-                                                    }
-                                                    onChange={(yearStart) =>
-                                                        this.changeYearStart(
-                                                            yearStart.target
-                                                                .value
-                                                        )
-                                                    }
-                                                    margin="dense"
-                                                    variant="outlined"
-                                                />
-
-                                                <TextField
-                                                    label="Year End"
-                                                    sx={{
-                                                        margin: (theme) =>
-                                                            theme.spacing(1),
-                                                        minWidth: 120,
-                                                        width: "25ch",
-                                                    }}
-                                                    value={
-                                                        this.state.editingEvent
-                                                            .yearEnd
-                                                    }
-                                                    onChange={(yearEnd) =>
-                                                        this.changeYearEnd(
-                                                            yearEnd.target.value
-                                                        )
-                                                    }
-                                                    margin="dense"
-                                                    variant="outlined"
-                                                />
-                                            </Grid>
-
-                                            <Grid container xs={12}>
-                                                <Grid
-                                                    container
-                                                    xs={6}
-                                                    direction="column"
-                                                >
-                                                    <Typography variant="h6">
-                                                        Characters{" "}
-                                                        <IconButton
-                                                            aria-label="more"
-                                                            aria-controls="long-menu"
-                                                            aria-haspopup="true"
-                                                            onClick={(event) =>
-                                                                this.openCharacterList(
-                                                                    event
-                                                                )
-                                                            }
-                                                        >
-                                                            <MoreVertIcon />
-                                                        </IconButton>
-                                                        <Menu
-                                                            id="long-menu"
-                                                            anchorEl={
-                                                                this.state
-                                                                    .characterAnchor
-                                                            }
-                                                            keepMounted
-                                                            open={Boolean(
-                                                                this.state
-                                                                    .characterAnchor
-                                                            )}
-                                                            onClose={() =>
-                                                                this.closeFactionList()
-                                                            }
-                                                            PaperProps={{
-                                                                elevation: 12,
-                                                                style: {
-                                                                    maxHeight:
-                                                                        ITEM_HEIGHT *
-                                                                        4.5,
-                                                                    width: "20ch",
-                                                                },
-                                                            }}
-                                                        >
-                                                            {this.state.characters
-                                                                .filter(
-                                                                    (
+                                                        {this.state.characters
+                                                            .filter(
+                                                                (character) => {
+                                                                    return (
+                                                                        this
+                                                                            .state
+                                                                            .editingEvent
+                                                                            .dbname &&
                                                                         character
-                                                                    ) => {
-                                                                        return (
+                                                                            .dbname
+                                                                            ._id ===
                                                                             this
                                                                                 .state
                                                                                 .editingEvent
-                                                                                .dbname &&
-                                                                            character
                                                                                 .dbname
-                                                                                ._id ===
-                                                                                this
-                                                                                    .state
-                                                                                    .editingEvent
-                                                                                    .dbname
-                                                                                    ._id
-                                                                        );
-                                                                    }
-                                                                )
-                                                                .map(
-                                                                    (
-                                                                        character
-                                                                    ) => (
-                                                                        <MenuItem
-                                                                            key={
-                                                                                character._id
-                                                                            }
-                                                                            selected={
-                                                                                this.state.editingEvent.characters.find(
-                                                                                    (
-                                                                                        f
-                                                                                    ) =>
-                                                                                        f._id ===
-                                                                                        character._id
-                                                                                ) !==
-                                                                                undefined
-                                                                            }
-                                                                            onClick={() => {
-                                                                                this.addCharacter(
-                                                                                    character._id
-                                                                                );
-                                                                                this.closeFactionList();
-                                                                            }}
-                                                                        >
-                                                                            {
-                                                                                character.name
-                                                                            }
-                                                                        </MenuItem>
-                                                                    )
-                                                                )}
-                                                        </Menu>
-                                                    </Typography>
-
-                                                    <Paper
-                                                        elevation={5}
-                                                        sx={{
-                                                            height: 230,
-                                                            width: 275,
-                                                            overflow: "auto",
-                                                            margin: (theme) =>
-                                                                theme.spacing(
-                                                                    1
-                                                                ),
-                                                        }}
-                                                    >
-                                                        <List dense={true}>
-                                                            {this.state.editingEvent.characters.map(
+                                                                                ._id
+                                                                    );
+                                                                }
+                                                            )
+                                                            .map(
                                                                 (character) => (
-                                                                    <ListItem
+                                                                    <MenuItem
                                                                         key={
                                                                             character._id
                                                                         }
-                                                                    >
-                                                                        <ListItemText
-                                                                            primary={
-                                                                                character.name
-                                                                            }
-                                                                        />
-                                                                        <RemoveCircleIcon
-                                                                            onClick={() => {
-                                                                                this.removeCharacter(
+                                                                        selected={
+                                                                            this.state.editingEvent.characters.find(
+                                                                                (
+                                                                                    f
+                                                                                ) =>
+                                                                                    f._id ===
                                                                                     character._id
-                                                                                );
-                                                                                this.closeFactionList();
-                                                                            }}
-                                                                        />
-                                                                    </ListItem>
-                                                                )
-                                                            )}
-                                                        </List>
-                                                    </Paper>
-                                                </Grid>
-
-                                                <Grid
-                                                    item
-                                                    xs={6}
-                                                    container
-                                                    direction="column"
-                                                >
-                                                    <Typography variant="h6">
-                                                        Factions{" "}
-                                                        <IconButton
-                                                            aria-label="more"
-                                                            aria-controls="long-menu"
-                                                            aria-haspopup="true"
-                                                            onClick={(event) =>
-                                                                this.openFactionList(
-                                                                    event
-                                                                )
-                                                            }
-                                                        >
-                                                            <MoreVertIcon />
-                                                        </IconButton>
-                                                        <Menu
-                                                            id="long-menu"
-                                                            anchorEl={
-                                                                this.state
-                                                                    .factionAnchor
-                                                            }
-                                                            keepMounted
-                                                            open={Boolean(
-                                                                this.state
-                                                                    .factionAnchor
-                                                            )}
-                                                            onClose={() =>
-                                                                this.closeFactionList()
-                                                            }
-                                                            PaperProps={{
-                                                                style: {
-                                                                    maxHeight:
-                                                                        ITEM_HEIGHT *
-                                                                        4.5,
-                                                                    width: "20ch",
-                                                                },
-                                                            }}
-                                                        >
-                                                            {this.state.factions
-                                                                .filter(
-                                                                    (
-                                                                        faction
-                                                                    ) => {
-                                                                        return (
-                                                                            this
-                                                                                .state
-                                                                                .editingEvent
-                                                                                .dbname &&
-                                                                            faction
-                                                                                .dbname
-                                                                                ._id ===
-                                                                                this
-                                                                                    .state
-                                                                                    .editingEvent
-                                                                                    .dbname
-                                                                                    ._id
-                                                                        );
-                                                                    }
-                                                                )
-                                                                .map(
-                                                                    (
-                                                                        faction
-                                                                    ) => (
-                                                                        <MenuItem
-                                                                            key={
-                                                                                faction._id
-                                                                            }
-                                                                            selected={
-                                                                                this.state.editingEvent.factions.find(
-                                                                                    (
-                                                                                        f
-                                                                                    ) =>
-                                                                                        f._id ===
-                                                                                        faction._id
-                                                                                ) !==
-                                                                                undefined
-                                                                            }
-                                                                            onClick={() => {
-                                                                                this.addFaction(
-                                                                                    faction._id
-                                                                                );
-                                                                                this.closeFactionList();
-                                                                            }}
-                                                                        >
-                                                                            {
-                                                                                faction.name
-                                                                            }
-                                                                        </MenuItem>
-                                                                    )
-                                                                )}
-                                                        </Menu>
-                                                    </Typography>
-
-                                                    <Paper
-                                                        elevation={5}
-                                                        sx={{
-                                                            height: 230,
-                                                            width: 275,
-                                                            overflow: "auto",
-                                                            margin: (theme) =>
-                                                                theme.spacing(
-                                                                    1
-                                                                ),
-                                                        }}
-                                                    >
-                                                        <List dense={true}>
-                                                            {this.state.editingEvent.factions.map(
-                                                                (faction) => (
-                                                                    <ListItem
-                                                                        key={
-                                                                            faction._id
+                                                                            ) !==
+                                                                            undefined
                                                                         }
+                                                                        onClick={() => {
+                                                                            this.addCharacter(
+                                                                                character._id
+                                                                            );
+                                                                            this.closeFactionList();
+                                                                        }}
                                                                     >
-                                                                        <ListItemText
-                                                                            primary={
-                                                                                faction.name
-                                                                            }
-                                                                        />
-                                                                        <RemoveCircleIcon
-                                                                            onClick={() => {
-                                                                                this.removeFaction(
-                                                                                    faction._id
-                                                                                );
-                                                                                this.closeFactionList();
-                                                                            }}
-                                                                        />
-                                                                    </ListItem>
+                                                                        {
+                                                                            character.name
+                                                                        }
+                                                                    </MenuItem>
                                                                 )
                                                             )}
-                                                        </List>
-                                                    </Paper>
-                                                </Grid>
-                                            </Grid>
-                                        </Grid>
-
-                                        <Grid container xs={6}>
-                                            <Grid xs={12}>
-                                                <Typography
-                                                    variant="subtitle2"
-                                                    sx={{
-                                                        margin: (theme) =>
-                                                            theme.spacing(1),
-                                                        minWidth: 120,
-                                                    }}
-                                                >
-                                                    Label
+                                                    </Menu>
                                                 </Typography>
-                                                <Locale
-                                                    locale={
-                                                        this.state.editingEvent
-                                                            .label
-                                                    }
-                                                    isRequired={true}
-                                                    updated={(
-                                                        labelid: number
-                                                    ) =>
-                                                        this.labelUpdated(
-                                                            labelid
-                                                        )
-                                                    }
-                                                />
-                                            </Grid>
 
-                                            <Grid xs={12}>
-                                                <Typography
-                                                    variant="subtitle2"
-                                                    sx={{
-                                                        margin: (theme) =>
-                                                            theme.spacing(1),
-                                                        minWidth: 120,
-                                                    }}
-                                                >
-                                                    Description (pages){" "}
-                                                    <IconButton
-                                                        edge="start"
-                                                        color="inherit"
-                                                        onClick={() =>
-                                                            this.addDescriptionPage()
-                                                        }
-                                                        aria-label="close"
-                                                    >
-                                                        <AddIcon />
-                                                    </IconButton>
-                                                </Typography>
                                                 <Paper
                                                     elevation={5}
                                                     sx={{
-                                                        height: 295,
+                                                        height: 230,
+                                                        width: 275,
                                                         overflow: "auto",
                                                         margin: (theme) =>
                                                             theme.spacing(1),
                                                     }}
                                                 >
-                                                    {this.state.editingEvent.description.map(
-                                                        (page, index) => (
-                                                            <Locale
-                                                                locale={page}
-                                                                isRequired={
-                                                                    false
+                                                    <List dense={true}>
+                                                        {this.state.editingEvent.characters.map(
+                                                            (character) => (
+                                                                <ListItem
+                                                                    key={
+                                                                        character._id
+                                                                    }
+                                                                >
+                                                                    <ListItemText
+                                                                        primary={
+                                                                            character.name
+                                                                        }
+                                                                    />
+                                                                    <RemoveCircleIcon
+                                                                        onClick={() => {
+                                                                            this.removeCharacter(
+                                                                                character._id
+                                                                            );
+                                                                            this.closeFactionList();
+                                                                        }}
+                                                                    />
+                                                                </ListItem>
+                                                            )
+                                                        )}
+                                                    </List>
+                                                </Paper>
+                                            </Grid>
+
+                                            <Grid xs={6} direction="column">
+                                                <Typography variant="h6">
+                                                    Factions{" "}
+                                                    <IconButton
+                                                        aria-label="more"
+                                                        aria-controls="long-menu"
+                                                        aria-haspopup="true"
+                                                        onClick={(event) =>
+                                                            this.openFactionList(
+                                                                event
+                                                            )
+                                                        }
+                                                    >
+                                                        <MoreVertIcon />
+                                                    </IconButton>
+                                                    <Menu
+                                                        id="long-menu"
+                                                        anchorEl={
+                                                            this.state
+                                                                .factionAnchor
+                                                        }
+                                                        keepMounted
+                                                        open={Boolean(
+                                                            this.state
+                                                                .factionAnchor
+                                                        )}
+                                                        onClose={() =>
+                                                            this.closeFactionList()
+                                                        }
+                                                        PaperProps={{
+                                                            style: {
+                                                                maxHeight:
+                                                                    ITEM_HEIGHT *
+                                                                    4.5,
+                                                                width: "20ch",
+                                                            },
+                                                        }}
+                                                    >
+                                                        {this.state.factions
+                                                            .filter(
+                                                                (faction) => {
+                                                                    return (
+                                                                        this
+                                                                            .state
+                                                                            .editingEvent
+                                                                            .dbname &&
+                                                                        faction
+                                                                            .dbname
+                                                                            ._id ===
+                                                                            this
+                                                                                .state
+                                                                                .editingEvent
+                                                                                .dbname
+                                                                                ._id
+                                                                    );
                                                                 }
-                                                                deleted={(
-                                                                    descriptionid: number
-                                                                ) =>
-                                                                    this.descriptionRemoved(
-                                                                        descriptionid
-                                                                    )
-                                                                }
-                                                                updated={(
-                                                                    descriptionid: number
-                                                                ) =>
-                                                                    this.descriptionUpdated(
-                                                                        descriptionid
-                                                                    )
-                                                                }
-                                                            />
-                                                        )
-                                                    )}
+                                                            )
+                                                            .map((faction) => (
+                                                                <MenuItem
+                                                                    key={
+                                                                        faction._id
+                                                                    }
+                                                                    selected={
+                                                                        this.state.editingEvent.factions.find(
+                                                                            (
+                                                                                f
+                                                                            ) =>
+                                                                                f._id ===
+                                                                                faction._id
+                                                                        ) !==
+                                                                        undefined
+                                                                    }
+                                                                    onClick={() => {
+                                                                        this.addFaction(
+                                                                            faction._id
+                                                                        );
+                                                                        this.closeFactionList();
+                                                                    }}
+                                                                >
+                                                                    {
+                                                                        faction.name
+                                                                    }
+                                                                </MenuItem>
+                                                            ))}
+                                                    </Menu>
+                                                </Typography>
+
+                                                <Paper
+                                                    elevation={5}
+                                                    sx={{
+                                                        height: 230,
+                                                        width: 275,
+                                                        overflow: "auto",
+                                                        margin: (theme) =>
+                                                            theme.spacing(1),
+                                                    }}
+                                                >
+                                                    <List dense={true}>
+                                                        {this.state.editingEvent.factions.map(
+                                                            (faction) => (
+                                                                <ListItem
+                                                                    key={
+                                                                        faction._id
+                                                                    }
+                                                                >
+                                                                    <ListItemText
+                                                                        primary={
+                                                                            faction.name
+                                                                        }
+                                                                    />
+                                                                    <RemoveCircleIcon
+                                                                        onClick={() => {
+                                                                            this.removeFaction(
+                                                                                faction._id
+                                                                            );
+                                                                            this.closeFactionList();
+                                                                        }}
+                                                                    />
+                                                                </ListItem>
+                                                            )
+                                                        )}
+                                                    </List>
                                                 </Paper>
                                             </Grid>
                                         </Grid>
                                     </Grid>
+
+                                    <Grid container xs={6}>
+                                        <Grid xs={12}>
+                                            <Typography
+                                                variant="subtitle2"
+                                                sx={{
+                                                    margin: (theme) =>
+                                                        theme.spacing(1),
+                                                    minWidth: 120,
+                                                }}
+                                            >
+                                                Label
+                                            </Typography>
+                                            <Locale
+                                                locale={
+                                                    this.state.editingEvent
+                                                        .label
+                                                }
+                                                isRequired={true}
+                                                updated={(labelid: number) =>
+                                                    this.labelUpdated(labelid)
+                                                }
+                                            />
+                                        </Grid>
+
+                                        <Grid xs={12}>
+                                            <Typography
+                                                variant="subtitle2"
+                                                sx={{
+                                                    margin: (theme) =>
+                                                        theme.spacing(1),
+                                                    minWidth: 120,
+                                                }}
+                                            >
+                                                Description (pages){" "}
+                                                <IconButton
+                                                    edge="start"
+                                                    color="inherit"
+                                                    onClick={() =>
+                                                        this.addDescriptionPage()
+                                                    }
+                                                    aria-label="close"
+                                                >
+                                                    <AddIcon />
+                                                </IconButton>
+                                            </Typography>
+                                            <Paper
+                                                elevation={5}
+                                                sx={{
+                                                    height: 295,
+                                                    overflow: "auto",
+                                                    margin: (theme) =>
+                                                        theme.spacing(1),
+                                                }}
+                                            >
+                                                {this.state.editingEvent.description.map(
+                                                    (page, index) => (
+                                                        <Locale
+                                                            locale={page}
+                                                            isRequired={false}
+                                                            deleted={(
+                                                                descriptionid: number
+                                                            ) =>
+                                                                this.descriptionRemoved(
+                                                                    descriptionid
+                                                                )
+                                                            }
+                                                            updated={(
+                                                                descriptionid: number
+                                                            ) =>
+                                                                this.descriptionUpdated(
+                                                                    descriptionid
+                                                                )
+                                                            }
+                                                        />
+                                                    )
+                                                )}
+                                            </Paper>
+                                        </Grid>
+                                    </Grid>
                                 </Grid>
-                            </DialogContent>
-                        </Dialog>
-                    )}
-                </Box>
+                            </Grid>
+                        </DialogContent>
+                    </Dialog>
+                )}
             </React.Fragment>
         );
     }

@@ -26,7 +26,7 @@ export class Locales extends React.Component<LocalesProps, LocalesState> {
         };
 
         try {
-            initialState.locales = dbContext.Locales.findAll();
+            initialState.locales = dbContext.Locales.findAllAlone();
         } catch (error) {
             initialState.openError = true;
             initialState.error = "Error loading locales";
@@ -40,7 +40,7 @@ export class Locales extends React.Component<LocalesProps, LocalesState> {
 
         try {
             dbContext.Locales.delete(locale._id);
-            newState.locales = this.state.locales.filter((l) => l !== locale);
+            newState.locales = dbContext.Locales.findAllAlone();
         } catch (error) {
             newState.openError = true;
             newState.error = "Error removing locale";
