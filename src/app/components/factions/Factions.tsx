@@ -369,7 +369,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
                                 <IconButton
                                     sx={{
                                         position: "absolute",
-                                        right: 32,
+                                        right: 64,
                                         top: 8,
                                         color: (theme) =>
                                             theme.palette.grey[500],

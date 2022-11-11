@@ -47,12 +47,7 @@ interface ILocaleState {
     openError: boolean;
     error: string;
 
-    selectedLocale: ISelectedLocaleItem;
-}
-
-interface ISelectedLocaleItem {
-    selected: boolean;
-    language: Language;
+    selectedLanguage: Language | null;
 }
 
 class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
@@ -70,10 +65,7 @@ class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
             openError: false,
             error: "",
 
-            selectedLocale: {
-                selected: false,
-                language: Language.enUS,
-            } as ISelectedLocaleItem,
+            selectedLanguage: null,
         };
 
         this.state = initialState;
@@ -95,10 +87,8 @@ class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
 
     selectLocale(value: string, language: Language) {
         const newState: ILocaleState = { ...this.state };
-        newState.selectedLocale = {
-            selected: true,
-            language: language,
-        } as ISelectedLocaleItem;
+
+        newState.selectedLanguage = language;
 
         this.setState(newState);
     }
@@ -106,7 +96,7 @@ class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
     changeLocale(value: string, language: Language) {
         const newState: ILocaleState = { ...this.state };
 
-        newState.locale[language] = value;
+        newState.locale[language] = value ?? "";
 
         this.setState(newState);
     }
@@ -209,7 +199,7 @@ class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
                                 onClick={() => this.save()}
                                 sx={{
                                     position: "absolute",
-                                    right: 32,
+                                    right: 64,
                                     top: 8,
                                     color: (theme) => theme.palette.grey[500],
                                 }}
@@ -231,7 +221,7 @@ class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
                                     <List dense={true}>
                                         <ListItemText
                                             primary="enUS"
-                                            secondary="Secondary text"
+                                            secondary=""
                                             onClick={() =>
                                                 this.selectLocale(
                                                     this.state.locale.enUS,
@@ -241,7 +231,7 @@ class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
                                         />
                                         <ListItemText
                                             primary="frFR"
-                                            secondary="Secondary text"
+                                            secondary=""
                                             onClick={() =>
                                                 this.selectLocale(
                                                     this.state.locale.frFR,
@@ -252,29 +242,35 @@ class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
                                     </List>
                                 </Item>
                             </Grid>
-                            <Grid xs={8}>
-                                <TextField
-                                    id="filled-multiline-static"
-                                    label="Multiline"
-                                    multiline
-                                    rows={15}
-                                    value={
-                                        this.state.locale[
-                                            this.state.selectedLocale.language
-                                        ]
-                                    }
-                                    onChange={(event) =>
-                                        this.changeLocale(
-                                            event.target.value,
-                                            this.state.selectedLocale.language
-                                        )
-                                    }
-                                    variant="filled"
-                                    sx={{
-                                        width: "100%",
-                                    }}
-                                />
-                            </Grid>
+
+                            {this.state.selectedLanguage !== null && (
+                                <Grid xs={8}>
+                                    <Typography variant="subtitle2">
+                                        {this.state.selectedLanguage.toString()}
+                                    </Typography>
+                                    <TextField
+                                        id="filled-multiline-static"
+                                        label="Multiline"
+                                        multiline
+                                        rows={15}
+                                        value={
+                                            this.state.locale[
+                                                this.state.selectedLanguage
+                                            ] ?? ""
+                                        }
+                                        onChange={(event) =>
+                                            this.changeLocale(
+                                                event.target.value,
+                                                this.state.selectedLanguage
+                                            )
+                                        }
+                                        variant="filled"
+                                        sx={{
+                                            width: "100%",
+                                        }}
+                                    />
+                                </Grid>
+                            )}
                         </Grid>
 
                         {/* <Typography variant="subtitle2">deDE</Typography>

@@ -626,7 +626,7 @@ class Events extends React.Component<EventsProps, EventsState> {
                                     }}
                                     sx={{
                                         position: "absolute",
-                                        right: 32,
+                                        right: 64,
                                         top: 8,
                                         color: (theme) =>
                                             theme.palette.grey[500],
