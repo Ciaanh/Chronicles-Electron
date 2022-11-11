@@ -35,6 +35,7 @@ function cleanString(value: string): string {
     const cleaned = value
         .replace(/(?:\r\n|\r|\n)/g, " ")
         .replace(/\s\s+/g, " ")
+        .replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, " ")
         .trim()
         .replace(/\s/g, "_")
         .substring(0, 50)

@@ -34,7 +34,7 @@ import dbContext from "../../dbContext/dbContext";
 
 import { DbName } from "../../models/dbname";
 import { getEmptyLocale } from "../../models/locale";
-import { Timelines } from "../../constants";
+import { IsUndefinedOrNull, Timelines } from "../../constants";
 import NavBar from "../NavBar";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -136,8 +136,8 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
             name: "",
             label: getEmptyLocale(),
             description: getEmptyLocale(),
-            timeline: 0,
-            dbname: dbContext.DBNames.findAll()[0],
+            timeline: -1,
+            dbname: { _id: -1, name: "" } as DbName,
         };
     }
 
@@ -219,7 +219,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
     changeDbName(dbnameId: string | number) {
         const newState: FactionsState = { ...this.state };
 
-        if (!dbnameId || dbnameId === "" || dbnameId === "undefined") {
+        if (IsUndefinedOrNull(dbnameId)) {
             newState.error = "No dbname to add";
             newState.openError = true;
         } else {
@@ -238,7 +238,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
     changeTimeline(timelineId: string | number) {
         const newState: FactionsState = { ...this.state };
 
-        if (!timelineId || timelineId === "" || timelineId === "undefined") {
+        if (IsUndefinedOrNull(timelineId)) {
             newState.error = "No timeline to add";
             newState.openError = true;
         } else {
@@ -291,6 +291,8 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
                         padding: (theme) => theme.spacing(3),
                     }}
                 >
+                    <h1>Factions</h1>
+
                     {this.state.factions.length === 0 && <NoData />}
                     {this.state.factions.map((faction) => (
                         <FactionRow
@@ -408,10 +410,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
                                             name="dbname"
                                             value={
                                                 this.state.editingFaction.dbname
-                                                    ? this.state.editingFaction
-                                                          .dbname._id
-                                                    : dbContext.DBNames.findAll()[0]
-                                                          ._id
+                                                    ?._id ?? -1
                                             }
                                             onChange={(dbname) => {
                                                 this.changeDbName(
@@ -419,6 +418,9 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
                                                 );
                                             }}
                                         >
+                                            <MenuItem value="-1" key="-1">
+                                                <em>Undefined</em>
+                                            </MenuItem>
                                             {this.state.dbnames.map(
                                                 (dbname) => (
                                                     <MenuItem
@@ -458,7 +460,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
                                                 );
                                             }}
                                         >
-                                            <MenuItem value="0" key="0">
+                                            <MenuItem value="-1" key="-1">
                                                 <em>Undefined</em>
                                             </MenuItem>
                                             {Timelines.map((timeline) => (

@@ -174,6 +174,8 @@ class DBNames extends React.Component<DBNamesProps, DBNamesState> {
                         padding: (theme) => theme.spacing(3),
                     }}
                 >
+                    <h1>DB names</h1>
+
                     <List>
                         {this.state.dbnames.map((dbname) => (
                             <ListItem key={dbname._id}>

@@ -61,19 +61,20 @@ export class Locales extends React.Component<LocalesProps, LocalesState> {
                         padding: (theme) => theme.spacing(3),
                     }}
                 >
-                    <div>
-                        <h1>Locales</h1>
-                        <ul>
-                            {this.state.locales.map((locale) => (
-                                <li key={locale._id}>
-                                    Key (estimated): {getLocaleKey(locale)}
-                                    {/* <button onClick={() => this.removeLocale(locale)}>
-                                Remove
-                            </button> */}
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
+                    <h1>Locales not used</h1>
+
+                    <ul>
+                        {this.state.locales.map((locale) => (
+                            <li key={locale._id}>
+                                Key (estimated): {getLocaleKey(locale)}
+                                <button
+                                    onClick={() => this.removeLocale(locale)}
+                                >
+                                    Remove
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
                 </Box>
             </React.Fragment>
         );

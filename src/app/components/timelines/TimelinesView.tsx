@@ -45,7 +45,7 @@ class TimelinesView extends React.Component<
         super(props);
         const initialState: TimelinesViewState = {
             events: [],
-            selected: "0",
+            selected: "-1",
             openError: false,
             error: "",
         };
@@ -96,7 +96,7 @@ class TimelinesView extends React.Component<
                                 )
                             }
                         >
-                            <MenuItem value="0" key="0">
+                            <MenuItem value="-1" key="-1">
                                 <em>Undefined</em>
                             </MenuItem>
                             {Timelines.map((timeline) => (

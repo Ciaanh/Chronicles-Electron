@@ -38,3 +38,14 @@ export enum Language {
 }
 
 export const ITEM_HEIGHT = 48;
+
+export function IsUndefinedOrNull(value: string | number): boolean {
+    return (
+        value === "" ||
+        value === null ||
+        value === undefined ||
+        value === "undefined" ||
+        value === "-1" ||
+        value === -1
+    );
+}

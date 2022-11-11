@@ -42,7 +42,12 @@ import { Faction } from "../../models/faction";
 import { DbName } from "../../models/dbname";
 import dbContext from "../../dbContext/dbContext";
 import { getEmptyLocale } from "../../models/locale";
-import { ITEM_HEIGHT, Timelines, EventTypes } from "../../constants";
+import {
+    ITEM_HEIGHT,
+    Timelines,
+    EventTypes,
+    IsUndefinedOrNull,
+} from "../../constants";
 import NavBar from "../NavBar";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -165,13 +170,13 @@ class Events extends React.Component<EventsProps, EventsState> {
             yearStart: 0,
             yearEnd: 0,
             eventType: 0,
-            timeline: 0,
+            timeline: -1,
             link: "",
             factions: [],
             characters: [],
             label: getEmptyLocale(),
             description: [],
-            dbname: dbContext.DBNames.findAll()[0],
+            dbname: { _id: -1, name: "" } as DbName,
         };
     }
 
@@ -238,7 +243,7 @@ class Events extends React.Component<EventsProps, EventsState> {
     changeDbName(dbnameId: string | number) {
         const newState: EventsState = { ...this.state };
 
-        if (!dbnameId || dbnameId === "" || dbnameId === "undefined") {
+        if (IsUndefinedOrNull(dbnameId)) {
             newState.error = "No dbname to edit";
             newState.openError = true;
         } else {
@@ -257,7 +262,7 @@ class Events extends React.Component<EventsProps, EventsState> {
     changeTimeline(timelineId: string | number) {
         const newState: EventsState = { ...this.state };
 
-        if (!timelineId || timelineId === "" || timelineId === "undefined") {
+        if (IsUndefinedOrNull(timelineId)) {
             newState.error = "No timeline to edit";
             newState.openError = true;
         } else {
@@ -537,6 +542,8 @@ class Events extends React.Component<EventsProps, EventsState> {
                         padding: (theme) => theme.spacing(3),
                     }}
                 >
+                    <h1>Events</h1>
+                    
                     {this.state.events.length === 0 && <NoData />}
                     {this.state.events.map((event) => (
                         <EventRow
@@ -667,12 +674,7 @@ class Events extends React.Component<EventsProps, EventsState> {
                                                     name="dbname"
                                                     value={
                                                         this.state.editingEvent
-                                                            .dbname
-                                                            ? this.state
-                                                                  .editingEvent
-                                                                  .dbname._id
-                                                            : dbContext.DBNames.findAll()[0]
-                                                                  ._id
+                                                            .dbname?._id ?? -1
                                                     }
                                                     onChange={(event) => {
                                                         this.changeDbName(
@@ -680,6 +682,12 @@ class Events extends React.Component<EventsProps, EventsState> {
                                                         );
                                                     }}
                                                 >
+                                                    <MenuItem
+                                                        value="-1"
+                                                        key="-1"
+                                                    >
+                                                        <em>Undefined</em>
+                                                    </MenuItem>
                                                     {this.state.dbnames.map(
                                                         (dbname) => (
                                                             <MenuItem
@@ -722,7 +730,10 @@ class Events extends React.Component<EventsProps, EventsState> {
                                                     }
                                                     variant="outlined"
                                                 >
-                                                    <MenuItem value="0" key="0">
+                                                    <MenuItem
+                                                        value="-1"
+                                                        key="-1"
+                                                    >
                                                         <em>Undefined</em>
                                                     </MenuItem>
                                                     {EventTypes.map(
@@ -772,7 +783,10 @@ class Events extends React.Component<EventsProps, EventsState> {
                                                         )
                                                     }
                                                 >
-                                                    <MenuItem value="0" key="0">
+                                                    <MenuItem
+                                                        value="-1"
+                                                        key="-1"
+                                                    >
                                                         <em>Undefined</em>
                                                     </MenuItem>
                                                     {Timelines.map(

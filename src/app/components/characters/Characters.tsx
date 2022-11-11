@@ -35,7 +35,7 @@ import CharacterRow from "./CharacterRow";
 import NoData from "../NoData";
 import Locale from "../locales/LocaleView";
 
-import { ITEM_HEIGHT, Timelines } from "../../constants";
+import { IsUndefinedOrNull, ITEM_HEIGHT, Timelines } from "../../constants";
 
 import { Character } from "../../models/character";
 import dbContext from "../../dbContext/dbContext";
@@ -169,9 +169,9 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
             name: "",
             label: getEmptyLocale(),
             biography: getEmptyLocale(),
-            timeline: 0,
+            timeline: -1,
             factions: [],
-            dbname: dbContext.DBNames.findAll()[0],
+            dbname: { _id: -1, name: "" } as DbName,
         };
     }
 
@@ -241,7 +241,7 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
     changeDbName(dbnameId: string | number) {
         const newState: CharactersState = { ...this.state };
 
-        if (!dbnameId || dbnameId === "" || dbnameId === "undefined") {
+        if (IsUndefinedOrNull(dbnameId)) {
             newState.error = "No dbname to edit";
             newState.openError = true;
         } else {
@@ -260,7 +260,7 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
     changeTimeline(timelineId: string | number) {
         const newState: CharactersState = { ...this.state };
 
-        if (!timelineId || timelineId === "" || timelineId === "undefined") {
+        if (IsUndefinedOrNull(timelineId)) {
             newState.error = "No timeline to edit";
             newState.openError = true;
         } else {
@@ -371,6 +371,8 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
                         padding: (theme) => theme.spacing(3),
                     }}
                 >
+                    <h1>Characters</h1>
+
                     {this.state.characters.length === 0 && <NoData />}
                     {this.state.characters.map((character) => (
                         <CharacterRow
@@ -491,12 +493,7 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
                                                 name="dbname"
                                                 value={
                                                     this.state.editingCharacter
-                                                        .dbname
-                                                        ? this.state
-                                                              .editingCharacter
-                                                              .dbname._id
-                                                        : dbContext.DBNames.findAll()[0]
-                                                              ._id
+                                                        .dbname?._id ?? -1
                                                 }
                                                 onChange={(event) => {
                                                     this.changeDbName(
@@ -504,6 +501,9 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
                                                     );
                                                 }}
                                             >
+                                                <MenuItem value="-1" key="-1">
+                                                    <em>Undefined</em>
+                                                </MenuItem>
                                                 {this.state.dbnames.map(
                                                     (dbname) => (
                                                         <MenuItem
@@ -540,7 +540,7 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
                                                     );
                                                 }}
                                             >
-                                                <MenuItem value="0" key="0">
+                                                <MenuItem value="-1" key="-1">
                                                     <em>Undefined</em>
                                                 </MenuItem>
                                                 {Timelines.map((timeline) => (
