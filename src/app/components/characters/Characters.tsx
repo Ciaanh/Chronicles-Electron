@@ -491,7 +491,12 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
                                                 name="dbname"
                                                 value={
                                                     this.state.editingCharacter
-                                                        .dbname._id
+                                                        .dbname
+                                                        ? this.state
+                                                              .editingCharacter
+                                                              .dbname._id
+                                                        : dbContext.DBNames.findAll()[0]
+                                                              ._id
                                                 }
                                                 onChange={(event) => {
                                                     this.changeDbName(

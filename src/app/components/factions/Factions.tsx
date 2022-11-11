@@ -408,7 +408,10 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
                                             name="dbname"
                                             value={
                                                 this.state.editingFaction.dbname
-                                                    ._id
+                                                    ? this.state.editingFaction
+                                                          .dbname._id
+                                                    : dbContext.DBNames.findAll()[0]
+                                                          ._id
                                             }
                                             onChange={(dbname) => {
                                                 this.changeDbName(

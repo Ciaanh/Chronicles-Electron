@@ -667,7 +667,12 @@ class Events extends React.Component<EventsProps, EventsState> {
                                                     name="dbname"
                                                     value={
                                                         this.state.editingEvent
-                                                            .dbname._id
+                                                            .dbname
+                                                            ? this.state
+                                                                  .editingEvent
+                                                                  .dbname._id
+                                                            : dbContext.DBNames.findAll()[0]
+                                                                  ._id
                                                     }
                                                     onChange={(event) => {
                                                         this.changeDbName(
