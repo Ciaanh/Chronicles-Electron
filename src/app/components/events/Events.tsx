@@ -94,15 +94,25 @@ class Events extends React.Component<EventsProps, EventsState> {
             openError: false,
             error: "",
         };
-        try {
-            const events = dbContext.Events.findAll();
-            initialState.events = events;
-        } catch (error) {
-            initialState.openError = true;
-            initialState.error = "Error loading events";
-        }
 
         this.state = initialState;
+    }
+
+    componentDidMount() {
+        const newState: EventsState = {
+            ...this.state,
+        };
+
+        try {
+            newState.characters = dbContext.Characters.findAll();
+            newState.factions = dbContext.Factions.findAll();
+            newState.events = dbContext.Events.findAll();
+        } catch (error) {
+            newState.openError = true;
+            newState.error = "Error loading data";
+        }
+
+        this.setState(newState);
     }
 
     showError(error: string) {
@@ -169,7 +179,7 @@ class Events extends React.Component<EventsProps, EventsState> {
             name: "",
             yearStart: 0,
             yearEnd: 0,
-            eventType: 0,
+            eventType: -1,
             timeline: -1,
             link: "",
             factions: [],
@@ -280,7 +290,7 @@ class Events extends React.Component<EventsProps, EventsState> {
     changeEventType(eventTypeId: string | number) {
         const newState: EventsState = { ...this.state };
 
-        if (!eventTypeId || eventTypeId === "" || eventTypeId === "undefined") {
+        if (IsUndefinedOrNull(eventTypeId)) {
             newState.error = "No eventType to edit";
             newState.openError = true;
         } else {
@@ -323,7 +333,12 @@ class Events extends React.Component<EventsProps, EventsState> {
         const newState: EventsState = { ...this.state };
         if (newState.editingEvent) {
             const yearStartValue = parseInt(yearStart.toString());
-            newState.editingEvent.yearStart = yearStartValue;
+
+            if (isNaN(yearStartValue)) {
+                newState.editingEvent.yearStart = null;
+            } else {
+                newState.editingEvent.yearStart = yearStartValue;
+            }
         } else {
             newState.error = "No event to edit";
             newState.openError = true;
@@ -335,7 +350,12 @@ class Events extends React.Component<EventsProps, EventsState> {
         const newState: EventsState = { ...this.state };
         if (newState.editingEvent) {
             const yearEndValue = parseInt(yearEnd.toString());
-            newState.editingEvent.yearEnd = yearEndValue;
+
+            if (isNaN(yearEndValue)) {
+                newState.editingEvent.yearEnd = null;
+            } else {
+                newState.editingEvent.yearEnd = yearEndValue;
+            }
         } else {
             newState.error = "No event to edit";
             newState.openError = true;
@@ -364,23 +384,23 @@ class Events extends React.Component<EventsProps, EventsState> {
     addCharacter(characterId: string | number) {
         const newState: EventsState = { ...this.state };
 
-        if (!characterId || characterId === "" || characterId === "undefined") {
-            newState.error = "No faction to add";
+        if (IsUndefinedOrNull(characterId)) {
+            newState.error = "No character to add";
             newState.openError = true;
         } else {
             const characterIdValue = parseInt(characterId.toString());
             if (newState.editingEvent) {
                 if (
-                    !newState.editingEvent.factions.find(
-                        (faction) => faction._id === characterIdValue
+                    !newState.editingEvent.characters.find(
+                        (character) => character._id === characterIdValue
                     )
                 ) {
-                    newState.editingEvent.factions.push(
-                        dbContext.Factions.findById(characterIdValue)
+                    newState.editingEvent.characters.push(
+                        dbContext.Characters.findById(characterIdValue)
                     );
                 }
             } else {
-                newState.error = "No character to edit";
+                newState.error = "No event to edit";
                 newState.openError = true;
             }
         }
@@ -390,18 +410,18 @@ class Events extends React.Component<EventsProps, EventsState> {
     removeCharacter(characterId: string | number) {
         const newState: EventsState = { ...this.state };
 
-        if (!characterId || characterId === "" || characterId === "undefined") {
-            newState.error = "No faction to remove";
+        if (IsUndefinedOrNull(characterId)) {
+            newState.error = "No character to remove";
             newState.openError = true;
         } else {
             const characterIdValue = parseInt(characterId.toString());
             if (newState.editingEvent) {
-                newState.editingEvent.factions =
-                    newState.editingEvent.factions.filter(
-                        (faction) => faction._id !== characterIdValue
+                newState.editingEvent.characters =
+                    newState.editingEvent.characters.filter(
+                        (character) => character._id !== characterIdValue
                     );
             } else {
-                newState.error = "No character to edit";
+                newState.error = "No event to edit";
                 newState.openError = true;
             }
         }
@@ -429,7 +449,7 @@ class Events extends React.Component<EventsProps, EventsState> {
     addFaction(factionId: string | number) {
         const newState: EventsState = { ...this.state };
 
-        if (!factionId || factionId === "" || factionId === "undefined") {
+        if (IsUndefinedOrNull(factionId)) {
             newState.error = "No faction to add";
             newState.openError = true;
         } else {
@@ -445,7 +465,7 @@ class Events extends React.Component<EventsProps, EventsState> {
                     );
                 }
             } else {
-                newState.error = "No character to edit";
+                newState.error = "No event to edit";
                 newState.openError = true;
             }
         }
@@ -455,7 +475,7 @@ class Events extends React.Component<EventsProps, EventsState> {
     removeFaction(factionId: string | number) {
         const newState: EventsState = { ...this.state };
 
-        if (!factionId || factionId === "" || factionId === "undefined") {
+        if (IsUndefinedOrNull(factionId)) {
             newState.error = "No faction to remove";
             newState.openError = true;
         } else {
@@ -466,7 +486,7 @@ class Events extends React.Component<EventsProps, EventsState> {
                         (faction) => faction._id !== factionIdValue
                     );
             } else {
-                newState.error = "No character to edit";
+                newState.error = "No event to edit";
                 newState.openError = true;
             }
         }
@@ -753,11 +773,7 @@ class Events extends React.Component<EventsProps, EventsState> {
                                                                     eventType.id
                                                                 }
                                                             >
-                                                                <em>
-                                                                    {
-                                                                        eventType.name
-                                                                    }
-                                                                </em>
+                                                                {eventType.name}
                                                             </MenuItem>
                                                         )
                                                     )}
@@ -880,7 +896,7 @@ class Events extends React.Component<EventsProps, EventsState> {
                                                 }}
                                                 value={
                                                     this.state.editingEvent
-                                                        .yearStart
+                                                        .yearStart ?? ""
                                                 }
                                                 onChange={(yearStart) =>
                                                     this.changeYearStart(
@@ -901,7 +917,7 @@ class Events extends React.Component<EventsProps, EventsState> {
                                                 }}
                                                 value={
                                                     this.state.editingEvent
-                                                        .yearEnd
+                                                        .yearEnd ?? ""
                                                 }
                                                 onChange={(yearEnd) =>
                                                     this.changeYearEnd(
@@ -945,7 +961,7 @@ class Events extends React.Component<EventsProps, EventsState> {
                                                                 .characterAnchor
                                                         )}
                                                         onClose={() =>
-                                                            this.closeFactionList()
+                                                            this.closeCharacterList()
                                                         }
                                                         PaperProps={{
                                                             elevation: 12,
@@ -996,7 +1012,7 @@ class Events extends React.Component<EventsProps, EventsState> {
                                                                             this.addCharacter(
                                                                                 character._id
                                                                             );
-                                                                            this.closeFactionList();
+                                                                            this.closeCharacterList();
                                                                         }}
                                                                     >
                                                                         {

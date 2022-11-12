@@ -7,8 +7,8 @@ import { DbObject } from "neutron-db/lib/types";
 
 export interface Event extends Dto {
     name: string;
-    yearStart: number;
-    yearEnd: number;
+    yearStart: number | null;
+    yearEnd: number | null;
     eventType: number;
     timeline: number;
     link: string;

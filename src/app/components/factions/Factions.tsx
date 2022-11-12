@@ -67,21 +67,23 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
             openError: false,
             error: "",
         };
-        try {
-            const factions = dbContext.Factions.findAll();
-            initialState.factions = factions;
-        } catch (error) {
-            initialState.openError = true;
-            initialState.error = "Error loading factions";
-        }
 
         this.state = initialState;
     }
 
+    componentDidMount() {
+        const newState = { ...this.state };
+        try {
+            newState.factions = dbContext.Factions.findAll();
+        } catch (error) {
+            newState.openError = true;
+            newState.error = "Error loading factions";
+        }
+        this.setState(newState);
+    }
+
     showError(error: string) {
-        const newState: FactionsState = {
-            ...this.state,
-        };
+        const newState = { ...this.state };
 
         newState.openError = true;
         newState.error = error;
@@ -90,7 +92,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
     }
 
     showCreate() {
-        const newState: FactionsState = { ...this.state };
+        const newState = { ...this.state };
 
         newState.edit = false;
         newState.create = true;
@@ -100,7 +102,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
     }
 
     factionDetails(factionid: number) {
-        const newState: FactionsState = { ...this.state };
+        const newState = { ...this.state };
 
         const faction = dbContext.Factions.findById(factionid);
 
@@ -120,7 +122,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
     }
 
     closeDialog() {
-        const newState: FactionsState = { ...this.state };
+        const newState = { ...this.state };
 
         newState.edit = false;
         newState.create = false;
@@ -142,14 +144,14 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
     }
 
     closeError() {
-        const newState: FactionsState = { ...this.state };
+        const newState = { ...this.state };
         newState.openError = false;
         newState.error = "";
         this.setState(newState);
     }
 
     factionDeleted(factionid: number) {
-        const newState: FactionsState = {
+        const newState = {
             ...this.state,
         };
 
@@ -166,7 +168,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
     create(factionToEdit: Faction) {
         try {
             const newFaction = dbContext.Factions.create(factionToEdit);
-            const newState: FactionsState = {
+            const newState = {
                 ...this.state,
             };
 
@@ -184,7 +186,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
     update(factionToEdit: Faction) {
         try {
             const newFaction = dbContext.Factions.update(factionToEdit);
-            const newState: FactionsState = {
+            const newState = {
                 ...this.state,
             };
 
@@ -206,7 +208,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
     }
 
     changeName(name: string) {
-        const newState: FactionsState = { ...this.state };
+        const newState = { ...this.state };
         if (newState.editingFaction) {
             newState.editingFaction.name = name;
         } else {
@@ -217,7 +219,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
     }
 
     changeDbName(dbnameId: string | number) {
-        const newState: FactionsState = { ...this.state };
+        const newState = { ...this.state };
 
         if (IsUndefinedOrNull(dbnameId)) {
             newState.error = "No dbname to add";
@@ -236,7 +238,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
     }
 
     changeTimeline(timelineId: string | number) {
-        const newState: FactionsState = { ...this.state };
+        const newState = { ...this.state };
 
         if (IsUndefinedOrNull(timelineId)) {
             newState.error = "No timeline to add";
@@ -256,7 +258,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
     descriptionUpdated(localeId: number) {
         const updatedLocale = dbContext.Locales.findById(localeId);
 
-        const newState: FactionsState = { ...this.state };
+        const newState = { ...this.state };
         if (newState.editingFaction) {
             newState.editingFaction.description = updatedLocale;
         } else {
@@ -269,7 +271,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
     labelUpdated(localeId: number) {
         const updatedLocale = dbContext.Locales.findById(localeId);
 
-        const newState: FactionsState = { ...this.state };
+        const newState = { ...this.state };
         if (newState.editingFaction) {
             newState.editingFaction.label = updatedLocale;
         } else {
@@ -468,7 +470,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
                                                     key={timeline.id}
                                                     value={timeline.id}
                                                 >
-                                                    <em>{timeline.name}</em>
+                                                    {timeline.name}
                                                 </MenuItem>
                                             ))}
                                         </Select>

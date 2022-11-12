@@ -81,20 +81,26 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
             error: "",
         };
 
-        try {
-            initialState.characters = dbContext.Characters.findAll();
-            initialState.dbnames = dbContext.DBNames.findAll();
-            initialState.factions = dbContext.Factions.findAll();
-        } catch (error) {
-            initialState.openError = true;
-            initialState.error = "Error loading characters";
-        }
-
         this.state = initialState;
     }
 
+    componentDidMount() {
+        const newState = {
+            ...this.state,
+        };
+        try {
+            newState.characters = dbContext.Characters.findAll();
+            newState.dbnames = dbContext.DBNames.findAll();
+            newState.factions = dbContext.Factions.findAll();
+        } catch (error) {
+            newState.openError = true;
+            newState.error = "Error loading characters";
+        }
+        this.setState(newState);
+    }
+
     openFactionList(event: any) {
-        const newState: CharactersState = {
+        const newState = {
             ...this.state,
         };
 
@@ -104,7 +110,7 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
     }
 
     closeFactionList() {
-        const newState: CharactersState = {
+        const newState = {
             ...this.state,
         };
 
@@ -114,7 +120,7 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
     }
 
     showError(error: string) {
-        const newState: CharactersState = { ...this.state };
+        const newState = { ...this.state };
 
         newState.openError = true;
         newState.error = error;
@@ -123,14 +129,14 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
     }
 
     closeError() {
-        const newState: CharactersState = { ...this.state };
+        const newState = { ...this.state };
         newState.openError = false;
         newState.error = "";
         this.setState(newState);
     }
 
     characterDetails(characterid: number) {
-        const newState: CharactersState = { ...this.state };
+        const newState = { ...this.state };
 
         const character = dbContext.Characters.findById(characterid);
         if (character) {
@@ -150,7 +156,7 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
     }
 
     characterDeleted(characterid: number) {
-        const newState: CharactersState = { ...this.state };
+        const newState = { ...this.state };
 
         const index = newState.characters.findIndex(
             (character) => character._id === characterid
@@ -176,7 +182,7 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
     }
 
     showCreate() {
-        const newState: CharactersState = { ...this.state };
+        const newState = { ...this.state };
 
         newState.edit = false;
         newState.create = true;
@@ -186,7 +192,7 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
     }
 
     closeDialog() {
-        const newState: CharactersState = { ...this.state };
+        const newState = { ...this.state };
 
         newState.edit = false;
         newState.create = false;
@@ -198,7 +204,7 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
     create(characterToEdit: Character) {
         try {
             const newCharacter = dbContext.Characters.create(characterToEdit);
-            const newState: CharactersState = {
+            const newState = {
                 ...this.state,
             };
 
@@ -217,7 +223,7 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
     update(characterToEdit: Character) {
         try {
             const newCharacter = dbContext.Characters.update(characterToEdit);
-            const newState: CharactersState = {
+            const newState = {
                 ...this.state,
             };
 
@@ -239,7 +245,7 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
     }
 
     changeDbName(dbnameId: string | number) {
-        const newState: CharactersState = { ...this.state };
+        const newState = { ...this.state };
 
         if (IsUndefinedOrNull(dbnameId)) {
             newState.error = "No dbname to edit";
@@ -258,7 +264,7 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
     }
 
     changeTimeline(timelineId: string | number) {
-        const newState: CharactersState = { ...this.state };
+        const newState = { ...this.state };
 
         if (IsUndefinedOrNull(timelineId)) {
             newState.error = "No timeline to edit";
@@ -276,7 +282,7 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
     }
 
     changeName(name: string) {
-        const newState: CharactersState = { ...this.state };
+        const newState = { ...this.state };
         if (newState.editingCharacter) {
             newState.editingCharacter.name = name;
         } else {
@@ -289,7 +295,7 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
     labelUpdated(localeId: number) {
         const updatedLocale = dbContext.Locales.findById(localeId);
 
-        const newState: CharactersState = { ...this.state };
+        const newState = { ...this.state };
         if (newState.editingCharacter) {
             newState.editingCharacter.label = updatedLocale;
         } else {
@@ -302,7 +308,7 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
     biographyUpdated(localeId: number) {
         const updatedLocale = dbContext.Locales.findById(localeId);
 
-        const newState: CharactersState = { ...this.state };
+        const newState = { ...this.state };
         if (newState.editingCharacter) {
             newState.editingCharacter.biography = updatedLocale;
         } else {
@@ -313,9 +319,9 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
     }
 
     addFaction(factionId: string | number) {
-        const newState: CharactersState = { ...this.state };
+        const newState = { ...this.state };
 
-        if (!factionId || factionId === "" || factionId === "undefined") {
+        if (IsUndefinedOrNull(factionId)) {
             newState.error = "No faction to add";
             newState.openError = true;
         } else {
@@ -339,9 +345,9 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
     }
 
     removeFaction(factionId: string | number) {
-        const newState: CharactersState = { ...this.state };
+        const newState = { ...this.state };
 
-        if (!factionId || factionId === "" || factionId === "undefined") {
+        if (IsUndefinedOrNull(factionId)) {
             newState.error = "No faction to remove";
             newState.openError = true;
         } else {
@@ -548,7 +554,7 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
                                                         key={timeline.id}
                                                         value={timeline.id}
                                                     >
-                                                        <em>{timeline.name}</em>
+                                                        {timeline.name}
                                                     </MenuItem>
                                                 ))}
                                             </Select>

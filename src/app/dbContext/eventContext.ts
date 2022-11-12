@@ -80,8 +80,8 @@ export const EventMapper = (event: Event): DB_Event => {
     return {
         id: event._id,
         name: event.name,
-        yearStart: event.yearStart,
-        yearEnd: event.yearEnd,
+        yearStart: event.yearStart ?? 0,
+        yearEnd: event.yearEnd ?? 0,
         eventType: event.eventType,
         timeline: event.timeline,
         link: event.link,
