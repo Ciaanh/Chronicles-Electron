@@ -67,6 +67,7 @@ export const Characters: CharacterContext = {
 };
 
 export const CharacterMapper = (character: Character): DB_Character => {
+    if (!character) return null;
     return {
         id: character._id,
         name: character.name,
@@ -79,6 +80,7 @@ export const CharacterMapper = (character: Character): DB_Character => {
 };
 
 export const CharacterMapperFromDB = (character: DB_Character): Character => {
+    if (!character) return null;
     return {
         _id: character.id,
         name: character.name,

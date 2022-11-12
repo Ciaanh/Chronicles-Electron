@@ -507,24 +507,31 @@ class Events extends React.Component<EventsProps, EventsState> {
                     (description) => description._id === updatedLocale._id
                 );
 
-            newState.editingEvent.description[descriptionIndex] = updatedLocale;
+            if (descriptionIndex >= 0) {
+                newState.editingEvent.description[descriptionIndex] =
+                    updatedLocale;
+            } else {
+                newState.editingEvent.description =
+                    newState.editingEvent.description.filter(
+                        (description) => description._id !== -1
+                    );
+                newState.editingEvent.description.push(updatedLocale);
+            }
         } else {
-            newState.error = "No character to edit";
+            newState.error = "No event to edit";
             newState.openError = true;
         }
         this.setState(newState);
     }
     descriptionRemoved(localeId: number) {
-        const updatedLocale = dbContext.Locales.findById(localeId);
-
         const newState: EventsState = { ...this.state };
         if (newState.editingEvent) {
-            newState.editingEvent.label = updatedLocale;
-            newState.events.filter(
-                (event) => event._id === newState.editingEvent._id
-            )[0].label = updatedLocale;
+            newState.editingEvent.description =
+                newState.editingEvent.description.filter(
+                    (description) => description._id !== localeId
+                );
         } else {
-            newState.error = "No character to edit";
+            newState.error = "No event to edit";
             newState.openError = true;
         }
         this.setState(newState);
@@ -543,7 +550,7 @@ class Events extends React.Component<EventsProps, EventsState> {
                     }}
                 >
                     <h1>Events</h1>
-                    
+
                     {this.state.events.length === 0 && <NoData />}
                     {this.state.events.map((event) => (
                         <EventRow
@@ -1223,6 +1230,7 @@ class Events extends React.Component<EventsProps, EventsState> {
                                                 {this.state.editingEvent.description.map(
                                                     (page, index) => (
                                                         <Locale
+                                                            key={index}
                                                             locale={page}
                                                             isRequired={false}
                                                             deleted={(

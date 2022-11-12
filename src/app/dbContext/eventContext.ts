@@ -76,6 +76,7 @@ export const Events: EventContext = {
 };
 
 export const EventMapper = (event: Event): DB_Event => {
+    if (!event) return null;
     return {
         id: event._id,
         name: event.name,
@@ -93,6 +94,7 @@ export const EventMapper = (event: Event): DB_Event => {
 };
 
 export const EventMapperFromDB = (event: DB_Event): Event => {
+    if (!event) return null;
     return {
         _id: event.id,
         name: event.name,

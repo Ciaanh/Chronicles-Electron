@@ -54,6 +54,7 @@ export const DBNames: DBNameContext = {
 };
 
 export const DbNameMapper = (dbname: DbName): DB_DbName => {
+    if (!dbname) return null;
     return {
         id: dbname._id,
         name: dbname.name,
@@ -61,6 +62,7 @@ export const DbNameMapper = (dbname: DbName): DB_DbName => {
 };
 
 export const DbNameMapperFromDB = (dbname: DB_DbName): DbName => {
+    if (!dbname) return null;
     return {
         _id: dbname.id,
         name: dbname.name,

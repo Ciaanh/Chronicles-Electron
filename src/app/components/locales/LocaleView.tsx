@@ -102,13 +102,15 @@ class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
     }
 
     delete(localeId: number) {
-        const newState: ILocaleState = { ...this.state };
-        newState.open = false;
+        if (localeId !== -1 && localeId !== null) {
+            const newState: ILocaleState = { ...this.state };
+            newState.open = false;
 
-        dbContext.Locales.delete(localeId);
-        this.props.deleted(localeId);
+            dbContext.Locales.delete(localeId);
+            this.props.deleted(localeId);
 
-        this.setState(newState);
+            this.setState(newState);
+        }
     }
 
     save() {

@@ -89,6 +89,7 @@ export const Locales: LocaleContext = {
 };
 
 export const LocaleMapper = (locale: Locale): DB_Locale => {
+    if (!locale) return null;
     return {
         id: locale._id,
         enUS: locale.enUS,
@@ -107,6 +108,7 @@ export const LocaleMapper = (locale: Locale): DB_Locale => {
 };
 
 export const LocaleMapperFromDB = (locale: DB_Locale): Locale => {
+    if (!locale) return null;
     return {
         _id: locale.id,
         enUS: locale.enUS,

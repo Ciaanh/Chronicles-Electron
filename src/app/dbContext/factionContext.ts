@@ -83,6 +83,7 @@ export const Factions: FactionContext = {
 };
 
 export const FactionMapper = (faction: Faction): DB_Faction => {
+    if (!faction) return null;
     return {
         id: faction._id,
         name: faction.name,
@@ -94,6 +95,7 @@ export const FactionMapper = (faction: Faction): DB_Faction => {
 };
 
 export const FactionMapperFromDB = (faction: DB_Faction): Faction => {
+    if (!faction) return null;
     return {
         _id: faction.id,
         name: faction.name,
