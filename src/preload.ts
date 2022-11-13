@@ -23,49 +23,12 @@ export interface DatabaseApi {
     add<T extends DbObject>(row: T, dbName: string): T;
     update<T extends DbObject>(row: T, dbName: string): T;
     delete(id: number, dbName: string): void;
+
+    isDbInitialized(): boolean;
+    initdb(chooseLocation: boolean): void;
 }
 
-const initDB = () => {
-    const blanck = "about:blank";
-    if (location.href === blanck) {
-        return null;
-    }
-
-    const tableNames: TablesList = {
-        events: "events",
-        characters: "characters",
-        factions: "factions",
-        dbnames: "dbnames",
-        locales: "locales",
-    };
-
-    const dirpath = remote.dialog.showOpenDialogSync({
-        title: "Select the path of the database",
-        defaultPath: "C:\\",
-        buttonLabel: "Select",
-        properties: ["openDirectory", "promptToCreate", "dontAddToRecent"],
-    });
-
-    if (dirpath === undefined || dirpath.length === 0) {
-        dirpath[0] = "C:\\ChroniclesDB";
-    }
-
-    const dbSchema: Schema = {
-        dbname: "ChroniclesDB",
-        tables: [
-            tableNames.events,
-            tableNames.characters,
-            tableNames.factions,
-            tableNames.dbnames,
-            tableNames.locales,
-        ],
-        location: dirpath[0],
-    };
-
-    return new Database(dbSchema);
-};
-
-const db = initDB();
+let db: Database | null = null;
 
 const databaseApi: DatabaseApi = {
     tables: {
@@ -94,6 +57,65 @@ const databaseApi: DatabaseApi = {
 
     delete(id: number, dbName: string): void {
         db.delete(id, dbName);
+    },
+
+    isDbInitialized(): boolean {
+        return db !== null;
+    },
+
+    initdb(chooseLocation: boolean): void {
+        const blanck = "about:blank";
+        if (location.href === blanck) {
+            return null;
+        }
+
+        const tableNames: TablesList = {
+            events: "events",
+            characters: "characters",
+            factions: "factions",
+            dbnames: "dbnames",
+            locales: "locales",
+        };
+
+        let dbpath: string = null;
+
+        console.log(__dirname);
+        console.log(remote.app.getAppPath());
+
+        if (chooseLocation) {
+            const dirpath = remote.dialog.showOpenDialogSync({
+                title: "Select the path of the database",
+                defaultPath: "C:\\",
+                buttonLabel: "Select",
+                properties: [
+                    "openDirectory",
+                    "promptToCreate",
+                    "dontAddToRecent",
+                ],
+            });
+
+            dbpath = dirpath[0];
+        } else {
+            dbpath = null;
+        }
+
+        if (dbpath === undefined || dbpath.length === 0) {
+            dbpath = "C:\\ChroniclesDB";
+        }
+
+        const dbSchema: Schema = {
+            dbname: "ChroniclesDB",
+            tables: [
+                tableNames.events,
+                tableNames.characters,
+                tableNames.factions,
+                tableNames.dbnames,
+                tableNames.locales,
+            ],
+            location: dbpath[0],
+        };
+
+        db = new Database(dbSchema);
     },
 };
 

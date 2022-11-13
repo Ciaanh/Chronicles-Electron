@@ -2,7 +2,7 @@ import React from "react";
 import * as ReactDOMClient from "react-dom/client";
 import { Route, HashRouter, Routes } from "react-router-dom";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { Box, CssBaseline, ThemeOptions } from "@mui/material";
+import { Box, Button, CssBaseline, ThemeOptions } from "@mui/material";
 
 import NavBar from "./components/NavBar";
 import Home from "./components/Home";
@@ -49,65 +49,90 @@ const themeOptions: ThemeOptions = {
 
 const theme = createTheme(themeOptions);
 
-// https://bareynol.github.io/mui-theme-creator/
-
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface AppProps {}
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface AppState {}
+interface AppState {
+    dbInitialized: boolean;
+}
 class App extends React.Component<AppProps, AppState> {
     constructor(props: AppProps) {
         super(props);
+
+        this.state = {
+            dbInitialized: false,
+        };
     }
 
-    async componentDidMount() {
-        // https://blog.totominc.io/blog/how-to-handle-electron-ipc-events-with-typescript
-        // to check
-        // https://stackoverflow.com/questions/66152989/contextbridge-exposeinmainworld-and-ipc-with-typescript-in-electron-app-cannot
-        // if (window.database) {
-        //     window.database.initDB();
-        // } else {
-        //     console.log("window.database is undefined");
-        // }
+    initDb(chooseLocation: boolean) {
+        if (!window.database.isDbInitialized()) {
+            window.database.initdb(chooseLocation);
+        }
+        this.setState({ dbInitialized: true });
     }
 
     render() {
         return (
             <ThemeProvider theme={theme}>
-                <Box
-                    sx={{
-                        display: "flex",
-                    }}
-                >
-                    <CssBaseline />
+                {this.state.dbInitialized ? (
+                    <Box
+                        sx={{
+                            display: "flex",
+                        }}
+                    >
+                        <CssBaseline />
 
-                    <HashRouter>
-                        <Routes>
-                            <Route path="/" element={<Home />} />
+                        <HashRouter>
+                            <Routes>
+                                <Route path="/" element={<Home />} />
 
-                            <Route
-                                path="/timelines"
-                                element={<TimelinesView />}
-                            />
+                                <Route
+                                    path="/timelines"
+                                    element={<TimelinesView />}
+                                />
 
-                            <Route path="/events" element={<Events />} />
+                                <Route path="/events" element={<Events />} />
 
-                            <Route
-                                path="/characters"
-                                element={<Characters />}
-                            />
+                                <Route
+                                    path="/characters"
+                                    element={<Characters />}
+                                />
 
-                            <Route path="/factions" element={<Factions />} />
+                                <Route
+                                    path="/factions"
+                                    element={<Factions />}
+                                />
 
-                            <Route path="/locales" element={<Locales />} />
+                                <Route path="/locales" element={<Locales />} />
 
-                            <Route path="/dbname" element={<DBNames />} />
+                                <Route path="/dbname" element={<DBNames />} />
 
-                            <Route path="/addon" element={<Addon />} />
-                        </Routes>
-                    </HashRouter>
-                </Box>
+                                <Route path="/addon" element={<Addon />} />
+                            </Routes>
+                        </HashRouter>
+                    </Box>
+                ) : (
+                    <Box
+                        sx={{
+                            display: "flex",
+                        }}
+                    >
+                        <CssBaseline />
+
+                        <Button
+                            variant="contained"
+                            onClick={() => this.initDb(false)}
+                        >
+                            Init DB
+                        </Button>
+                        <Button
+                            variant="outlined"
+                            onClick={() => this.initDb(true)}
+                        >
+                            Choose DB path
+                        </Button>
+                    </Box>
+                )}
             </ThemeProvider>
         );
     }
