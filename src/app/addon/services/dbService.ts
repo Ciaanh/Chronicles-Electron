@@ -5,6 +5,12 @@ import { FileContent } from "../fileContent";
 import { FileGenerationRequest, FormatedDbName } from "../generator";
 import { getLocaleKey } from "../../models/locale";
 import { TypeName } from "../../constants";
+import { DbName } from "../../models/dbname";
+
+interface DepsAccumulator<T> {
+    dbname: DbName;
+    list: T[];
+}
 
 export class DBService {
     Generate(request: FileGenerationRequest) {
@@ -44,7 +50,9 @@ export class DBService {
             const eventDbContent = `${this.dbHeader}
 
     ${dbName} = {
-        ${filteredEvents.map(this.MapEventContent).join(",\n        ")}
+        ${filteredEvents
+            .map((event) => this.MapEventContent(event))
+            .join(",\n        ")}
     }`;
 
             return {
@@ -67,10 +75,69 @@ export class DBService {
 			eventType=${event.eventType},
 			timeline=${event.timeline},
 			-- date=[integer],
-			characters={${event.characters.map((char) => char._id).join(", ")}},
-            factions={${event.factions.map((fac) => fac._id).join(", ")}},
+			characters={${this.MapCharacterList(event)}},
+            factions={${this.MapFactionList(event)}},
 		}`;
         return eventContent;
+    }
+
+    private MapFactionList(event: Event): string {
+        const factionsByDB = event.factions.reduce(
+            (acc: DepsAccumulator<Faction>[], faction: Faction) => {
+                const db = faction.dbname;
+
+                if (!acc[db._id]) {
+                    acc[db._id] = {
+                        dbname: db,
+                        list: [],
+                    } as DepsAccumulator<Faction>;
+                }
+                acc[db._id].list.push(faction);
+                return acc;
+            },
+            []
+        );
+
+        const formatedDepsData = factionsByDB.map((deps) => {
+            const lowerDbName = deps.dbname.name.toLowerCase();
+
+            const factionIds = deps.list
+                .map((faction) => faction._id)
+                .join(", ");
+
+            return `["${lowerDbName}"] = {${factionIds}}`;
+        });
+
+        return formatedDepsData.join(", ");
+    }
+    private MapCharacterList(event: Event): string {
+        const charactersByDB = event.characters.reduce(
+            (acc: DepsAccumulator<Character>[], character: Character) => {
+                const db = character.dbname;
+
+                if (!acc[db._id]) {
+                    acc[db._id] = {
+                        dbname: db,
+                        list: [],
+                    } as DepsAccumulator<Character>;
+                }
+                acc[db._id].list.push(character);
+                return acc;
+            },
+            []
+        );
+
+        const formatedDepsData = charactersByDB.map((deps) => {
+            const lowerDbName = deps.dbname.name.toLowerCase();
+
+            const characterIds = deps.list
+                .map((character) => character._id)
+                .join(", ");
+
+            return `["${lowerDbName}"] = {${characterIds}}`;
+        });
+
+        return formatedDepsData.join(", ");
     }
 
     private CreateFactionDbFile(request: FileGenerationRequest) {
