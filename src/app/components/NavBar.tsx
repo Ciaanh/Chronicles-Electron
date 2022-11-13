@@ -139,7 +139,7 @@ class NavBar extends React.Component {
                                 <ListItemIcon>
                                     <MoreVertIcon />
                                 </ListItemIcon>
-                                <ListItemText primary="Locales" />
+                                <ListItemText primary="Locales cleanup" />
                             </ListItem>
                         </NavLink>
 

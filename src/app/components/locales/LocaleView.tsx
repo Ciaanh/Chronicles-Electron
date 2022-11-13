@@ -11,6 +11,7 @@ import {
     TextField,
     List,
     ListItemText,
+    Checkbox,
 } from "@mui/material";
 
 import Grid from "@mui/material/Unstable_Grid2";
@@ -213,7 +214,7 @@ class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
                     <DialogContent dividers>
                         <Grid
                             container
-                            spacing={0.5}
+                            spacing={1}
                             sx={{
                                 minWidth: 800,
                             }}
@@ -244,35 +245,67 @@ class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
                                     </List>
                                 </Item>
                             </Grid>
+                            <Grid xs={8} container spacing={1}>
+                                {this.state.selectedLanguage !== null && (
+                                    <React.Fragment>
+                                        <Grid xs={6}>
+                                            <Typography variant="subtitle2">
+                                                {this.state.selectedLanguage.toString()}
+                                            </Typography>
+                                        </Grid>
 
-                            {this.state.selectedLanguage !== null && (
-                                <Grid xs={8}>
-                                    <Typography variant="subtitle2">
-                                        {this.state.selectedLanguage.toString()}
-                                    </Typography>
-                                    <TextField
-                                        id="filled-multiline-static"
-                                        label="Multiline"
-                                        multiline
-                                        rows={15}
-                                        value={
-                                            this.state.locale[
-                                                this.state.selectedLanguage
-                                            ] ?? ""
-                                        }
-                                        onChange={(event) =>
-                                            this.changeLocale(
-                                                event.target.value,
-                                                this.state.selectedLanguage
-                                            )
-                                        }
-                                        variant="filled"
-                                        sx={{
-                                            width: "100%",
-                                        }}
-                                    />
-                                </Grid>
-                            )}
+                                        <Grid xs={6}>
+                                            <Typography variant="subtitle2">
+                                                Is HTML ?
+                                            </Typography>
+                                            <Checkbox
+                                                checked={
+                                                    this.state.locale.ishtml
+                                                }
+                                                tabIndex={-1}
+                                                disableRipple
+                                                onChange={(event) => {
+                                                    const newState: ILocaleState =
+                                                        {
+                                                            ...this.state,
+                                                        };
+
+                                                    newState.locale.ishtml =
+                                                        event.target.checked;
+
+                                                    this.setState(newState);
+                                                }}
+                                            />
+                                        </Grid>
+
+                                        <Grid xs={12}>
+                                            <TextField
+                                                id="filled-multiline-static"
+                                                label="Multiline"
+                                                multiline
+                                                rows={15}
+                                                value={
+                                                    this.state.locale[
+                                                        this.state
+                                                            .selectedLanguage
+                                                    ] ?? ""
+                                                }
+                                                onChange={(event) =>
+                                                    this.changeLocale(
+                                                        event.target.value,
+                                                        this.state
+                                                            .selectedLanguage
+                                                    )
+                                                }
+                                                variant="filled"
+                                                sx={{
+                                                    width: "100%",
+                                                }}
+                                            />
+                                        </Grid>
+                                    </React.Fragment>
+                                )}
+                            </Grid>
                         </Grid>
 
                         {/* <Typography variant="subtitle2">deDE</Typography>

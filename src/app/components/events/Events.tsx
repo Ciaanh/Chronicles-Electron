@@ -179,8 +179,8 @@ class Events extends React.Component<EventsProps, EventsState> {
             name: "",
             yearStart: 0,
             yearEnd: 0,
-            eventType: -1,
-            timeline: -1,
+            eventType: 0,
+            timeline: 0,
             link: "",
             factions: [],
             characters: [],
@@ -757,10 +757,7 @@ class Events extends React.Component<EventsProps, EventsState> {
                                                     }
                                                     variant="outlined"
                                                 >
-                                                    <MenuItem
-                                                        value="-1"
-                                                        key="-1"
-                                                    >
+                                                    <MenuItem value="0" key="0">
                                                         <em>Undefined</em>
                                                     </MenuItem>
                                                     {EventTypes.map(
@@ -806,10 +803,7 @@ class Events extends React.Component<EventsProps, EventsState> {
                                                         )
                                                     }
                                                 >
-                                                    <MenuItem
-                                                        value="-1"
-                                                        key="-1"
-                                                    >
+                                                    <MenuItem value="0" key="0">
                                                         <em>Undefined</em>
                                                     </MenuItem>
                                                     {Timelines.map(
@@ -822,11 +816,7 @@ class Events extends React.Component<EventsProps, EventsState> {
                                                                     timeline.id
                                                                 }
                                                             >
-                                                                <em>
-                                                                    {
-                                                                        timeline.name
-                                                                    }
-                                                                </em>
+                                                                {timeline.name}
                                                             </MenuItem>
                                                         )
                                                     )}

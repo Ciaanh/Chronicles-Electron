@@ -1,6 +1,11 @@
 import React from "react";
 
-import { Language, ListElement, Timelines } from "../../constants";
+import {
+    IsUndefinedOrNull,
+    Language,
+    ListElement,
+    Timelines,
+} from "../../constants";
 
 import {
     Timeline as TimelineUI,
@@ -45,7 +50,7 @@ class TimelinesView extends React.Component<
         super(props);
         const initialState: TimelinesViewState = {
             events: [],
-            selected: "-1",
+            selected: "0",
             openError: false,
             error: "",
         };
@@ -57,9 +62,16 @@ class TimelinesView extends React.Component<
         const newState = { ...this.state };
 
         newState.selected = timelineid;
-        if (newState.selected !== "0" && newState.selected !== "") {
-            const selectedid = parseInt(newState.selected);
-            newState.events = dbContext.Events.findByTimeline(selectedid);
+        if (IsUndefinedOrNull(timelineid)) {
+            newState.selected = "0";
+            newState.events = [];
+        } else {
+            const selectedTimeline = parseInt(newState.selected);
+            if (isNaN(selectedTimeline)) {
+                newState.events = [];
+            } else {
+                newState.events = dbContext.Events.findByTimeline(selectedTimeline);
+            }
         }
 
         this.setState(newState);
@@ -96,12 +108,12 @@ class TimelinesView extends React.Component<
                                 )
                             }
                         >
-                            <MenuItem value="-1" key="-1">
+                            <MenuItem value="0" key="0">
                                 <em>Undefined</em>
                             </MenuItem>
                             {Timelines.map((timeline) => (
                                 <MenuItem
-                                    value={timeline.name}
+                                    value={timeline.id}
                                     key={timeline.id}
                                 >
                                     {timeline.name}
@@ -119,7 +131,7 @@ class TimelinesView extends React.Component<
                                     variant="body2"
                                     color="text.secondary"
                                 >
-                                    {event.yearStart}
+                                    {event.yearStart} - {event.yearEnd}
                                 </TimelineOppositeContent>
 
                                 <TimelineSeparator>
@@ -133,9 +145,9 @@ class TimelinesView extends React.Component<
                                     <Typography variant="h6" component="span">
                                         {event.label[Language.enUS]}
                                     </Typography>
-                                    <Typography>
-                                        Because you need strength
-                                    </Typography>
+                                    {/* <Typography>
+                                    {event.description[0][Language.enUS]}
+                                    </Typography> */}
                                 </TimelineContent>
                             </TimelineItem>
                         ))}

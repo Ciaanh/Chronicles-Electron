@@ -138,7 +138,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
             name: "",
             label: getEmptyLocale(),
             description: getEmptyLocale(),
-            timeline: -1,
+            timeline: 0,
             dbname: { _id: -1, name: "" } as DbName,
         };
     }
@@ -462,7 +462,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
                                                 );
                                             }}
                                         >
-                                            <MenuItem value="-1" key="-1">
+                                            <MenuItem value="0" key="0">
                                                 <em>Undefined</em>
                                             </MenuItem>
                                             {Timelines.map((timeline) => (

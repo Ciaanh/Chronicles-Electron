@@ -1,6 +1,4 @@
 import * as electron from "electron";
-//import { dialog } from 'electron';
-//const dialog = require('electron').remote.dialog
 import * as remote from "@electron/remote";
 import fs from "fs";
 import { FileContent } from "./app/addon/fileContent";
@@ -51,7 +49,7 @@ const initDB = () => {
     if (dirpath === undefined || dirpath.length === 0) {
         dirpath[0] = "C:\\ChroniclesDB";
     }
-    
+
     const dbSchema: Schema = {
         dbname: "ChroniclesDB",
         tables: [
@@ -136,7 +134,7 @@ const fileApi: FileApi = {
 
         outputStreamBuffer.on("finish", function () {
             const data = outputStreamBuffer.getContents();
-            electron.dialog
+            remote.dialog
                 .showSaveDialog({
                     title: "Select the File Path to save",
                     defaultPath: "Chronicles.zip",

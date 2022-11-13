@@ -92,6 +92,7 @@ export const LocaleMapper = (locale: Locale): DB_Locale => {
     if (!locale) return null;
     return {
         id: locale._id,
+        ishtml: locale.ishtml,
         enUS: locale.enUS,
 
         deDE: locale.deDE,
@@ -111,6 +112,7 @@ export const LocaleMapperFromDB = (locale: DB_Locale): Locale => {
     if (!locale) return null;
     return {
         _id: locale.id,
+        ishtml: locale.ishtml,
         enUS: locale.enUS,
 
         deDE: locale.deDE,

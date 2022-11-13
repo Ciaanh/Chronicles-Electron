@@ -37,6 +37,21 @@ export enum Language {
     zhTW = "zhTW",
 }
 
+export const LanguageArray = [
+    Language.enUS,
+    Language.frFR,
+
+    Language.deDE,
+    Language.esES,
+    Language.esMX,
+    Language.itIT,
+    Language.ptBR,
+    Language.ruRU,
+    Language.koKR,
+    Language.zhCN,
+    Language.zhTW,
+];
+
 export const ITEM_HEIGHT = 48;
 
 export function IsUndefinedOrNull(value: string | number): boolean {
@@ -45,7 +60,13 @@ export function IsUndefinedOrNull(value: string | number): boolean {
         value === null ||
         value === undefined ||
         value === "undefined" ||
-        value === "-1" ||
-        value === -1
+        value === "0" ||
+        value === 0 
     );
+}
+
+export enum TypeName {
+    Event = "Event",
+    Faction = "Faction",
+    Character = "Character",
 }

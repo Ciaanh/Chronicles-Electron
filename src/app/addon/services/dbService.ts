@@ -4,23 +4,9 @@ import { Faction } from "../../models/faction";
 import { FileContent } from "../fileContent";
 import { FileGenerationRequest, FormatedDbName } from "../generator";
 import { getLocaleKey } from "../../models/locale";
+import { TypeName } from "../../constants";
 
 export class DBService {
-    /*
-        01_Mythos
-        02_BeforeDarkPortal
-        03_TheThreeWars
-        04_Vanilla
-        05_BurningCrusade
-        06_LichKing
-        07_Cataclysm
-        08_Pandaria
-        09_Warlords
-        10_Legion
-        11_BattleForAzeroth
-        12_Shadowlands 
-    */
-
     Generate(request: FileGenerationRequest) {
         const files: FileContent[] = [];
 
@@ -49,7 +35,7 @@ export class DBService {
                 dbname.index,
                 dbname.name
             );
-            const dbName = this.GetDbName(dbname.name, "Event");
+            const dbName = this.GetDbName(dbname.name, TypeName.Event);
 
             const filteredEvents = request.events.filter(
                 (event: Event) => String(event.dbname._id) == String(dbname._id)
@@ -93,7 +79,7 @@ export class DBService {
                 dbname.index,
                 dbname.name
             );
-            const dbName = this.GetDbName(dbname.name, "Faction");
+            const dbName = this.GetDbName(dbname.name, TypeName.Faction);
 
             const filteredFactions = request.factions.filter(
                 (faction: Faction) =>
@@ -131,7 +117,7 @@ export class DBService {
                 dbname.index,
                 dbname.name
             );
-            const dbName = this.GetDbName(dbname.name, "Character");
+            const dbName = this.GetDbName(dbname.name, TypeName.Character);
 
             const filteredCharacters = request.characters.filter(
                 (character: Character) =>
@@ -169,42 +155,37 @@ local Chronicles = private.Core
 local modules = Chronicles.Custom.Modules
 local Locale = LibStub("AceLocale-3.0"):GetLocale(private.addon_name)`;
 
-    private FormatDbName = function (dbname: string) {
+    private FormatDbName(dbname: string) {
         return dbname.replace(/\w+/g, function (w) {
             return w[0].toUpperCase() + w.slice(1).toLowerCase();
         });
-    };
+    }
 
-    private FormatDeclaration = function (dbname: string, typeName: string) {
+    private FormatDeclaration(dbname: string, typeName: TypeName) {
         const lowerName = dbname.toLowerCase();
         const formatedName = this.FormatDbName(dbname);
-        const formatedTypeName = typeName.toLowerCase();
-        return `\tChronicles.DB:Register${formatedTypeName}DB(Chronicles.Custom.Modules.${lowerName}, ${formatedName}${formatedTypeName}sDB)`;
-    };
+        return `\tChronicles.DB:Register${typeName}DB(Chronicles.Custom.Modules.${lowerName}, ${formatedName}${typeName}sDB)`;
+    }
 
-    private FormatIndex = function (
-        index: string,
-        dbname: string,
-        typeName: string
-    ) {
+    private FormatIndex(index: string, dbname: string, typeName: TypeName) {
         const dbFoldername = this.GetDbFolderName(index, dbname);
         const dbFilename = this.GetDbName(dbname, typeName);
 
         return `\t<Script file="${dbFoldername}\\${dbFilename}.lua" />`;
-    };
+    }
 
-    private GetDbFolderName = function (index: string, dbname: string) {
+    private GetDbFolderName(index: string, dbname: string) {
         const formatedName = this.FormatDbName(dbname);
         return `${index}_${formatedName}`;
-    };
+    }
 
-    private GetDbName = function (dbname: string, typeName: string) {
+    private GetDbName(dbname: string, typeName: TypeName) {
         const formatedName = this.FormatDbName(dbname);
         return `${formatedName}${typeName}sDB`;
-    };
+    }
 
     // ChroniclesDB.lua
-    private CreateDeclarationFile = function (request: FileGenerationRequest) {
+    private CreateDeclarationFile(request: FileGenerationRequest) {
         // name like => mythos = "mythos",
         const names = request.dbnames
             .map((dbname: FormatedDbName) => {
@@ -213,9 +194,6 @@ local Locale = LibStub("AceLocale-3.0"):GetLocale(private.addon_name)`;
             })
             .join(",\n");
 
-        // eventDB declaration => Chronicles.DB:RegisterEventDB(Chronicles.Custom.Modules.mythos, MythosEventsDB)
-        // factionDB declaration => Chronicles.DB:RegisterFactionDB(Chronicles.Custom.Modules.mythos, MythosFactionsDB)
-        // characterDB declaration => Chronicles.DB:RegisterCharacterDB(Chronicles.Custom.Modules.mythos, MythosCharactersDB)
         const declarations = request.dbnames
             .map((dbname: FormatedDbName) => {
                 const filteredEvents = request.events.filter(
@@ -238,19 +216,19 @@ local Locale = LibStub("AceLocale-3.0"):GetLocale(private.addon_name)`;
                 if (filteredEvents.length > 0) {
                     eventDeclaration = this.FormatDeclaration(
                         dbname.name,
-                        "Event"
+                        TypeName.Event
                     );
                 }
                 if (filteredFactions.length > 0) {
                     factionDeclaration = this.FormatDeclaration(
                         dbname.name,
-                        "Faction"
+                        TypeName.Faction
                     );
                 }
                 if (filteredCharacters.length > 0) {
                     characterDeclaration = this.FormatDeclaration(
                         dbname.name,
-                        "Character"
+                        TypeName.Character
                     );
                 }
                 return [
@@ -280,10 +258,10 @@ end`;
             name: "Custom/DB/ChroniclesDB.lua",
         };
         return dbDeclarationContent;
-    };
+    }
 
     // ChroniclesDB.xml
-    private CreateIndexFile = function (request: FileGenerationRequest) {
+    private CreateIndexFile(request: FileGenerationRequest) {
         // <Script file="01_Mythos\MythosEventsDB.lua" />
         // <Script file="01_Mythos\MythosFactionsDB.lua" />
         // <Script file="01_Mythos\MythosCharactersDB.lua" />
@@ -311,21 +289,21 @@ end`;
                     eventIndex = this.FormatIndex(
                         dbname.index,
                         dbname.name,
-                        "Event"
+                        TypeName.Event
                     );
                 }
                 if (filteredFactions.length > 0) {
                     factionIndex = this.FormatIndex(
                         dbname.index,
                         dbname.name,
-                        "Faction"
+                        TypeName.Faction
                     );
                 }
                 if (filteredCharacters.length > 0) {
                     characterIndex = this.FormatIndex(
                         dbname.index,
                         dbname.name,
-                        "Character"
+                        TypeName.Character
                     );
                 }
                 return [eventIndex, factionIndex, characterIndex]
@@ -335,9 +313,9 @@ end`;
             .filter((value: string) => value.length > 0)
             .join("\n");
 
-        const content = `<Ui xmlns="http://www.blizzard.com/wow/ui/"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
-..\\FrameXML\\UI.xsd">
+        const content = `<?xml version="1.0" encoding="utf-8"?>
+<Ui xmlns="http://www.blizzard.com/wow/ui/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/">
 	<Script file="ChroniclesDB.lua" />
 ${indexes}
 </Ui>`;
@@ -346,7 +324,7 @@ ${indexes}
             content: content,
             name: "Custom/DB/ChroniclesDB.xml",
         };
-    };
+    }
 }
 
 export default DBService;

@@ -175,7 +175,7 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
             name: "",
             label: getEmptyLocale(),
             biography: getEmptyLocale(),
-            timeline: -1,
+            timeline: 0,
             factions: [],
             dbname: { _id: -1, name: "" } as DbName,
         };
@@ -546,7 +546,7 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
                                                     );
                                                 }}
                                             >
-                                                <MenuItem value="-1" key="-1">
+                                                <MenuItem value="0" key="0">
                                                     <em>Undefined</em>
                                                 </MenuItem>
                                                 {Timelines.map((timeline) => (

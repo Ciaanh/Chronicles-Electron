@@ -2,8 +2,9 @@ import { DbObject } from "neutron-db/lib/types";
 import { Dto } from "./object_interfaces";
 
 export interface Locale extends Dto {
-    enUS: string;
+    ishtml: boolean;
 
+    enUS: string;
     deDE: string | null;
     esES: string | null;
     esMX: string | null;
@@ -17,6 +18,8 @@ export interface Locale extends Dto {
 }
 
 export interface DB_Locale extends DbObject {
+    ishtml: boolean;
+
     enUS: string;
 
     deDE: string | null;
@@ -59,6 +62,8 @@ export function getLocaleKey(locale: Locale, index?: number): string {
 export function getEmptyLocale(): Locale {
     return {
         _id: -1,
+        ishtml: false,
+
         enUS: null,
 
         deDE: null,
