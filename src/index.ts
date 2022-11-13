@@ -1,4 +1,4 @@
-import { app, BrowserWindow, session } from "electron";
+import { app, BrowserWindow } from "electron";
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
@@ -17,10 +17,11 @@ const createWindow = (): void => {
         width: 1200,
         height: 900,
         darkTheme: true,
+        backgroundColor: "#121212",
         maximizable: false,
         resizable: false,
         //frame: false,
-        icon: "favicon.ico",
+        icon: "src/assets/icon.ico",
         webPreferences: {
             preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
             sandbox: false,
@@ -28,7 +29,7 @@ const createWindow = (): void => {
         },
     });
     mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
-    //mainWindow.webContents.openDevTools();
+    // mainWindow.webContents.openDevTools();
 
     remoteMain.enable(mainWindow.webContents);
 };

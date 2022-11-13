@@ -7,14 +7,16 @@
     "main": ".webpack/main",
     "scripts": {
         "start": "electron-forge start",
-        "package": "electron-forge package",
-        "make": "electron-forge make",
+        "package": "electron-forge package --icon=assets/favicon.ico",
+        "make": "electron-forge make --icon=src/favicon.ico",
         "publish": "electron-forge publish",
         "lint": "eslint --ext .ts,.tsx ."
     },
     "config": {
         "forge": {
-            "packagerConfig": {},
+            "packagerConfig": {
+                "icon": "src/assets/icon.ico"
+            },
             "makers": [
                 {
                     "name": "@electron-forge/maker-squirrel",

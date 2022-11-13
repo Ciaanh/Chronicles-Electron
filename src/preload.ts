@@ -94,7 +94,7 @@ const databaseApi: DatabaseApi = {
         if (loadingSource === "Directory") {
             const dirpath = remote.dialog.showOpenDialogSync({
                 title: "Select the path of the database",
-                defaultPath: "C:\\",
+                //defaultPath: "C:\\",
                 buttonLabel: "Select",
                 properties: [
                     "openDirectory",
