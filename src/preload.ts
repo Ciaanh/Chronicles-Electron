@@ -25,10 +25,13 @@ export interface DatabaseApi {
     delete(id: number, dbName: string): void;
 
     isDbInitialized(): boolean;
-    initdb(chooseLocation: boolean): void;
+    getUserDataPath(): string;
+    initdb(loadingSource: string): void;
 }
 
 let db: Database | null = null;
+
+
 
 const databaseApi: DatabaseApi = {
     tables: {
@@ -63,7 +66,11 @@ const databaseApi: DatabaseApi = {
         return db !== null;
     },
 
-    initdb(chooseLocation: boolean): void {
+    getUserDataPath(): string {
+        return remote.app.getPath("userData");
+    },
+
+    initdb(loadingSource: string): void {
         const blanck = "about:blank";
         if (location.href === blanck) {
             return null;
@@ -81,8 +88,10 @@ const databaseApi: DatabaseApi = {
 
         console.log(__dirname);
         console.log(remote.app.getAppPath());
+        console.log(remote.app.getPath("exe"));
+        console.log(remote.app.getPath("userData"));
 
-        if (chooseLocation) {
+        if (loadingSource === "Directory") {
             const dirpath = remote.dialog.showOpenDialogSync({
                 title: "Select the path of the database",
                 defaultPath: "C:\\",
@@ -94,28 +103,30 @@ const databaseApi: DatabaseApi = {
                 ],
             });
 
-            dbpath = dirpath[0];
-        } else {
+            if (dirpath === undefined || dirpath.length > 0) {
+                dbpath = dirpath[0];
+            }
+        } else if (loadingSource === "UserData") {
+            dbpath = remote.app.getPath("userData");
+        } else if (loadingSource === "AppLocation") {
             dbpath = null;
         }
 
-        if (dbpath === undefined || dbpath.length === 0) {
-            dbpath = "C:\\ChroniclesDB";
+        if (dbpath !== null && dbpath.length > 0) {
+            const dbSchema: Schema = {
+                dbname: "ChroniclesDB",
+                tables: [
+                    tableNames.events,
+                    tableNames.characters,
+                    tableNames.factions,
+                    tableNames.dbnames,
+                    tableNames.locales,
+                ],
+                location: dbpath,
+            };
+
+            db = new Database(dbSchema);
         }
-
-        const dbSchema: Schema = {
-            dbname: "ChroniclesDB",
-            tables: [
-                tableNames.events,
-                tableNames.characters,
-                tableNames.factions,
-                tableNames.dbnames,
-                tableNames.locales,
-            ],
-            location: dbpath[0],
-        };
-
-        db = new Database(dbSchema);
     },
 };
 

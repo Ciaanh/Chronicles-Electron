@@ -1,8 +1,20 @@
 import React from "react";
 import * as ReactDOMClient from "react-dom/client";
 import { Route, HashRouter, Routes } from "react-router-dom";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { Box, Button, CssBaseline, ThemeOptions } from "@mui/material";
+import { createTheme, styled, ThemeProvider } from "@mui/material/styles";
+import {
+    Box,
+    Button,
+    Container,
+    CssBaseline,
+    Divider,
+    Paper,
+    Stack,
+    ThemeOptions,
+    Tooltip,
+    Typography,
+} from "@mui/material";
+import Grid from "@mui/material/Unstable_Grid2";
 
 import NavBar from "./components/NavBar";
 import Home from "./components/Home";
@@ -13,6 +25,12 @@ import Characters from "./components/characters/Characters";
 import Factions from "./components/factions/Factions";
 import DBNames from "./components/dbnames/DBNames";
 import { Locales } from "./components/locales/Locales";
+
+enum DBLoadingSource {
+    UserData = "UserData",
+    Directory = "Directory",
+    AppLocation = "AppLocation",
+}
 
 const themeOptions: ThemeOptions = {
     palette: { mode: "dark" },
@@ -64,11 +82,11 @@ class App extends React.Component<AppProps, AppState> {
         };
     }
 
-    initDb(chooseLocation: boolean) {
+    initDb(loadingSource: DBLoadingSource) {
         if (!window.database.isDbInitialized()) {
-            window.database.initdb(chooseLocation);
+            window.database.initdb(loadingSource);
         }
-        this.setState({ dbInitialized: true });
+        this.setState({ dbInitialized: window.database.isDbInitialized() });
     }
 
     render() {
@@ -112,26 +130,115 @@ class App extends React.Component<AppProps, AppState> {
                         </HashRouter>
                     </Box>
                 ) : (
-                    <Box
-                        sx={{
-                            display: "flex",
-                        }}
-                    >
+                    <React.Fragment>
                         <CssBaseline />
+                        <Container fixed>
+                            <Grid
+                                container
+                                spacing={0}
+                                direction="column"
+                                alignItems="center"
+                                justifyContent="center"
+                                style={{ minHeight: "100vh" }}
+                            >
+                                <Grid xs={3}>
+                                    <Stack
+                                        spacing={2}
+                                        direction="column"
+                                        divider={
+                                            <Divider
+                                                orientation="horizontal"
+                                                flexItem
+                                            />
+                                        }
+                                    >
+                                        <Grid
+                                            container
+                                            xs
+                                            display="flex"
+                                            justifyContent="center"
+                                            alignItems="center"
+                                        >
+                                            <Grid xs={8}>
+                                                <Typography variant="button">
+                                                    Choose the db location
+                                                </Typography>
+                                            </Grid>
+                                            <Grid xs={4}>
+                                                <Button
+                                                    variant="contained"
+                                                    onClick={() =>
+                                                        this.initDb(
+                                                            DBLoadingSource.Directory
+                                                        )
+                                                    }
+                                                >
+                                                    Go
+                                                </Button>
+                                            </Grid>
+                                        </Grid>
 
-                        <Button
-                            variant="contained"
-                            onClick={() => this.initDb(false)}
-                        >
-                            Init DB
-                        </Button>
-                        <Button
-                            variant="outlined"
-                            onClick={() => this.initDb(true)}
-                        >
-                            Choose DB path
-                        </Button>
-                    </Box>
+                                        <Grid
+                                            container
+                                            xs
+                                            display="flex"
+                                            justifyContent="center"
+                                            alignItems="center"
+                                        >
+                                            <Grid xs={8}>
+                                                <Tooltip
+                                                    title={window.database.getUserDataPath()}
+                                                    arrow
+                                                >
+                                                    <Typography variant="button">
+                                                        Load from userData
+                                                    </Typography>
+                                                </Tooltip>
+                                            </Grid>
+                                            <Grid xs={4}>
+                                                <Button
+                                                    variant="outlined"
+                                                    onClick={() =>
+                                                        this.initDb(
+                                                            DBLoadingSource.UserData
+                                                        )
+                                                    }
+                                                >
+                                                    Go
+                                                </Button>
+                                            </Grid>
+                                        </Grid>
+
+                                        {/* <Grid
+                                            container
+                                            xs
+                                            display="flex"
+                                            justifyContent="center"
+                                            alignItems="center"
+                                        >
+                                            <Grid xs={8}>
+                                                <Typography variant="button">
+                                                    Load from the app location
+                                                </Typography>
+                                            </Grid>
+                                            <Grid xs={4}>
+                                                <Button
+                                                    variant="outlined"
+                                                    onClick={() =>
+                                                        this.initDb(
+                                                            DBLoadingSource.AppLocation
+                                                        )
+                                                    }
+                                                >
+                                                    Go
+                                                </Button>
+                                            </Grid>
+                                        </Grid> */}
+                                    </Stack>
+                                </Grid>
+                            </Grid>
+                        </Container>
+                    </React.Fragment>
                 )}
             </ThemeProvider>
         );
