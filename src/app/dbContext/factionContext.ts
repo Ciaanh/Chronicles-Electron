@@ -45,15 +45,13 @@ export const Factions: FactionContext = {
         return FactionMapperFromDB(faction);
     },
     create: function (faction) {
-        if (faction.label._id === -1) {
+        if (faction.label._id === null) {
             throw new Error("Faction label is required");
         }
 
-        if (faction.description._id === -1) {
+        if (faction.description._id === null) {
             throw new Error("Faction description is required");
         }
-
-        faction._id = null;
 
         const createdFaction: DB_Faction = window.database.add(
             FactionMapper(faction),
@@ -62,11 +60,11 @@ export const Factions: FactionContext = {
         return FactionMapperFromDB(createdFaction);
     },
     update: function (faction) {
-        if (faction.label._id === -1) {
+        if (faction.label._id === null) {
             throw new Error("Faction label is required");
         }
 
-        if (faction.description._id === -1) {
+        if (faction.description._id === null) {
             throw new Error("Faction description is required");
         }
 

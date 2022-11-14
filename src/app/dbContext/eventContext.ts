@@ -55,7 +55,9 @@ export const Events: EventContext = {
         return EventMapperFromDB(event);
     },
     create: function (event) {
-        event._id = null;
+        if (event.label._id === null) {
+            throw new Error("Event label is required");
+        }
 
         const createdEvent: DB_Event = window.database.add(
             EventMapper(event),

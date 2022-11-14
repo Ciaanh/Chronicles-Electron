@@ -67,7 +67,7 @@ class DBNames extends React.Component<DBNamesProps, DBNamesState> {
         const newState: DBNamesState = { ...this.state } as DBNamesState;
 
         newState.create = true;
-        newState.editingDbName = { _id: -1, name: "" } as DbName;
+        newState.editingDbName = { _id: null, name: "" } as DbName;
 
         this.setState(newState);
     }
@@ -104,7 +104,7 @@ class DBNames extends React.Component<DBNamesProps, DBNamesState> {
         const newState: DBNamesState = { ...this.state } as DBNamesState;
         try {
             const created_dbname = dbContext.DBNames.create({
-                _id: -1,
+                _id: null,
                 name: name,
             });
             newState.dbnames.push(created_dbname);

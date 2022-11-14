@@ -46,7 +46,13 @@ export const Characters: CharacterContext = {
         return CharacterMapperFromDB(character);
     },
     create: function (character) {
-        character._id = null;
+        if (character.label._id === null) {
+            throw new Error("Character label is required");
+        }
+
+        if (character.biography._id === null) {
+            throw new Error("Character biography is required");
+        }
 
         const createdCharacter = window.database.add(
             CharacterMapper(character),

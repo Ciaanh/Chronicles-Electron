@@ -161,7 +161,7 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
         const index = newState.characters.findIndex(
             (character) => character._id === characterid
         );
-        if (index !== -1) {
+        if (index !== null) {
             newState.characters.splice(index, 1);
         }
 
@@ -170,14 +170,14 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
 
     getEmptyCharacter(): Character {
         return {
-            _id: -1,
+            _id: null,
 
             name: "",
             label: getEmptyLocale(),
             biography: getEmptyLocale(),
             timeline: 0,
             factions: [],
-            dbname: { _id: -1, name: "" } as DbName,
+            dbname: { _id: null, name: "" } as DbName,
         };
     }
 

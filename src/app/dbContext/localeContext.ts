@@ -68,8 +68,6 @@ export const Locales: LocaleContext = {
         return LocaleMapperFromDB(locale);
     },
     create: function (locale) {
-        locale._id = null;
-
         const createdLocale: DB_Locale = window.database.add(
             LocaleMapper(locale),
             window.database.tables.locales
@@ -93,6 +91,7 @@ export const LocaleMapper = (locale: Locale): DB_Locale => {
     return {
         id: locale._id,
         ishtml: locale.ishtml,
+
         enUS: locale.enUS,
 
         deDE: locale.deDE,
@@ -113,6 +112,7 @@ export const LocaleMapperFromDB = (locale: DB_Locale): Locale => {
     return {
         _id: locale.id,
         ishtml: locale.ishtml,
+
         enUS: locale.enUS,
 
         deDE: locale.deDE,

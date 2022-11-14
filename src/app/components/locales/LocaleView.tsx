@@ -12,6 +12,7 @@ import {
     List,
     ListItemText,
     Checkbox,
+    Badge,
 } from "@mui/material";
 
 import Grid from "@mui/material/Unstable_Grid2";
@@ -39,6 +40,7 @@ interface ILocaleProps {
     isRequired: boolean;
     deleted?: (localeId: number) => void;
     updated: (localeId: number) => void;
+    index?: number;
 }
 
 interface ILocaleState {
@@ -60,7 +62,7 @@ class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
         }
 
         const initialState: ILocaleState = {
-            locale: props.locale,
+            locale: { ...props.locale },
             open: false,
 
             openError: false,
@@ -103,7 +105,7 @@ class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
     }
 
     delete(localeId: number) {
-        if (localeId !== -1 && localeId !== null) {
+        if (localeId !== null) {
             const newState: ILocaleState = { ...this.state };
             newState.open = false;
 
@@ -118,7 +120,7 @@ class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
         const newState: ILocaleState = { ...this.state };
         newState.open = false;
 
-        if (newState.locale._id === -1 || newState.locale._id === null) {
+        if (newState.locale._id === null) {
             newState.locale = dbContext.Locales.create(newState.locale);
         } else {
             newState.locale = dbContext.Locales.update(newState.locale);
@@ -134,10 +136,37 @@ class LocaleView extends React.Component<ILocaleProps, ILocaleState> {
                 <Item elevation={10}>
                     <Grid container spacing={2}>
                         <Grid xs={11}>
-                            <Typography noWrap variant="subtitle2">
-                                Key (estimated):{" "}
-                                {getLocaleKey(this.state.locale)}
-                            </Typography>
+                            <Badge
+                                anchorOrigin={{
+                                    vertical: "top",
+                                    horizontal: "left",
+                                }}
+                                color="primary"
+                                showZero
+                                badgeContent={this.props.index ?? ""}
+                                invisible={
+                                    this.props.index === undefined ||
+                                    this.props.index === null
+                                }
+                                sx={{
+                                    zIndex: 1000,
+                                }}
+                            >
+                                <Typography
+                                    noWrap
+                                    variant="subtitle2"
+                                    sx={{
+                                        marginLeft: () =>
+                                            this.props.index === undefined ||
+                                            this.props.index === null
+                                                ? "0px"
+                                                : "10px",
+                                    }}
+                                >
+                                    Key (estimated):{" "}
+                                    {getLocaleKey(this.state.locale)}
+                                </Typography>
+                            </Badge>
                         </Grid>
                         <Grid xs={1}>
                             {!this.props.isRequired ? (

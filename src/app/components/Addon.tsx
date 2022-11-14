@@ -89,7 +89,7 @@ class Addon extends React.Component<AddonProps, AddonState> {
         const dbnameIndex = newState.dbnames.findIndex(
             (dbname) => dbname._id === dbnameid
         );
-        if (dbnameIndex !== -1) {
+        if (dbnameIndex !== null) {
             newState.dbnames[dbnameIndex].checked =
                 !newState.dbnames[dbnameIndex].checked;
         }

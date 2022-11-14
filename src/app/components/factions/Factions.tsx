@@ -133,13 +133,13 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
 
     getEmptyFaction(): Faction {
         return {
-            _id: -1,
+            _id: null,
 
             name: "",
             label: getEmptyLocale(),
             description: getEmptyLocale(),
             timeline: 0,
-            dbname: { _id: -1, name: "" } as DbName,
+            dbname: { _id: null, name: "" } as DbName,
         };
     }
 
@@ -451,10 +451,6 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
                                             value={
                                                 this.state.editingFaction
                                                     .timeline
-                                                    ? this.state.editingFaction
-                                                          .timeline ??
-                                                      "undefined"
-                                                    : "undefined"
                                             }
                                             onChange={(event) => {
                                                 this.changeTimeline(

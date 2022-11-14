@@ -68,7 +68,7 @@ export class DBService {
             id=${event._id},
 			label=Locale["${getLocaleKey(event.label)}"],
 			description={${event.description
-                .map((desc, index) => `Locale["${getLocaleKey(desc, index)}"]`)
+                .map((desc) => `Locale["${getLocaleKey(desc)}"]`)
                 .join(", ")}},
 			yearStart=${event.yearStart},
 			yearEnd=${event.yearEnd},

@@ -5,6 +5,7 @@ import {
     Alert,
     AlertTitle,
     AppBar,
+    Badge,
     Box,
     Dialog,
     DialogContent,
@@ -186,7 +187,7 @@ class Events extends React.Component<EventsProps, EventsState> {
             characters: [],
             label: getEmptyLocale(),
             description: [],
-            dbname: { _id: -1, name: "" } as DbName,
+            dbname: { _id: null, name: "" } as DbName,
         };
     }
 
@@ -517,6 +518,7 @@ class Events extends React.Component<EventsProps, EventsState> {
 
         this.setState(newState);
     }
+
     descriptionUpdated(localeId: number) {
         const updatedLocale = dbContext.Locales.findById(localeId);
 
@@ -527,13 +529,15 @@ class Events extends React.Component<EventsProps, EventsState> {
                     (description) => description._id === updatedLocale._id
                 );
 
+            console.log(descriptionIndex);
+
             if (descriptionIndex >= 0) {
                 newState.editingEvent.description[descriptionIndex] =
                     updatedLocale;
             } else {
                 newState.editingEvent.description =
                     newState.editingEvent.description.filter(
-                        (description) => description._id !== -1
+                        (description) => description._id !== null
                     );
                 newState.editingEvent.description.push(updatedLocale);
             }
@@ -543,6 +547,7 @@ class Events extends React.Component<EventsProps, EventsState> {
         }
         this.setState(newState);
     }
+
     descriptionRemoved(localeId: number) {
         const newState: EventsState = { ...this.state };
         if (newState.editingEvent) {
@@ -1237,6 +1242,7 @@ class Events extends React.Component<EventsProps, EventsState> {
                                                     (page, index) => (
                                                         <Locale
                                                             key={index}
+                                                            index={index}
                                                             locale={page}
                                                             isRequired={false}
                                                             deleted={(

@@ -213,11 +213,7 @@ ${indexContent}
             event.description.forEach(
                 (descriptionPage: Locale, index: number) => {
                     result.push(
-                        this.ExtractLocaleByLanguage(
-                            descriptionPage,
-                            language,
-                            index
-                        )
+                        this.ExtractLocaleByLanguage(descriptionPage, language)
                     );
                 }
             );
@@ -247,7 +243,9 @@ ${indexContent}
         const result: localeLine[] = [];
 
         characters.forEach((character: Character) => {
-            result.push(this.ExtractLocaleByLanguage(character.label, language));
+            result.push(
+                this.ExtractLocaleByLanguage(character.label, language)
+            );
             result.push(
                 this.ExtractLocaleByLanguage(character.biography, language)
             );
@@ -257,14 +255,13 @@ ${indexContent}
 
     private ExtractLocaleByLanguage(
         locale: Locale,
-        language: string,
-        index?: number
+        language: string
     ): localeLine {
         const localeLine: localeLine = {
             ishtml: locale.ishtml,
-            key: getLocaleKey(locale, index),
+            key: getLocaleKey(locale),
             value: this.FormatLocaleValue(
-                getLocaleKey(locale, index),
+                getLocaleKey(locale),
                 this.GetLocaleValueByLanguage(locale, language),
                 locale.ishtml
             ),
