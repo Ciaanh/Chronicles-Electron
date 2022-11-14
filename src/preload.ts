@@ -31,8 +31,6 @@ export interface DatabaseApi {
 
 let db: Database | null = null;
 
-
-
 const databaseApi: DatabaseApi = {
     tables: {
         events: "events",
@@ -86,11 +84,6 @@ const databaseApi: DatabaseApi = {
 
         let dbpath: string = null;
 
-        console.log(__dirname);
-        console.log(remote.app.getAppPath());
-        console.log(remote.app.getPath("exe"));
-        console.log(remote.app.getPath("userData"));
-
         if (loadingSource === "Directory") {
             const dirpath = remote.dialog.showOpenDialogSync({
                 title: "Select the path of the database",
@@ -123,6 +116,7 @@ const databaseApi: DatabaseApi = {
                     tableNames.locales,
                 ],
                 location: dbpath,
+                oneIndexed: true,
             };
 
             db = new Database(dbSchema);
