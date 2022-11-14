@@ -154,14 +154,12 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
         const newState = {
             ...this.state,
         };
-
-        const index = newState.factions.findIndex(
-            (faction) => faction._id === factionid
-        );
-        if (index !== -1) {
-            newState.factions.splice(index, 1);
+        try {
+            newState.factions = dbContext.Factions.findAll();
+        } catch (error) {
+            newState.openError = true;
+            newState.error = "Error loading factions";
         }
-
         this.setState(newState);
     }
 

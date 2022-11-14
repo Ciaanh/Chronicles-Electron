@@ -157,14 +157,12 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
 
     characterDeleted(characterid: number) {
         const newState = { ...this.state };
-
-        const index = newState.characters.findIndex(
-            (character) => character._id === characterid
-        );
-        if (index !== null) {
-            newState.characters.splice(index, 1);
+        try {
+            newState.characters = dbContext.Characters.findAll();
+        } catch (error) {
+            newState.openError = true;
+            newState.error = "Error loading characters";
         }
-
         this.setState(newState);
     }
 

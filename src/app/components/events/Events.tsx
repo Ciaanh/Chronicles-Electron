@@ -152,14 +152,12 @@ class Events extends React.Component<EventsProps, EventsState> {
         const newState: EventsState = {
             ...this.state,
         };
-
-        const index = newState.events.findIndex(
-            (event) => event._id === eventid
-        );
-        if (index !== -1) {
-            newState.factions.splice(index, 1);
+        try {
+            newState.events = dbContext.Events.findAll();
+        } catch (error) {
+            newState.openError = true;
+            newState.error = "Error loading events";
         }
-
         this.setState(newState);
     }
 
