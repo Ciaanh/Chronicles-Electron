@@ -65,6 +65,8 @@ interface EventsState {
 
     dbnames: DbName[];
 
+    selectedDbName: number | null;
+
     edit: boolean;
     create: boolean;
     editingEvent: Event | null;
@@ -86,7 +88,9 @@ class Events extends React.Component<EventsProps, EventsState> {
             characterAnchor: null,
             factionAnchor: null,
 
-            dbnames: dbContext.DBNames.findAll(),
+            dbnames: [],
+
+            selectedDbName: null,
 
             edit: false,
             create: false,
@@ -108,6 +112,8 @@ class Events extends React.Component<EventsProps, EventsState> {
             newState.characters = dbContext.Characters.findAll();
             newState.factions = dbContext.Factions.findAll();
             newState.events = dbContext.Events.findAll();
+
+            newState.dbnames = dbContext.DBNames.findAll();
         } catch (error) {
             newState.openError = true;
             newState.error = "Error loading data";
@@ -560,6 +566,44 @@ class Events extends React.Component<EventsProps, EventsState> {
         this.setState(newState);
     }
 
+    selectDbName(dbnameId: string | number) {
+        const newState = { ...this.state };
+
+        if (IsUndefinedOrNull(dbnameId)) {
+            newState.selectedDbName = null;
+
+            newState.events = dbContext.Events.findAll();
+            newState.characters = dbContext.Characters.findAll();
+            newState.factions = dbContext.Factions.findAll();
+        } else {
+            const dbnameIdValue = parseInt(dbnameId.toString());
+
+            try {
+                const selectedDbName =
+                    dbContext.DBNames.findById(dbnameIdValue);
+                if (selectedDbName) {
+                    newState.selectedDbName = selectedDbName._id;
+
+                    newState.events = dbContext.Events.findByDB([
+                        newState.selectedDbName,
+                    ]);
+
+                    newState.characters = dbContext.Characters.findByDB([
+                        newState.selectedDbName,
+                    ]);
+
+                    newState.factions = dbContext.Factions.findByDB([
+                        newState.selectedDbName,
+                    ]);
+                }
+            } catch (error) {
+                newState.error = "Error selecting a dbname";
+                newState.openError = true;
+            }
+        }
+        this.setState(newState);
+    }
+
     render() {
         return (
             <React.Fragment>
@@ -572,7 +616,43 @@ class Events extends React.Component<EventsProps, EventsState> {
                         padding: (theme) => theme.spacing(3),
                     }}
                 >
-                    <h1>Events</h1>
+                    <Grid container spacing={3} alignItems="center">
+                        <Grid xs={3}>
+                            <Typography variant="h4">Events</Typography>
+                        </Grid>
+                        <Grid xs={9}>
+                            <FormControl
+                                variant="outlined"
+                                sx={{
+                                    margin: (theme) => theme.spacing(1),
+                                    minWidth: 120,
+                                }}
+                                margin="dense"
+                            >
+                                <InputLabel>DB Name</InputLabel>
+                                <Select
+                                    label="DBName"
+                                    name="dbname"
+                                    value={this.state.selectedDbName ?? 0}
+                                    onChange={(event) => {
+                                        this.selectDbName(event.target.value);
+                                    }}
+                                >
+                                    <MenuItem value="0" key="0">
+                                        <em>None</em>
+                                    </MenuItem>
+                                    {this.state.dbnames.map((dbname) => (
+                                        <MenuItem
+                                            key={dbname._id}
+                                            value={dbname._id}
+                                        >
+                                            {dbname.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Grid>
+                    </Grid>
 
                     {this.state.events.length === 0 && <NoData />}
                     {this.state.events.map((event) => (
@@ -704,7 +784,7 @@ class Events extends React.Component<EventsProps, EventsState> {
                                                     name="dbname"
                                                     value={
                                                         this.state.editingEvent
-                                                            .dbname?._id ?? -1
+                                                            .dbname?._id ?? 0
                                                     }
                                                     onChange={(event) => {
                                                         this.changeDbName(
@@ -712,10 +792,7 @@ class Events extends React.Component<EventsProps, EventsState> {
                                                         );
                                                     }}
                                                 >
-                                                    <MenuItem
-                                                        value="-1"
-                                                        key="-1"
-                                                    >
+                                                    <MenuItem value="0" key="0">
                                                         <em>Undefined</em>
                                                     </MenuItem>
                                                     {this.state.dbnames.map(

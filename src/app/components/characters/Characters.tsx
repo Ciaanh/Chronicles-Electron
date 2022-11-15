@@ -53,6 +53,8 @@ interface CharactersState {
     dbnames: DbName[];
     factions: Faction[];
 
+    selectedDbName: number | null;
+
     edit: boolean;
     create: boolean;
     editingCharacter: Character | null;
@@ -71,6 +73,9 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
             characters: [],
             dbnames: [],
             factions: [],
+
+            selectedDbName: null,
+
             edit: false,
             create: false,
             editingCharacter: null,
@@ -90,8 +95,9 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
         };
         try {
             newState.characters = dbContext.Characters.findAll();
-            newState.dbnames = dbContext.DBNames.findAll();
             newState.factions = dbContext.Factions.findAll();
+
+            newState.dbnames = dbContext.DBNames.findAll();
         } catch (error) {
             newState.openError = true;
             newState.error = "Error loading characters";
@@ -363,6 +369,39 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
         this.setState(newState);
     }
 
+    selectDbName(dbnameId: string | number) {
+        const newState = { ...this.state };
+
+        if (IsUndefinedOrNull(dbnameId)) {
+            newState.selectedDbName = null;
+
+            newState.characters = dbContext.Characters.findAll();
+            newState.factions = dbContext.Factions.findAll();
+        } else {
+            const dbnameIdValue = parseInt(dbnameId.toString());
+
+            try {
+                const selectedDbName =
+                    dbContext.DBNames.findById(dbnameIdValue);
+                if (selectedDbName) {
+                    newState.selectedDbName = selectedDbName._id;
+
+                    newState.characters = dbContext.Characters.findByDB([
+                        newState.selectedDbName,
+                    ]);
+
+                    newState.factions = dbContext.Factions.findByDB([
+                        newState.selectedDbName,
+                    ]);
+                }
+            } catch (error) {
+                newState.error = "Error selecting a dbname";
+                newState.openError = true;
+            }
+        }
+        this.setState(newState);
+    }
+
     render() {
         return (
             <React.Fragment>
@@ -375,7 +414,47 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
                         padding: (theme) => theme.spacing(3),
                     }}
                 >
-                    <h1>Characters</h1>
+                    <Grid
+                        container
+                        spacing={3}
+                        alignItems="center"
+                    >
+                        <Grid xs={3}>
+                            <Typography variant="h4">Characters</Typography>
+                        </Grid>
+                        <Grid xs={9}>
+                            <FormControl
+                                variant="outlined"
+                                sx={{
+                                    margin: (theme) => theme.spacing(1),
+                                    minWidth: 120,
+                                }}
+                                margin="dense"
+                            >
+                                <InputLabel>DB Name</InputLabel>
+                                <Select
+                                    label="DBName"
+                                    name="dbname"
+                                    value={this.state.selectedDbName ?? 0}
+                                    onChange={(event) => {
+                                        this.selectDbName(event.target.value);
+                                    }}
+                                >
+                                    <MenuItem value="0" key="0">
+                                        <em>None</em>
+                                    </MenuItem>
+                                    {this.state.dbnames.map((dbname) => (
+                                        <MenuItem
+                                            key={dbname._id}
+                                            value={dbname._id}
+                                        >
+                                            {dbname.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Grid>
+                    </Grid>
 
                     {this.state.characters.length === 0 && <NoData />}
                     {this.state.characters.map((character) => (
@@ -497,7 +576,7 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
                                                 name="dbname"
                                                 value={
                                                     this.state.editingCharacter
-                                                        .dbname?._id ?? -1
+                                                        .dbname?._id ?? 0
                                                 }
                                                 onChange={(event) => {
                                                     this.changeDbName(
@@ -505,7 +584,7 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
                                                     );
                                                 }}
                                             >
-                                                <MenuItem value="-1" key="-1">
+                                                <MenuItem value="0" key="0">
                                                     <em>Undefined</em>
                                                 </MenuItem>
                                                 {this.state.dbnames.map(
