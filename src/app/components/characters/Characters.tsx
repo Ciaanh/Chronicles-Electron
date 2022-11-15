@@ -94,8 +94,15 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
             ...this.state,
         };
         try {
-            newState.characters = dbContext.Characters.findAll();
-            newState.factions = dbContext.Factions.findAll();
+            newState.characters =
+                newState.selectedDbName === null
+                    ? dbContext.Characters.findAll()
+                    : dbContext.Characters.findByDB([newState.selectedDbName]);
+
+            newState.factions =
+                newState.selectedDbName === null
+                    ? dbContext.Factions.findAll()
+                    : dbContext.Factions.findByDB([newState.selectedDbName]);
 
             newState.dbnames = dbContext.DBNames.findAll();
         } catch (error) {
@@ -164,7 +171,9 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
     characterDeleted(characterid: number) {
         const newState = { ...this.state };
         try {
-            newState.characters = dbContext.Characters.findAll();
+            newState.characters =  newState.selectedDbName === null
+                ? dbContext.Characters.findAll()
+                : dbContext.Characters.findByDB([newState.selectedDbName]);
         } catch (error) {
             newState.openError = true;
             newState.error = "Error loading characters";
@@ -206,13 +215,16 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
     }
 
     create(characterToEdit: Character) {
+        const newState = {
+            ...this.state,
+        };
+
         try {
             const newCharacter = dbContext.Characters.create(characterToEdit);
-            const newState = {
-                ...this.state,
-            };
 
-            newState.characters.push(newCharacter);
+            newState.characters =  newState.selectedDbName === null
+                ? dbContext.Characters.findAll()
+                : dbContext.Characters.findByDB([newState.selectedDbName]);
 
             newState.edit = false;
             newState.create = false;
@@ -225,18 +237,14 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
     }
 
     update(characterToEdit: Character) {
+        const newState = { ...this.state };
+
         try {
             const newCharacter = dbContext.Characters.update(characterToEdit);
-            const newState = {
-                ...this.state,
-            };
 
-            const index = newState.characters.findIndex(
-                (character) => character._id === newCharacter._id
-            );
-            if (index !== -1) {
-                newState.characters[index] = newCharacter;
-            }
+            newState.characters =  newState.selectedDbName === null
+                ? dbContext.Characters.findAll()
+                : dbContext.Characters.findByDB([newState.selectedDbName]);
 
             newState.edit = false;
             newState.create = false;
@@ -414,11 +422,7 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
                         padding: (theme) => theme.spacing(3),
                     }}
                 >
-                    <Grid
-                        container
-                        spacing={3}
-                        alignItems="center"
-                    >
+                    <Grid container spacing={3} alignItems="center">
                         <Grid xs={3}>
                             <Typography variant="h4">Characters</Typography>
                         </Grid>

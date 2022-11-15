@@ -109,9 +109,21 @@ class Events extends React.Component<EventsProps, EventsState> {
         };
 
         try {
-            newState.characters = dbContext.Characters.findAll();
-            newState.factions = dbContext.Factions.findAll();
-            newState.events = dbContext.Events.findAll();
+            if (newState.selectedDbName === null) {
+                newState.characters = dbContext.Characters.findAll();
+                newState.factions = dbContext.Factions.findAll();
+                newState.events = dbContext.Events.findAll();
+            } else {
+                newState.characters = dbContext.Characters.findByDB([
+                    newState.selectedDbName,
+                ]);
+                newState.factions = dbContext.Factions.findByDB([
+                    newState.selectedDbName,
+                ]);
+                newState.events = dbContext.Events.findByDB([
+                    newState.selectedDbName,
+                ]);
+            }
 
             newState.dbnames = dbContext.DBNames.findAll();
         } catch (error) {
@@ -159,7 +171,10 @@ class Events extends React.Component<EventsProps, EventsState> {
             ...this.state,
         };
         try {
-            newState.events = dbContext.Events.findAll();
+            newState.events =
+                newState.selectedDbName === null
+                    ? dbContext.Events.findAll()
+                    : dbContext.Events.findByDB([newState.selectedDbName]);
         } catch (error) {
             newState.openError = true;
             newState.error = "Error loading events";
@@ -213,13 +228,15 @@ class Events extends React.Component<EventsProps, EventsState> {
     }
 
     create(eventToEdit: Event) {
+        const newState: EventsState = { ...this.state };
+        
         try {
-            const newCharacter = dbContext.Events.create(eventToEdit);
-            const newState: EventsState = {
-                ...this.state,
-            };
+            const newEvent = dbContext.Events.create(eventToEdit);
 
-            newState.events.push(newCharacter);
+            newState.events =
+                newState.selectedDbName === null
+                    ? dbContext.Events.findAll()
+                    : dbContext.Events.findByDB([newState.selectedDbName]);
 
             newState.edit = false;
             newState.create = false;
@@ -232,18 +249,17 @@ class Events extends React.Component<EventsProps, EventsState> {
     }
 
     update(eventToEdit: Event) {
+        const newState: EventsState = {
+            ...this.state,
+        };
+
         try {
             const newEvent = dbContext.Events.update(eventToEdit);
-            const newState: EventsState = {
-                ...this.state,
-            };
 
-            const index = newState.events.findIndex(
-                (event) => event._id === newEvent._id
-            );
-            if (index !== -1) {
-                newState.events[index] = newEvent;
-            }
+            newState.events =
+                newState.selectedDbName === null
+                    ? dbContext.Events.findAll()
+                    : dbContext.Events.findByDB([newState.selectedDbName]);
 
             newState.edit = false;
             newState.create = false;

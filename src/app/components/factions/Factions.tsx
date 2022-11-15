@@ -78,7 +78,10 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
     componentDidMount() {
         const newState = { ...this.state };
         try {
-            newState.factions = dbContext.Factions.findAll();
+            newState.factions =
+                newState.selectedDbName === null
+                    ? dbContext.Factions.findAll()
+                    : dbContext.Factions.findByDB([newState.selectedDbName]);
 
             newState.dbnames = dbContext.DBNames.findAll();
         } catch (error) {
@@ -161,7 +164,10 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
             ...this.state,
         };
         try {
-            newState.factions = dbContext.Factions.findAll();
+            newState.factions =
+                newState.selectedDbName === null
+                    ? dbContext.Factions.findAll()
+                    : dbContext.Factions.findByDB([newState.selectedDbName]);
         } catch (error) {
             newState.openError = true;
             newState.error = "Error loading factions";
@@ -170,13 +176,16 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
     }
 
     create(factionToEdit: Faction) {
+        const newState = { ...this.state };
+
         try {
             const newFaction = dbContext.Factions.create(factionToEdit);
-            const newState = {
-                ...this.state,
-            };
 
-            newState.factions.push(newFaction);
+            newState.factions =
+                newState.selectedDbName === null
+                    ? dbContext.Factions.findAll()
+                    : dbContext.Factions.findByDB([newState.selectedDbName]);
+
             newState.edit = false;
             newState.create = false;
             newState.editingFaction = null;
@@ -194,12 +203,10 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
                 ...this.state,
             };
 
-            const index = newState.factions.findIndex(
-                (faction) => faction._id === newFaction._id
-            );
-            if (index !== -1) {
-                newState.factions[index] = newFaction;
-            }
+            newState.factions =
+                newState.selectedDbName === null
+                    ? dbContext.Factions.findAll()
+                    : dbContext.Factions.findByDB([newState.selectedDbName]);
 
             newState.edit = false;
             newState.create = false;
@@ -298,6 +305,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
             try {
                 const selectedDbName =
                     dbContext.DBNames.findById(dbnameIdValue);
+
                 if (selectedDbName) {
                     newState.selectedDbName = selectedDbName._id;
 
