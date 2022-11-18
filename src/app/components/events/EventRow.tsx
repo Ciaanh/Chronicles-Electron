@@ -1,12 +1,6 @@
 import React from "react";
 import Grid from "@mui/material/Unstable_Grid2";
-import {
-    Typography,
-    IconButton,
-    Accordion,
-    AccordionSummary,
-    AccordionDetails,
-} from "@mui/material";
+import { Typography, IconButton, ListItemText, ListItem } from "@mui/material";
 
 import EditIcon from "@mui/icons-material/Edit";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
@@ -22,115 +16,90 @@ interface IEventRowProps {
     showError: (error: string) => void;
 }
 
-interface IEventRowState {
-    event: Event;
-    open: boolean;
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+interface IEventRowState {}
 
 class EventRow extends React.Component<IEventRowProps, IEventRowState> {
     constructor(props: IEventRowProps) {
         super(props);
-        const initialState: IEventRowState = {
-            event: props.event,
-            open: false,
-        };
+        const initialState: IEventRowState = {};
 
         this.state = initialState;
     }
 
-    toggleAccordion() {
-        const newState: IEventRowState = {
-            ...this.state,
-        } as IEventRowState;
-
-        newState.open = !newState.open;
-
-        this.setState(newState);
-    }
-
     render() {
         return (
-            <Accordion
-                expanded={this.state.open}
-                onChange={() => this.toggleAccordion()}
+            <ListItem
+                divider
+                secondaryAction={
+                    <React.Fragment>
+                        <IconButton
+                            aria-label="delete"
+                            size="small"
+                            onClick={(event) => {
+                                event.stopPropagation();
+                                dbContext.Events.delete(this.props.event._id);
+                                this.props.eventDeleted(this.props.event._id);
+                            }}
+                        >
+                            <HighlightOffIcon />
+                        </IconButton>
+                        <IconButton
+                            aria-label="edit"
+                            size="small"
+                            onClick={(event) => {
+                                event.stopPropagation();
+                                this.props.eventDetails(this.props.event._id);
+                            }}
+                        >
+                            <EditIcon />
+                        </IconButton>
+                    </React.Fragment>
+                }
             >
-                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Typography
-                        sx={{
-                            fontSize: (theme) => theme.typography.pxToRem(15),
-                            flexBasis: "33.33%",
-                            flexShrink: 0,
-                        }}
-                    >
+                <ListItemText
+                    primary={`${this.props.event.name}`}
+                    secondary={
                         <React.Fragment>
-                            <IconButton
-                                aria-label="delete"
-                                size="small"
-                                onClick={(event) => {
-                                    event.stopPropagation();
-                                    dbContext.Events.delete(
-                                        this.state.event._id
-                                    );
-                                    this.props.eventDeleted(
-                                        this.state.event._id
-                                    );
-                                }}
+                            <Typography
+                                sx={{ display: "inline" }}
+                                component="span"
+                                variant="body2"
+                                color="text.primary"
                             >
-                                <HighlightOffIcon />
-                            </IconButton>
-                            <IconButton
-                                aria-label="edit"
-                                size="small"
-                                onClick={(event) => {
-                                    event.stopPropagation();
-                                    this.props.eventDetails(
-                                        this.state.event._id
-                                    );
-                                }}
-                            >
-                                <EditIcon />
-                            </IconButton>
-                        </React.Fragment>
-                        {this.state.event.name}
-                    </Typography>
-                    <Typography
-                        sx={{
-                            fontSize: (theme) => theme.typography.pxToRem(15),
-                            color: (theme) => theme.palette.text.secondary,
-                        }}
-                    >
-                        Unique Id : {this.state.event._id}
-                    </Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                    <Grid container spacing={2}>
-                        <Grid md={2}></Grid>
+                                Event begin on year {this.props.event.yearStart}
+                            </Typography>
 
-                        <Grid md={10}>
-                            <Typography
-                                sx={{
-                                    fontSize: (theme) =>
-                                        theme.typography.pxToRem(15),
-                                    flexBasis: "33.33%",
-                                    flexShrink: 0,
-                                }}
-                            >
-                                Label
-                            </Typography>
-                            <Typography
-                                sx={{
-                                    fontSize: (theme) =>
-                                        theme.typography.pxToRem(15),
-                                    color: (theme) =>
-                                        theme.palette.text.secondary,
-                                }}
-                            >
-                                {this.state.event.label.enUS}
-                            </Typography>
-                        </Grid>
-                    </Grid>
-                </AccordionDetails>
-            </Accordion>
+                            {this.props.event.order
+                                ? ` - Order ${this.props.event.order} - ${this.props.event.description}`
+                                : ""}
+                        </React.Fragment>
+                    }
+                />
+            </ListItem>
+
+            // <React.Fragment>
+            //     <Typography
+            //         sx={{
+            //             fontSize: (theme) => theme.typography.pxToRem(15),
+            //             flexBasis: "33.33%",
+            //             flexShrink: 0,
+            //         }}
+            //     >
+            //         <React.Fragment>
+
+            //         </React.Fragment>
+            //         {}
+            //     </Typography>
+            //     <Typography
+            //         sx={{
+            //             fontSize: (theme) => theme.typography.pxToRem(15),
+            //             color: (theme) => theme.palette.text.secondary,
+            //         }}
+            //     >
+            //         Unique Id : {this.props.event._id}
+            //     </Typography>
+            // </React.Fragment>
         );
     }
 }

@@ -92,6 +92,7 @@ export const EventMapper = (event: Event): DB_Event => {
         labelId: event.label._id,
         descriptionIds: event.description.map((locale) => locale._id),
         dbnameId: event.dbname._id,
+        order: event.order,
     };
 };
 
@@ -110,6 +111,7 @@ export const EventMapperFromDB = (event: DB_Event): Event => {
         label: Locales.findById(event.labelId),
         description: Locales.findByIds(event.descriptionIds),
         dbname: DBNames.findById(event.dbnameId),
+        order: event.order,
     };
 };
 

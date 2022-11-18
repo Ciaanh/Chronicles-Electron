@@ -74,7 +74,7 @@ export class DBService {
 			yearEnd=${event.yearEnd},
 			eventType=${event.eventType},
 			timeline=${event.timeline},
-			-- date=[integer],
+			order=${event.order},
 			characters={${this.MapCharacterList(event)}},
             factions={${this.MapFactionList(event)}},
 		}`;

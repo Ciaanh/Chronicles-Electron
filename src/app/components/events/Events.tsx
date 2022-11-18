@@ -207,6 +207,7 @@ class Events extends React.Component<EventsProps, EventsState> {
             label: getEmptyLocale(),
             description: [],
             dbname: { _id: null, name: "" } as DbName,
+            order: 3,
         };
     }
 
@@ -229,7 +230,7 @@ class Events extends React.Component<EventsProps, EventsState> {
 
     create(eventToEdit: Event) {
         const newState: EventsState = { ...this.state };
-        
+
         try {
             const newEvent = dbContext.Events.create(eventToEdit);
 
@@ -670,20 +671,32 @@ class Events extends React.Component<EventsProps, EventsState> {
                         </Grid>
                     </Grid>
 
-                    {this.state.events.length === 0 && <NoData />}
-                    {this.state.events.map((event) => (
-                        <EventRow
-                            key={event._id}
-                            event={event}
-                            eventDetails={(eventid: number) =>
-                                this.eventDetails(eventid)
-                            }
-                            eventDeleted={(eventid: number) =>
-                                this.eventDeleted(eventid)
-                            }
-                            showError={(error: string) => this.showError(error)}
-                        />
-                    ))}
+                    {this.state.events.length === 0 ? (
+                        <NoData />
+                    ) : (
+                        <List
+                            sx={{
+                                width: "100%",
+                                bgcolor: "background.paper",
+                            }}
+                        >
+                            {this.state.events.map((event) => (
+                                <EventRow
+                                    key={event._id}
+                                    event={event}
+                                    eventDetails={(eventid: number) =>
+                                        this.eventDetails(eventid)
+                                    }
+                                    eventDeleted={(eventid: number) =>
+                                        this.eventDeleted(eventid)
+                                    }
+                                    showError={(error: string) =>
+                                        this.showError(error)
+                                    }
+                                />
+                            ))}
+                        </List>
+                    )}
                 </Box>
                 <Fab
                     color="primary"

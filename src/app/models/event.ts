@@ -17,6 +17,7 @@ export interface Event extends Dto {
     label: Locale;
     description: Locale[];
     dbname: DbName;
+    order: number;
 }
 
 export interface DB_Event extends DbObject {
@@ -31,4 +32,5 @@ export interface DB_Event extends DbObject {
     labelId: number;
     descriptionIds: number[];
     dbnameId: number;
+    order: number;
 }
