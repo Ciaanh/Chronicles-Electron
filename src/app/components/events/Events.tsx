@@ -621,6 +621,29 @@ class Events extends React.Component<EventsProps, EventsState> {
         this.setState(newState);
     }
 
+    changeOrder(eventid: number, increment: number) {
+        const newState: EventsState = {
+            ...this.state,
+        };
+        try {
+            const event = dbContext.Events.findById(eventid);
+
+            if (event) {
+                event.order = event.order + increment;
+                dbContext.Events.update(event);
+            }
+
+            newState.events =
+                newState.selectedDbName === null
+                    ? dbContext.Events.findAll()
+                    : dbContext.Events.findByDB([newState.selectedDbName]);
+        } catch (error) {
+            newState.openError = true;
+            newState.error = "Error changing event order";
+        }
+        this.setState(newState);
+    }
+
     render() {
         return (
             <React.Fragment>
@@ -680,21 +703,36 @@ class Events extends React.Component<EventsProps, EventsState> {
                                 bgcolor: "background.paper",
                             }}
                         >
-                            {this.state.events.map((event) => (
-                                <EventRow
-                                    key={event._id}
-                                    event={event}
-                                    eventDetails={(eventid: number) =>
-                                        this.eventDetails(eventid)
+                            {this.state.events
+                                .sort((a, b) => {
+                                    if (a.yearStart === b.yearStart) {
+                                        if (a.order === b.order) return 0;
+                                        if (a.order > b.order) return 1;
+                                        if (a.order < b.order) return -1;
                                     }
-                                    eventDeleted={(eventid: number) =>
-                                        this.eventDeleted(eventid)
-                                    }
-                                    showError={(error: string) =>
-                                        this.showError(error)
-                                    }
-                                />
-                            ))}
+
+                                    if (a.yearStart > b.yearStart) return 1;
+                                    if (a.yearStart < b.yearStart) return -1;
+                                })
+                                .reverse()
+                                .map((event) => (
+                                    <EventRow
+                                        key={event._id}
+                                        event={event}
+                                        eventDetails={(eventid: number) =>
+                                            this.eventDetails(eventid)
+                                        }
+                                        eventDeleted={(eventid: number) =>
+                                            this.eventDeleted(eventid)
+                                        }
+                                        showError={(error: string) =>
+                                            this.showError(error)
+                                        }
+                                        changeOrder={(eventid: number, increment: number) =>
+                                            this.changeOrder(eventid, increment)
+                                        }
+                                    />
+                                ))}
                         </List>
                     )}
                 </Box>

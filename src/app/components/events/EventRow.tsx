@@ -4,16 +4,20 @@ import { Typography, IconButton, ListItemText, ListItem } from "@mui/material";
 
 import EditIcon from "@mui/icons-material/Edit";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+
+import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 
 import { Event } from "../../models/event";
 import dbContext from "../../dbContext/dbContext";
+import { Stack } from "@mui/system";
 
 interface IEventRowProps {
     event: Event;
     eventDetails: (eventid: number) => void;
     eventDeleted: (eventid: number) => void;
     showError: (error: string) => void;
+    changeOrder: (eventid: number, increment: number) => void;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -30,6 +34,12 @@ class EventRow extends React.Component<IEventRowProps, IEventRowState> {
     render() {
         return (
             <ListItem
+                alignItems="flex-start"
+                sx={{
+                    py: 0,
+                    minHeight: 32,
+                    backgroundColor: (theme) => theme.palette.action.hover,
+                }}
                 divider
                 secondaryAction={
                     <React.Fragment>
@@ -60,46 +70,47 @@ class EventRow extends React.Component<IEventRowProps, IEventRowState> {
                 <ListItemText
                     primary={`${this.props.event.name}`}
                     secondary={
-                        <React.Fragment>
-                            <Typography
-                                sx={{ display: "inline" }}
-                                component="span"
-                                variant="body2"
-                                color="text.primary"
-                            >
-                                Event begin on year {this.props.event.yearStart}
-                            </Typography>
+                        <Grid container>
+                            <Grid xs={12}>
+                                <Typography variant="body2">
+                                    <IconButton
+                                        size="small"
+                                        onClick={() =>
+                                            this.props.changeOrder(
+                                                this.props.event._id,
+                                                1
+                                            )
+                                        }
+                                    >
+                                        <ArrowDropUpIcon />
+                                    </IconButton>
+                                    Start year {this.props.event.yearStart}{" "}
+                                </Typography>
+                            </Grid>
 
-                            {this.props.event.order
-                                ? ` - Order ${this.props.event.order} - ${this.props.event.description}`
-                                : ""}
-                        </React.Fragment>
+                            <Grid xs={12}>
+                                <Typography variant="body2">
+                                    <IconButton
+                                        size="small"
+                                        onClick={() =>
+                                            this.props.changeOrder(
+                                                this.props.event._id,
+                                                -1
+                                            )
+                                        }
+                                    >
+                                        <ArrowDropDownIcon />
+                                    </IconButton>
+                                    Order{" "}
+                                    {this.props.event.order
+                                        ? this.props.event.order
+                                        : 0}
+                                </Typography>
+                            </Grid>
+                        </Grid>
                     }
                 />
             </ListItem>
-
-            // <React.Fragment>
-            //     <Typography
-            //         sx={{
-            //             fontSize: (theme) => theme.typography.pxToRem(15),
-            //             flexBasis: "33.33%",
-            //             flexShrink: 0,
-            //         }}
-            //     >
-            //         <React.Fragment>
-
-            //         </React.Fragment>
-            //         {}
-            //     </Typography>
-            //     <Typography
-            //         sx={{
-            //             fontSize: (theme) => theme.typography.pxToRem(15),
-            //             color: (theme) => theme.palette.text.secondary,
-            //         }}
-            //     >
-            //         Unique Id : {this.props.event._id}
-            //     </Typography>
-            // </React.Fragment>
         );
     }
 }
