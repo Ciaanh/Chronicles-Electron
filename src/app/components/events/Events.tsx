@@ -207,7 +207,7 @@ class Events extends React.Component<EventsProps, EventsState> {
             label: getEmptyLocale(),
             description: [],
             dbname: { _id: null, name: "" } as DbName,
-            order: 3,
+            order: 0,
         };
     }
 
