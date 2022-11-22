@@ -4,7 +4,7 @@ import { Event } from "../../models/event";
 import { Faction } from "../../models/faction";
 import { FileContent } from "../fileContent";
 import { FileGenerationRequest, FormatedDbName } from "../generator";
-import { Language, LanguageArray } from "../../constants";
+import { LanguageArray } from "../../constants";
 
 interface localeLine {
     key: string;
@@ -160,7 +160,7 @@ export class LocaleService {
                         content: `local AceLocale = LibStub:GetLibrary("AceLocale-3.0")
 local L = AceLocale:NewLocale("Chronicles", "enUS", true, true)
                 
-    ${localeContent}`,
+${localeContent}`,
                         name: `Custom/Locales/${localeGroup.fileName}`,
                     };
                     return localeFile;
@@ -290,13 +290,17 @@ ${indexContent}
         let localeContent = "";
 
         if (ishtml) {
-            localeContent = value.replace(/(?:\r\n|\r|\n)/g, " ");
+            localeContent = value
+                .replace(/(?:\r\n|\r|\n)/g, " ")
+                .replace(/"/g, '\\"');
 
             if (!this.validateHTML(localeContent)) {
                 localeContent = `<html><body>Locale HTML content invalid for key [${key}] !</body></html>`;
             }
         } else {
-            localeContent = value.replace(/(?:\r\n|\r|\n)/g, "\\n");
+            localeContent = value
+                .replace(/(?:\r\n|\r|\n)/g, "\\n")
+                .replace(/"/g, '\\"');
         }
 
         return `        L["${key}"] = "${localeContent}"\n`;
