@@ -14,6 +14,7 @@ export type TablesList = {
     factions: string;
     dbnames: string;
     locales: string;
+    chapters: string;
 };
 
 export interface DatabaseApi {
@@ -38,6 +39,7 @@ const databaseApi: DatabaseApi = {
         factions: "factions",
         dbnames: "dbnames",
         locales: "locales",
+        chapters: "chapters",
     },
 
     getAll<T extends DbObject>(dbName: string): T[] {
@@ -80,6 +82,7 @@ const databaseApi: DatabaseApi = {
             factions: "factions",
             dbnames: "dbnames",
             locales: "locales",
+            chapters: "chapters",
         };
 
         let dbpath: string = null;
@@ -114,6 +117,7 @@ const databaseApi: DatabaseApi = {
                     tableNames.factions,
                     tableNames.dbnames,
                     tableNames.locales,
+                    tableNames.chapters,
                 ],
                 location: dbpath,
                 oneIndexed: true,

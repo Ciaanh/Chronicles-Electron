@@ -14,8 +14,8 @@ if (require("electron-squirrel-startup")) {
 // https://medium.com/folkdevelopers/the-ultimate-guide-to-electron-with-react-8df8d73f4c97
 const createWindow = (): void => {
     const mainWindow = new BrowserWindow({
-        width: 1200,
-        height: 900,
+        width: 1600,
+        height: 1000,
         darkTheme: true,
         backgroundColor: "#121212",
         maximizable: false,

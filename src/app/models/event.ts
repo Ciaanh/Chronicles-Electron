@@ -4,6 +4,7 @@ import { Dto } from "./object_interfaces";
 import { Faction } from "./faction";
 import { Locale } from "./locale";
 import { DbObject } from "neutron-db/lib/types";
+import { Chapter } from "./chapter";
 
 export interface Event extends Dto {
     name: string;
@@ -16,6 +17,7 @@ export interface Event extends Dto {
     characters: Character[];
     label: Locale;
     description: Locale[];
+    chapters: Chapter[];
     dbname: DbName;
     order: number;
 }
@@ -31,6 +33,7 @@ export interface DB_Event extends DbObject {
     characterIds: number[];
     labelId: number;
     descriptionIds: number[];
+    chapterIds: number[];
     dbnameId: number;
     order: number;
 }

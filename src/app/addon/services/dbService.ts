@@ -6,6 +6,7 @@ import { FileGenerationRequest, FormatedDbName } from "../generator";
 import { getLocaleKey } from "../../models/locale";
 import { TypeName } from "../../constants";
 import { DbName } from "../../models/dbname";
+import { Chapter } from "../../models/chapter";
 
 interface DepsAccumulator<T> {
     dbname: DbName;
@@ -70,6 +71,7 @@ export class DBService {
 			description={${event.description
                 .map((desc) => `Locale["${getLocaleKey(desc)}"]`)
                 .join(", ")}},
+            chapters={${this.MapChapterList(event.chapters)}},
 			yearStart=${event.yearStart},
 			yearEnd=${event.yearEnd},
 			eventType=${event.eventType},
@@ -138,6 +140,18 @@ export class DBService {
         });
 
         return formatedDepsData.join(", ");
+    }
+
+    private MapChapterList(chapters: Chapter[]): string {
+        return chapters
+            .map((chapter) => {
+                return `{
+                header = Locale["${getLocaleKey(chapter.header)}"],
+                pages = ["${chapter.pages
+                    .map((page) => `Locale["${getLocaleKey(page)}"]`)
+                    .join(", ")}"] }`;
+            })
+            .join(", ");
     }
 
     private CreateFactionDbFile(request: FileGenerationRequest) {
@@ -218,7 +232,7 @@ export class DBService {
     }
 
     private dbHeader = `local FOLDER_NAME, private = ...
-local Chronicles = private.Core
+local Chronicles = private.Chronicles
 local modules = Chronicles.Custom.Modules
 local Locale = LibStub("AceLocale-3.0"):GetLocale(private.addon_name)`;
 
@@ -310,7 +324,7 @@ local Locale = LibStub("AceLocale-3.0"):GetLocale(private.addon_name)`;
             .join("\n");
 
         const content = `local FOLDER_NAME, private = ...
-local Chronicles = private.Core
+local Chronicles = private.Chronicles
 Chronicles.Custom = {}
 Chronicles.Custom.DB = {}
 Chronicles.Custom.Modules = {

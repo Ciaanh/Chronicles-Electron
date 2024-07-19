@@ -1,4 +1,5 @@
 import { DB_Event, Event } from "../models/event";
+import { Chapters } from "./chapterContext";
 import { Characters } from "./characterContext";
 import { DBNames } from "./dbNameContext";
 import { Factions } from "./factionContext";
@@ -91,6 +92,7 @@ export const EventMapper = (event: Event): DB_Event => {
         characterIds: event.characters.map((character) => character._id),
         labelId: event.label._id,
         descriptionIds: event.description.map((locale) => locale._id),
+        chapterIds: event.chapters.map((chapter) => chapter._id),
         dbnameId: event.dbname._id,
         order: event.order,
     };
@@ -98,20 +100,37 @@ export const EventMapper = (event: Event): DB_Event => {
 
 export const EventMapperFromDB = (event: DB_Event): Event => {
     if (!event) return null;
+    console.log(event.id);
+    const id = event.id;
+    const name = event.name;
+    const yearStart = event.yearStart;
+    const yearEnd = event.yearEnd;
+    const eventType = event.eventType;
+    const timeline = event.timeline;
+    const link = event.link;
+    const factions = Factions.findByIds(event.factionIds);
+    const characters = Characters.findByIds(event.characterIds);
+    const label = Locales.findById(event.labelId);
+    const description = Locales.findByIds(event.descriptionIds);
+    const chapters = Chapters.findByIds(event.chapterIds);
+    const dbname = DBNames.findById(event.dbnameId);
+    const order = event.order;
+
     return {
-        _id: event.id,
-        name: event.name,
-        yearStart: event.yearStart,
-        yearEnd: event.yearEnd,
-        eventType: event.eventType,
-        timeline: event.timeline,
-        link: event.link,
-        factions: Factions.findByIds(event.factionIds),
-        characters: Characters.findByIds(event.characterIds),
-        label: Locales.findById(event.labelId),
-        description: Locales.findByIds(event.descriptionIds),
-        dbname: DBNames.findById(event.dbnameId),
-        order: event.order,
+        _id: id,
+        name: name,
+        yearStart: yearStart,
+        yearEnd: yearEnd,
+        eventType: eventType,
+        timeline: timeline,
+        link: link,
+        factions: factions,
+        characters: characters,
+        label: label,
+        description: description,
+        chapters: chapters,
+        dbname: dbname,
+        order: order,
     };
 };
 

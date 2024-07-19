@@ -1,4 +1,5 @@
 import { DB_Locale, Locale } from "../models/locale";
+import { Chapters } from "./chapterContext";
 import { Characters } from "./characterContext";
 import { Events } from "./eventContext";
 import { Factions } from "./factionContext";
@@ -28,13 +29,19 @@ export const Locales: LocaleContext = {
         const events = Events.findAll();
         const characters = Characters.findAll();
         const factions = Factions.findAll();
+        const chapters = Chapters.findAll();
 
         // filter locales not referened by any other table
         const filteredLocales = locales.filter((locale) => {
             const event = events.find(
                 (event) =>
                     event.label._id === locale.id ||
-                    event.description.find((desc) => desc._id === locale.id)
+                    event.description.find((desc) => desc._id === locale.id) ||
+                    event.chapters.find(
+                        (chapter) =>
+                            chapter.header._id === locale.id ||
+                            chapter.pages.find((page) => page._id === locale.id)
+                    )
             );
             const character = characters.find(
                 (character) =>
@@ -46,7 +53,12 @@ export const Locales: LocaleContext = {
                     faction.label._id === locale.id ||
                     faction.description._id === locale.id
             );
-            return !event && !character && !faction;
+            const chapter = chapters.find(
+                (chapter) =>
+                    chapter.header._id === locale.id ||
+                    chapter.pages.find((page) => page._id === locale.id)
+            );
+            return !event && !character && !faction && !chapter;
         });
 
         return LocaleMapperFromDBs(filteredLocales);
@@ -61,6 +73,9 @@ export const Locales: LocaleContext = {
         return LocaleMapperFromDBs(filteredLocales);
     },
     findById: function (id) {
+        if (id == null) {
+            return null;
+        }
         const locale: DB_Locale = window.database.get(
             id,
             window.database.tables.locales
