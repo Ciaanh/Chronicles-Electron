@@ -2,14 +2,14 @@ import { Event } from "../../models/event";
 import { Character } from "../../models/character";
 import { Faction } from "../../models/faction";
 import { FileContent } from "../fileContent";
-import { FileGenerationRequest, FormatedDbName } from "../generator";
+import { FileGenerationRequest, FormatedCollection } from "../generator";
 import { getLocaleKey } from "../../models/locale";
 import { TypeName } from "../../constants";
-import { DbName } from "../../models/dbname";
+import { Collection } from "../../models/collection";
 import { Chapter } from "../../models/chapter";
 
 interface DepsAccumulator<T> {
-    dbname: DbName;
+    collection: Collection;
     list: T[];
 }
 
@@ -37,20 +37,20 @@ export class DBService {
     }
 
     private CreateEventDbFile(request: FileGenerationRequest) {
-        const files = request.dbnames.map((dbname: FormatedDbName) => {
+        const files = request.collections.map((c: FormatedCollection) => {
             const dbFoldername = this.GetDbFolderName(
-                dbname.index,
-                dbname.name
+                c.index,
+                c.name
             );
-            const dbName = this.GetDbName(dbname.name, TypeName.Event);
+            const collection = this.GetCollection(c.name, TypeName.Event);
 
             const filteredEvents = request.events.filter(
-                (event: Event) => String(event.dbname._id) == String(dbname._id)
+                (event: Event) => String(event.collection._id) == String(c._id)
             );
 
             const eventDbContent = `${this.dbHeader}
 
-    ${dbName} = {
+    ${collection} = {
         ${filteredEvents
             .map((event) => this.MapEventContent(event))
             .join(",\n        ")}
@@ -58,7 +58,7 @@ export class DBService {
 
             return {
                 content: eventDbContent,
-                name: `Custom/DB/${dbFoldername}/${dbName}.lua`,
+                name: `Custom/DB/${dbFoldername}/${collection}.lua`,
             } as FileContent;
         });
 
@@ -86,11 +86,11 @@ export class DBService {
     private MapFactionList(event: Event): string {
         const factionsByDB = event.factions.reduce(
             (acc: DepsAccumulator<Faction>[], faction: Faction) => {
-                const db = faction.dbname;
+                const db = faction.collection;
 
                 if (!acc[db._id]) {
                     acc[db._id] = {
-                        dbname: db,
+                        collection: db,
                         list: [],
                     } as DepsAccumulator<Faction>;
                 }
@@ -101,13 +101,13 @@ export class DBService {
         );
 
         const formatedDepsData = factionsByDB.map((deps) => {
-            const lowerDbName = deps.dbname.name.toLowerCase();
+            const lowerCollection = deps.collection.name.toLowerCase();
 
             const factionIds = deps.list
                 .map((faction) => faction._id)
                 .join(", ");
 
-            return `["${lowerDbName}"] = {${factionIds}}`;
+            return `["${lowerCollection}"] = {${factionIds}}`;
         });
 
         return formatedDepsData.join(", ");
@@ -115,11 +115,11 @@ export class DBService {
     private MapCharacterList(event: Event): string {
         const charactersByDB = event.characters.reduce(
             (acc: DepsAccumulator<Character>[], character: Character) => {
-                const db = character.dbname;
+                const db = character.collection;
 
                 if (!acc[db._id]) {
                     acc[db._id] = {
-                        dbname: db,
+                        collection: db,
                         list: [],
                     } as DepsAccumulator<Character>;
                 }
@@ -130,13 +130,13 @@ export class DBService {
         );
 
         const formatedDepsData = charactersByDB.map((deps) => {
-            const lowerDbName = deps.dbname.name.toLowerCase();
+            const lowerCollection = deps.collection.name.toLowerCase();
 
             const characterIds = deps.list
                 .map((character) => character._id)
                 .join(", ");
 
-            return `["${lowerDbName}"] = {${characterIds}}`;
+            return `["${lowerCollection}"] = {${characterIds}}`;
         });
 
         return formatedDepsData.join(", ");
@@ -147,35 +147,35 @@ export class DBService {
             .map((chapter) => {
                 return `{
                 header = Locale["${getLocaleKey(chapter.header)}"],
-                pages = ["${chapter.pages
+                pages = {${chapter.pages
                     .map((page) => `Locale["${getLocaleKey(page)}"]`)
-                    .join(", ")}"] }`;
+                    .join(", ")}} }`;
             })
             .join(", ");
     }
 
     private CreateFactionDbFile(request: FileGenerationRequest) {
-        const files = request.dbnames.map((dbname: FormatedDbName) => {
+        const files = request.collections.map((c: FormatedCollection) => {
             const dbFoldername = this.GetDbFolderName(
-                dbname.index,
-                dbname.name
+                c.index,
+                c.name
             );
-            const dbName = this.GetDbName(dbname.name, TypeName.Faction);
+            const collection = this.GetCollection(c.name, TypeName.Faction);
 
             const filteredFactions = request.factions.filter(
                 (faction: Faction) =>
-                    String(faction.dbname._id) == String(dbname._id)
+                    String(faction.collection._id) == String(c._id)
             );
 
             const factionDbContent = `${this.dbHeader}
 
-    ${dbName} = {
+    ${collection} = {
         ${filteredFactions.map(this.MapFactionContent).join(",\n        ")}
     }`;
 
             return {
                 content: factionDbContent,
-                name: `Custom/DB/${dbFoldername}/${dbName}.lua`,
+                name: `Custom/DB/${dbFoldername}/${collection}.lua`,
             } as FileContent;
         });
 
@@ -193,27 +193,27 @@ export class DBService {
     }
 
     private CreateCharacterDbFile(request: FileGenerationRequest) {
-        const files = request.dbnames.map((dbname: FormatedDbName) => {
+        const files = request.collections.map((c: FormatedCollection) => {
             const dbFoldername = this.GetDbFolderName(
-                dbname.index,
-                dbname.name
+                c.index,
+                c.name
             );
-            const dbName = this.GetDbName(dbname.name, TypeName.Character);
+            const collection = this.GetCollection(c.name, TypeName.Character);
 
             const filteredCharacters = request.characters.filter(
                 (character: Character) =>
-                    String(character.dbname._id) == String(dbname._id)
+                    String(character.collection._id) == String(c._id)
             );
 
             const characterDbContent = `${this.dbHeader}
 
-    ${dbName} = {
+    ${collection} = {
         ${filteredCharacters.map(this.MapCharacterContent).join(",\n        ")}
     }`;
 
             return {
                 content: characterDbContent,
-                name: `Custom/DB/${dbFoldername}/${dbName}.lua`,
+                name: `Custom/DB/${dbFoldername}/${collection}.lua`,
             } as FileContent;
         });
 
@@ -236,58 +236,58 @@ local Chronicles = private.Chronicles
 local modules = Chronicles.Custom.Modules
 local Locale = LibStub("AceLocale-3.0"):GetLocale(private.addon_name)`;
 
-    private FormatDbName(dbname: string) {
-        return dbname.replace(/\w+/g, function (w) {
+    private FormatCollection(collection: string) {
+        return collection.replace(/\w+/g, function (w) {
             return w[0].toUpperCase() + w.slice(1).toLowerCase();
         });
     }
 
-    private FormatDeclaration(dbname: string, typeName: TypeName) {
-        const lowerName = dbname.toLowerCase();
-        const formatedName = this.FormatDbName(dbname);
+    private FormatDeclaration(collection: string, typeName: TypeName) {
+        const lowerName = collection.toLowerCase();
+        const formatedName = this.FormatCollection(collection);
         return `\tChronicles.DB:Register${typeName}DB(Chronicles.Custom.Modules.${lowerName}, ${formatedName}${typeName}sDB)`;
     }
 
-    private FormatIndex(index: string, dbname: string, typeName: TypeName) {
-        const dbFoldername = this.GetDbFolderName(index, dbname);
-        const dbFilename = this.GetDbName(dbname, typeName);
+    private FormatIndex(index: string, collection: string, typeName: TypeName) {
+        const dbFoldername = this.GetDbFolderName(index, collection);
+        const dbFilename = this.GetCollection(collection, typeName);
 
         return `\t<Script file="${dbFoldername}\\${dbFilename}.lua" />`;
     }
 
-    private GetDbFolderName(index: string, dbname: string) {
-        const formatedName = this.FormatDbName(dbname);
+    private GetDbFolderName(index: string, collection: string) {
+        const formatedName = this.FormatCollection(collection);
         return `${index}_${formatedName}`;
     }
 
-    private GetDbName(dbname: string, typeName: TypeName) {
-        const formatedName = this.FormatDbName(dbname);
+    private GetCollection(collection: string, typeName: TypeName) {
+        const formatedName = this.FormatCollection(collection);
         return `${formatedName}${typeName}sDB`;
     }
 
     // ChroniclesDB.lua
     private CreateDeclarationFile(request: FileGenerationRequest) {
         // name like => mythos = "mythos",
-        const names = request.dbnames
-            .map((dbname: FormatedDbName) => {
-                const lowerDbName = dbname.name.toLowerCase();
-                return `\t${lowerDbName} = "${lowerDbName}"`;
+        const names = request.collections
+            .map((collection: FormatedCollection) => {
+                const lowerCollection = collection.name.toLowerCase();
+                return `\t${lowerCollection} = "${lowerCollection}"`;
             })
             .join(",\n");
 
-        const declarations = request.dbnames
-            .map((dbname: FormatedDbName) => {
+        const declarations = request.collections
+            .map((collection: FormatedCollection) => {
                 const filteredEvents = request.events.filter(
                     (event: Event) =>
-                        String(event.dbname._id) == String(dbname._id)
+                        String(event.collection._id) == String(collection._id)
                 );
                 const filteredFactions = request.factions.filter(
                     (faction: Faction) =>
-                        String(faction.dbname._id) == String(dbname._id)
+                        String(faction.collection._id) == String(collection._id)
                 );
                 const filteredCharacters = request.characters.filter(
                     (character: Character) =>
-                        String(character.dbname._id) == String(dbname._id)
+                        String(character.collection._id) == String(collection._id)
                 );
 
                 let eventDeclaration = "";
@@ -296,19 +296,19 @@ local Locale = LibStub("AceLocale-3.0"):GetLocale(private.addon_name)`;
 
                 if (filteredEvents.length > 0) {
                     eventDeclaration = this.FormatDeclaration(
-                        dbname.name,
+                        collection.name,
                         TypeName.Event
                     );
                 }
                 if (filteredFactions.length > 0) {
                     factionDeclaration = this.FormatDeclaration(
-                        dbname.name,
+                        collection.name,
                         TypeName.Faction
                     );
                 }
                 if (filteredCharacters.length > 0) {
                     characterDeclaration = this.FormatDeclaration(
-                        dbname.name,
+                        collection.name,
                         TypeName.Character
                     );
                 }
@@ -347,19 +347,19 @@ end`;
         // <Script file="01_Mythos\MythosFactionsDB.lua" />
         // <Script file="01_Mythos\MythosCharactersDB.lua" />
 
-        const indexes = request.dbnames
-            .map((dbname: FormatedDbName) => {
+        const indexes = request.collections
+            .map((collection: FormatedCollection) => {
                 const filteredEvents = request.events.filter(
                     (event: Event) =>
-                        String(event.dbname._id) == String(dbname._id)
+                        String(event.collection._id) == String(collection._id)
                 );
                 const filteredFactions = request.factions.filter(
                     (faction: Faction) =>
-                        String(faction.dbname._id) == String(dbname._id)
+                        String(faction.collection._id) == String(collection._id)
                 );
                 const filteredCharacters = request.characters.filter(
                     (character: Character) =>
-                        String(character.dbname._id) == String(dbname._id)
+                        String(character.collection._id) == String(collection._id)
                 );
 
                 let eventIndex = "";
@@ -368,22 +368,22 @@ end`;
 
                 if (filteredEvents.length > 0) {
                     eventIndex = this.FormatIndex(
-                        dbname.index,
-                        dbname.name,
+                        collection.index,
+                        collection.name,
                         TypeName.Event
                     );
                 }
                 if (filteredFactions.length > 0) {
                     factionIndex = this.FormatIndex(
-                        dbname.index,
-                        dbname.name,
+                        collection.index,
+                        collection.name,
                         TypeName.Faction
                     );
                 }
                 if (filteredCharacters.length > 0) {
                     characterIndex = this.FormatIndex(
-                        dbname.index,
-                        dbname.name,
+                        collection.index,
+                        collection.name,
                         TypeName.Character
                     );
                 }

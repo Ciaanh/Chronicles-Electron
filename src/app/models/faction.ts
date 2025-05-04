@@ -1,4 +1,4 @@
-import { DbName } from "./dbname";
+import { Collection } from "./collection";
 import type { Dto } from "./object_interfaces";
 import { Locale } from "./locale";
 import { DbObject } from "neutron-db/lib/types";
@@ -8,7 +8,7 @@ export interface Faction extends Dto {
     label: Locale;
     description: Locale;
     timeline: number;
-    dbname: DbName;
+    collection: Collection;
 }
 
 export interface DB_Faction extends DbObject {
@@ -16,5 +16,5 @@ export interface DB_Faction extends DbObject {
     labelId: number;
     descriptionId: number;
     timeline: number;
-    dbnameId: number;
+    collectionId: number;
 }

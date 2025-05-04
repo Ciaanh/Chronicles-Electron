@@ -1,5 +1,5 @@
 import { Character, DB_Character } from "../models/character";
-import { DBNames } from "./dbNameContext";
+import { Collections } from "./collectionContext";
 import { Factions } from "./factionContext";
 import { Locales } from "./localeContext";
 
@@ -34,7 +34,7 @@ export const Characters: CharacterContext = {
             window.database.tables.characters
         );
         const filteredCharacters = characters.filter((character) =>
-            dbids.includes(character.dbnameId)
+            dbids.includes(character.collectionId)
         );
         return CharacterMapperFromDBs(filteredCharacters);
     },
@@ -81,7 +81,7 @@ export const CharacterMapper = (character: Character): DB_Character => {
         biographyId: character.biography._id,
         timeline: character.timeline,
         factionIds: character.factions.map((faction) => faction._id),
-        dbnameId: character.dbname._id,
+        collectionId: character.collection._id,
     };
 };
 
@@ -94,7 +94,7 @@ export const CharacterMapperFromDB = (character: DB_Character): Character => {
         biography: Locales.findById(character.biographyId),
         timeline: character.timeline,
         factions: Factions.findByIds(character.factionIds),
-        dbname: DBNames.findById(character.dbnameId),
+        collection: Collections.findById(character.collectionId),
     };
 };
 

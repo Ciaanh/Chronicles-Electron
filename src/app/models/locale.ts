@@ -50,7 +50,7 @@ function cleanString(value: string): string {
 }
 
 export function getLocaleKey(locale: Locale): string {
-    if (locale.enUS === null) {
+    if (!locale || locale.enUS === null) {
         return "<not set>";
     }
     return `${locale._id}_${cleanString(locale.enUS)}`;

@@ -12,18 +12,18 @@ export type TablesList = {
     events: string;
     characters: string;
     factions: string;
-    dbnames: string;
+    collections: string;
     locales: string;
     chapters: string;
 };
 
 export interface DatabaseApi {
     tables: TablesList;
-    getAll<T extends DbObject>(dbName: string): T[];
-    get<T extends DbObject>(id: number, dbName: string): T;
-    add<T extends DbObject>(row: T, dbName: string): T;
-    update<T extends DbObject>(row: T, dbName: string): T;
-    delete(id: number, dbName: string): void;
+    getAll<T extends DbObject>(collection: string): T[];
+    get<T extends DbObject>(id: number, collection: string): T;
+    add<T extends DbObject>(row: T, collection: string): T;
+    update<T extends DbObject>(row: T, collection: string): T;
+    delete(id: number, collection: string): void;
 
     isDbInitialized(): boolean;
     getUserDataPath(): string;
@@ -37,29 +37,29 @@ const databaseApi: DatabaseApi = {
         events: "events",
         characters: "characters",
         factions: "factions",
-        dbnames: "dbnames",
+        collections: "collections",
         locales: "locales",
         chapters: "chapters",
     },
 
-    getAll<T extends DbObject>(dbName: string): T[] {
-        return db.getAll<T>(dbName);
+    getAll<T extends DbObject>(collection: string): T[] {
+        return db.getAll<T>(collection);
     },
 
-    get<T extends DbObject>(id: number, dbName: string): T {
-        return db.get<T>(id, dbName);
+    get<T extends DbObject>(id: number, collection: string): T {
+        return db.get<T>(id, collection);
     },
 
-    add<T extends DbObject>(row: T, dbName: string): T {
-        return db.insert<T>(row, dbName);
+    add<T extends DbObject>(row: T, collection: string): T {
+        return db.insert<T>(row, collection);
     },
 
-    update<T extends DbObject>(row: T, dbName: string): T {
-        return db.update<T>(row, dbName);
+    update<T extends DbObject>(row: T, collection: string): T {
+        return db.update<T>(row, collection);
     },
 
-    delete(id: number, dbName: string): void {
-        db.delete(id, dbName);
+    delete(id: number, collection: string): void {
+        db.delete(id, collection);
     },
 
     isDbInitialized(): boolean {
@@ -80,7 +80,7 @@ const databaseApi: DatabaseApi = {
             events: "events",
             characters: "characters",
             factions: "factions",
-            dbnames: "dbnames",
+            collections: "collections",
             locales: "locales",
             chapters: "chapters",
         };
@@ -115,7 +115,7 @@ const databaseApi: DatabaseApi = {
                     tableNames.events,
                     tableNames.characters,
                     tableNames.factions,
-                    tableNames.dbnames,
+                    tableNames.collections,
                     tableNames.locales,
                     tableNames.chapters,
                 ],

@@ -145,10 +145,10 @@ class NavBar extends React.Component {
 
                         <Divider variant="middle" />
 
-                        <NavLink to="/dbname" className="link">
+                        <NavLink to="/collection" className="link">
                             <ListItem
                                 button
-                                selected={this.activeRoute("/dbname")}
+                                selected={this.activeRoute("/collection")}
                             >
                                 <ListItemIcon>
                                     <StorageIcon />

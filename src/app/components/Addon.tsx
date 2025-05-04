@@ -20,7 +20,7 @@ import {
 import MenuIcon from "@mui/icons-material/Menu";
 import DownloadIcon from "@mui/icons-material/Download";
 
-import { DbName } from "../models/dbname";
+import { Collection } from "../models/collection";
 import dbContext from "../dbContext/dbContext";
 import { AddonGenerator, GenerationRequest } from "../addon/generator";
 import NavBar from "./NavBar";
@@ -28,12 +28,12 @@ import NavBar from "./NavBar";
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface AddonProps {}
 interface AddonState {
-    dbnames: DbNameItem[];
+    collections: CollectionItem[];
     openError: boolean;
     error: string;
 }
 
-interface DbNameItem extends DbName {
+interface CollectionItem extends Collection {
     checked: boolean;
 }
 
@@ -41,18 +41,18 @@ class Addon extends React.Component<AddonProps, AddonState> {
     constructor(props: AddonProps) {
         super(props);
         const initialState: AddonState = {
-            dbnames: [],
+            collections: [],
             openError: false,
             error: "",
         };
         try {
-            const dbnames = dbContext.DBNames.findAll();
-            initialState.dbnames = dbnames.map((db) => {
+            const collections = dbContext.Collections.findAll();
+            initialState.collections = collections.map((db) => {
                 return { ...db, checked: false };
             });
         } catch (error) {
             initialState.openError = true;
-            initialState.error = "Error loading dbnames";
+            initialState.error = "Error loading collections";
         }
 
         this.state = initialState;
@@ -66,7 +66,7 @@ class Addon extends React.Component<AddonProps, AddonState> {
     }
 
     addon_generate_selected(dbids: number[]) {
-        const dbnames = dbContext.DBNames.findByIds(dbids);
+        const collections = dbContext.Collections.findByIds(dbids);
 
         const events = dbContext.Events.findByDB(dbids);
 
@@ -75,7 +75,7 @@ class Addon extends React.Component<AddonProps, AddonState> {
         const characters = dbContext.Characters.findByDB(dbids);
 
         const request: GenerationRequest = {
-            dbnames,
+            collections,
             events,
             factions,
             characters,
@@ -83,15 +83,15 @@ class Addon extends React.Component<AddonProps, AddonState> {
         new AddonGenerator().Create(request);
     }
 
-    addon_checkDbName_toggle(dbnameid: number) {
+    addon_checkCollection_toggle(collectionid: number) {
         const newState: AddonState = { ...this.state } as AddonState;
 
-        const dbnameIndex = newState.dbnames.findIndex(
-            (dbname) => dbname._id === dbnameid
+        const collectionIndex = newState.collections.findIndex(
+            (collection) => collection._id === collectionid
         );
-        if (dbnameIndex !== null) {
-            newState.dbnames[dbnameIndex].checked =
-                !newState.dbnames[dbnameIndex].checked;
+        if (collectionIndex !== null) {
+            newState.collections[collectionIndex].checked =
+                !newState.collections[collectionIndex].checked;
         }
 
         this.setState(newState);
@@ -141,18 +141,18 @@ class Addon extends React.Component<AddonProps, AddonState> {
                             </Toolbar>
                         </AppBar>
                         <List>
-                            {this.state.dbnames.map((dbname) => {
-                                const labelId = `checkbox-list-label-${dbname._id}`;
+                            {this.state.collections.map((collection) => {
+                                const labelId = `checkbox-list-label-${collection._id}`;
                                 return (
                                     <ListItem
-                                        key={dbname._id}
-                                        value={dbname.name}
+                                        key={collection._id}
+                                        value={collection.name}
                                         secondaryAction={
                                             <Button
                                                 variant="contained"
                                                 onClick={() =>
                                                     this.addon_generate_selected(
-                                                        [dbname._id]
+                                                        [collection._id]
                                                     )
                                                 }
                                             >
@@ -164,15 +164,15 @@ class Addon extends React.Component<AddonProps, AddonState> {
                                         <ListItemButton
                                             role={undefined}
                                             onClick={() =>
-                                                this.addon_checkDbName_toggle(
-                                                    dbname._id
+                                                this.addon_checkCollection_toggle(
+                                                    collection._id
                                                 )
                                             }
                                             dense
                                         >
                                             <ListItemIcon>
                                                 <Checkbox
-                                                    checked={dbname.checked}
+                                                    checked={collection.checked}
                                                     tabIndex={-1}
                                                     disableRipple
                                                     inputProps={{
@@ -183,7 +183,7 @@ class Addon extends React.Component<AddonProps, AddonState> {
                                             </ListItemIcon>
                                             <ListItemText
                                                 id={labelId}
-                                                primary={dbname.name}
+                                                primary={collection.name}
                                             />
                                         </ListItemButton>
                                     </ListItem>
@@ -194,10 +194,10 @@ class Addon extends React.Component<AddonProps, AddonState> {
                             variant="contained"
                             onClick={() =>
                                 this.addon_generate_selected(
-                                    this.state.dbnames
-                                        .filter((dbname) => dbname.checked)
-                                        .map((dbname) => {
-                                            return dbname._id;
+                                    this.state.collections
+                                        .filter((collection) => collection.checked)
+                                        .map((collection) => {
+                                            return collection._id;
                                         })
                                 )
                             }

@@ -16,8 +16,8 @@ const createWindow = (): void => {
     const mainWindow = new BrowserWindow({
         width: 1600,
         height: 1000,
-        darkTheme: true,
-        backgroundColor: "#121212",
+        darkTheme: false,
+        //backgroundColor: "#121212",
         maximizable: false,
         resizable: false,
         //frame: false,

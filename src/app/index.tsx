@@ -23,7 +23,7 @@ import Addon from "./components/Addon";
 import Events from "./components/events/Events";
 import Characters from "./components/characters/Characters";
 import Factions from "./components/factions/Factions";
-import DBNames from "./components/dbnames/DBNames";
+import Collections from "./components/collections/Collections";
 import { Locales } from "./components/locales/Locales";
 
 enum DBLoadingSource {
@@ -34,35 +34,6 @@ enum DBLoadingSource {
 
 const themeOptions: ThemeOptions = {
     palette: { mode: "dark" },
-    // palette: {
-    //     primary: { main: Provider.color },
-    //     secondary: { main: "#f4511e" },
-    // },
-    // palette: {
-    //     type: "dark",
-    //     primary: {
-    //         main: "#f8b700",
-    //     },
-    //     secondary: {
-    //         main: "#bd1d1c",
-    //     },
-    //     background: {
-    //         default: "#101010",
-    //         paper: "#212121",
-    //     },
-    //     text: {
-    //         primary: "#ffffff",
-    //         secondary: "#bbbbbb",
-    //         disabled: "#887663",
-    //     },
-    //     divider: "#323232",
-    //     success: {
-    //         main: "#008833",
-    //     },
-    //     info: {
-    //         main: "#00c0ff",
-    //     },
-    // },
 };
 
 const theme = createTheme(themeOptions);
@@ -123,7 +94,7 @@ class App extends React.Component<AppProps, AppState> {
 
                                 <Route path="/locales" element={<Locales />} />
 
-                                <Route path="/dbname" element={<DBNames />} />
+                                <Route path="/collection" element={<Collections />} />
 
                                 <Route path="/addon" element={<Addon />} />
                             </Routes>

@@ -1,7 +1,7 @@
 import { DB_Event, Event } from "../models/event";
 import { Chapters } from "./chapterContext";
 import { Characters } from "./characterContext";
-import { DBNames } from "./dbNameContext";
+import { Collections } from "./collectionContext";
 import { Factions } from "./factionContext";
 import { Locales } from "./localeContext";
 
@@ -35,7 +35,7 @@ export const Events: EventContext = {
             window.database.tables.events
         );
         const filteredEvents = events.filter((event) =>
-            dbids.includes(event.dbnameId)
+            dbids.includes(event.collectionId)
         );
         return EventMapperFromDBs(filteredEvents);
     },
@@ -93,7 +93,7 @@ export const EventMapper = (event: Event): DB_Event => {
         labelId: event.label._id,
         descriptionIds: event.description.map((locale) => locale._id),
         chapterIds: event.chapters.map((chapter) => chapter._id),
-        dbnameId: event.dbname._id,
+        collectionId: event.collection._id,
         order: event.order,
     };
 };
@@ -113,7 +113,7 @@ export const EventMapperFromDB = (event: DB_Event): Event => {
     const label = Locales.findById(event.labelId);
     const description = Locales.findByIds(event.descriptionIds);
     const chapters = Chapters.findByIds(event.chapterIds);
-    const dbname = DBNames.findById(event.dbnameId);
+    const collection = Collections.findById(event.collectionId);
     const order = event.order;
 
     return {
@@ -129,7 +129,7 @@ export const EventMapperFromDB = (event: DB_Event): Event => {
         label: label,
         description: description,
         chapters: chapters,
-        dbname: dbname,
+        collection: collection,
         order: order,
     };
 };

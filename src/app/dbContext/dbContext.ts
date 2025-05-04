@@ -1,7 +1,7 @@
 import { EventContext, Events } from "./eventContext";
 import { FactionContext, Factions } from "./factionContext";
 import { CharacterContext, Characters } from "./characterContext";
-import { DBNameContext, DBNames } from "./dbNameContext";
+import { CollectionContext, Collections } from "./collectionContext";
 import { LocaleContext, Locales } from "./localeContext";
 import { ChapterContext, Chapters } from "./chapterContext";
 
@@ -10,7 +10,7 @@ export interface DbContext {
     Factions: FactionContext;
     Characters: CharacterContext;
     Chapters: ChapterContext;
-    DBNames: DBNameContext;
+    Collections: CollectionContext;
     Locales: LocaleContext;
 }
 
@@ -19,7 +19,7 @@ const dbContext: DbContext = {
     Factions: Factions,
     Characters: Characters,
     Chapters: Chapters,
-    DBNames: DBNames,
+    Collections: Collections,
     Locales: Locales,
 };
 

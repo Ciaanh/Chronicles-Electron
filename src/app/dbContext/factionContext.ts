@@ -1,5 +1,5 @@
 import { DB_Faction, Faction } from "../models/faction";
-import { DBNames } from "./dbNameContext";
+import { Collections } from "./collectionContext";
 import { Locales } from "./localeContext";
 
 export interface FactionContext {
@@ -33,7 +33,7 @@ export const Factions: FactionContext = {
             window.database.tables.factions
         );
         const filteredFactions = factions.filter((faction) =>
-            dbids.includes(faction.dbnameId)
+            dbids.includes(faction.collectionId)
         );
         return FactionMapperFromDBs(filteredFactions);
     },
@@ -88,7 +88,7 @@ export const FactionMapper = (faction: Faction): DB_Faction => {
         labelId: faction.label._id,
         descriptionId: faction.description._id,
         timeline: faction.timeline,
-        dbnameId: faction.dbname._id,
+        collectionId: faction.collection._id,
     };
 };
 
@@ -100,7 +100,7 @@ export const FactionMapperFromDB = (faction: DB_Faction): Faction => {
         label: Locales.findById(faction.labelId),
         description: Locales.findById(faction.descriptionId),
         timeline: faction.timeline,
-        dbname: DBNames.findById(faction.dbnameId),
+        collection: Collections.findById(faction.collectionId),
     };
 };
 

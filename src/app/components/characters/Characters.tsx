@@ -39,7 +39,7 @@ import { IsUndefinedOrNull, ITEM_HEIGHT, Timelines } from "../../constants";
 
 import { Character } from "../../models/character";
 import dbContext from "../../dbContext/dbContext";
-import { DbName } from "../../models/dbname";
+import { Collection } from "../../models/collection";
 import { Faction } from "../../models/faction";
 import { getEmptyLocale } from "../../models/locale";
 import NavBar from "../NavBar";
@@ -50,10 +50,10 @@ interface CharactersProps {}
 interface CharactersState {
     characters: Character[];
 
-    dbnames: DbName[];
+    collections: Collection[];
     factions: Faction[];
 
-    selectedDbName: number | null;
+    selectedCollection: number | null;
 
     edit: boolean;
     create: boolean;
@@ -71,10 +71,10 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
 
         const initialState: CharactersState = {
             characters: [],
-            dbnames: [],
+            collections: [],
             factions: [],
 
-            selectedDbName: null,
+            selectedCollection: null,
 
             edit: false,
             create: false,
@@ -95,16 +95,16 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
         };
         try {
             newState.characters =
-                newState.selectedDbName === null
+                newState.selectedCollection === null
                     ? dbContext.Characters.findAll()
-                    : dbContext.Characters.findByDB([newState.selectedDbName]);
+                    : dbContext.Characters.findByDB([newState.selectedCollection]);
 
             newState.factions =
-                newState.selectedDbName === null
+                newState.selectedCollection === null
                     ? dbContext.Factions.findAll()
-                    : dbContext.Factions.findByDB([newState.selectedDbName]);
+                    : dbContext.Factions.findByDB([newState.selectedCollection]);
 
-            newState.dbnames = dbContext.DBNames.findAll();
+            newState.collections = dbContext.Collections.findAll();
         } catch (error) {
             newState.openError = true;
             newState.error = "Error loading characters";
@@ -171,9 +171,9 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
     characterDeleted(characterid: number) {
         const newState = { ...this.state };
         try {
-            newState.characters =  newState.selectedDbName === null
+            newState.characters =  newState.selectedCollection === null
                 ? dbContext.Characters.findAll()
-                : dbContext.Characters.findByDB([newState.selectedDbName]);
+                : dbContext.Characters.findByDB([newState.selectedCollection]);
         } catch (error) {
             newState.openError = true;
             newState.error = "Error loading characters";
@@ -190,7 +190,7 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
             biography: getEmptyLocale(),
             timeline: 0,
             factions: [],
-            dbname: { _id: null, name: "" } as DbName,
+            collection: { _id: null, name: "" } as Collection,
         };
     }
 
@@ -222,9 +222,9 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
         try {
             const newCharacter = dbContext.Characters.create(characterToEdit);
 
-            newState.characters =  newState.selectedDbName === null
+            newState.characters =  newState.selectedCollection === null
                 ? dbContext.Characters.findAll()
-                : dbContext.Characters.findByDB([newState.selectedDbName]);
+                : dbContext.Characters.findByDB([newState.selectedCollection]);
 
             newState.edit = false;
             newState.create = false;
@@ -242,9 +242,9 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
         try {
             const newCharacter = dbContext.Characters.update(characterToEdit);
 
-            newState.characters =  newState.selectedDbName === null
+            newState.characters =  newState.selectedCollection === null
                 ? dbContext.Characters.findAll()
-                : dbContext.Characters.findByDB([newState.selectedDbName]);
+                : dbContext.Characters.findByDB([newState.selectedCollection]);
 
             newState.edit = false;
             newState.create = false;
@@ -256,17 +256,17 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
         }
     }
 
-    changeDbName(dbnameId: string | number) {
+    changeCollection(collectionId: string | number) {
         const newState = { ...this.state };
 
-        if (IsUndefinedOrNull(dbnameId)) {
-            newState.error = "No dbname to edit";
+        if (IsUndefinedOrNull(collectionId)) {
+            newState.error = "No collection to edit";
             newState.openError = true;
         } else {
-            const dbnameIdValue = parseInt(dbnameId.toString());
+            const collectionIdValue = parseInt(collectionId.toString());
             if (newState.editingCharacter) {
-                newState.editingCharacter.dbname =
-                    dbContext.DBNames.findById(dbnameIdValue);
+                newState.editingCharacter.collection =
+                    dbContext.Collections.findById(collectionIdValue);
             } else {
                 newState.error = "No character to edit";
                 newState.openError = true;
@@ -377,33 +377,33 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
         this.setState(newState);
     }
 
-    selectDbName(dbnameId: string | number) {
+    selectCollection(collectionId: string | number) {
         const newState = { ...this.state };
 
-        if (IsUndefinedOrNull(dbnameId)) {
-            newState.selectedDbName = null;
+        if (IsUndefinedOrNull(collectionId)) {
+            newState.selectedCollection = null;
 
             newState.characters = dbContext.Characters.findAll();
             newState.factions = dbContext.Factions.findAll();
         } else {
-            const dbnameIdValue = parseInt(dbnameId.toString());
+            const collectionIdValue = parseInt(collectionId.toString());
 
             try {
-                const selectedDbName =
-                    dbContext.DBNames.findById(dbnameIdValue);
-                if (selectedDbName) {
-                    newState.selectedDbName = selectedDbName._id;
+                const selectedCollection =
+                    dbContext.Collections.findById(collectionIdValue);
+                if (selectedCollection) {
+                    newState.selectedCollection = selectedCollection._id;
 
                     newState.characters = dbContext.Characters.findByDB([
-                        newState.selectedDbName,
+                        newState.selectedCollection,
                     ]);
 
                     newState.factions = dbContext.Factions.findByDB([
-                        newState.selectedDbName,
+                        newState.selectedCollection,
                     ]);
                 }
             } catch (error) {
-                newState.error = "Error selecting a dbname";
+                newState.error = "Error selecting a collection";
                 newState.openError = true;
             }
         }
@@ -437,22 +437,22 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
                             >
                                 <InputLabel>DB Name</InputLabel>
                                 <Select
-                                    label="DBName"
-                                    name="dbname"
-                                    value={this.state.selectedDbName ?? 0}
+                                    label="Collection"
+                                    name="collection"
+                                    value={this.state.selectedCollection ?? 0}
                                     onChange={(event) => {
-                                        this.selectDbName(event.target.value);
+                                        this.selectCollection(event.target.value);
                                     }}
                                 >
                                     <MenuItem value="0" key="0">
                                         <em>None</em>
                                     </MenuItem>
-                                    {this.state.dbnames.map((dbname) => (
+                                    {this.state.collections.map((collection) => (
                                         <MenuItem
-                                            key={dbname._id}
-                                            value={dbname._id}
+                                            key={collection._id}
+                                            value={collection._id}
                                         >
-                                            {dbname.name}
+                                            {collection.name}
                                         </MenuItem>
                                     ))}
                                 </Select>
@@ -576,14 +576,14 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
                                         >
                                             <InputLabel>DB Name</InputLabel>
                                             <Select
-                                                label="DBName"
-                                                name="dbname"
+                                                label="Collection"
+                                                name="collection"
                                                 value={
                                                     this.state.editingCharacter
-                                                        .dbname?._id ?? 0
+                                                        .collection?._id ?? 0
                                                 }
                                                 onChange={(event) => {
-                                                    this.changeDbName(
+                                                    this.changeCollection(
                                                         event.target.value
                                                     );
                                                 }}
@@ -591,13 +591,13 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
                                                 <MenuItem value="0" key="0">
                                                     <em>Undefined</em>
                                                 </MenuItem>
-                                                {this.state.dbnames.map(
-                                                    (dbname) => (
+                                                {this.state.collections.map(
+                                                    (collection) => (
                                                         <MenuItem
-                                                            key={dbname._id}
-                                                            value={dbname._id}
+                                                            key={collection._id}
+                                                            value={collection._id}
                                                         >
-                                                            {dbname.name}
+                                                            {collection.name}
                                                         </MenuItem>
                                                     )
                                                 )}
@@ -782,11 +782,11 @@ class Characters extends React.Component<CharactersProps, CharactersState> {
                                                     return (
                                                         this.state
                                                             .editingCharacter
-                                                            .dbname &&
-                                                        faction.dbname._id ===
+                                                            .collection &&
+                                                        faction.collection._id ===
                                                             this.state
                                                                 .editingCharacter
-                                                                .dbname._id
+                                                                .collection._id
                                                     );
                                                 })
                                                 .map((faction) => (

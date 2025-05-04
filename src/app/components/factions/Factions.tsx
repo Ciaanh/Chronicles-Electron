@@ -32,7 +32,7 @@ import { Faction } from "../../models/faction";
 
 import dbContext from "../../dbContext/dbContext";
 
-import { DbName } from "../../models/dbname";
+import { Collection } from "../../models/collection";
 import { getEmptyLocale } from "../../models/locale";
 import { IsUndefinedOrNull, Timelines } from "../../constants";
 import NavBar from "../NavBar";
@@ -43,9 +43,9 @@ interface FactionsProps {}
 interface FactionsState {
     factions: Faction[];
 
-    dbnames: DbName[];
+    collections: Collection[];
 
-    selectedDbName: number | null;
+    selectedCollection: number | null;
 
     edit: boolean;
     create: boolean;
@@ -60,9 +60,9 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
         const initialState: FactionsState = {
             factions: [],
 
-            dbnames: [],
+            collections: [],
 
-            selectedDbName: null,
+            selectedCollection: null,
 
             edit: false,
             create: false,
@@ -79,11 +79,11 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
         const newState = { ...this.state };
         try {
             newState.factions =
-                newState.selectedDbName === null
+                newState.selectedCollection === null
                     ? dbContext.Factions.findAll()
-                    : dbContext.Factions.findByDB([newState.selectedDbName]);
+                    : dbContext.Factions.findByDB([newState.selectedCollection]);
 
-            newState.dbnames = dbContext.DBNames.findAll();
+            newState.collections = dbContext.Collections.findAll();
         } catch (error) {
             newState.openError = true;
             newState.error = "Error loading factions";
@@ -148,7 +148,7 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
             label: getEmptyLocale(),
             description: getEmptyLocale(),
             timeline: 0,
-            dbname: { _id: null, name: "" } as DbName,
+            collection: { _id: null, name: "" } as Collection,
         };
     }
 
@@ -165,9 +165,9 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
         };
         try {
             newState.factions =
-                newState.selectedDbName === null
+                newState.selectedCollection === null
                     ? dbContext.Factions.findAll()
-                    : dbContext.Factions.findByDB([newState.selectedDbName]);
+                    : dbContext.Factions.findByDB([newState.selectedCollection]);
         } catch (error) {
             newState.openError = true;
             newState.error = "Error loading factions";
@@ -182,9 +182,9 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
             const newFaction = dbContext.Factions.create(factionToEdit);
 
             newState.factions =
-                newState.selectedDbName === null
+                newState.selectedCollection === null
                     ? dbContext.Factions.findAll()
-                    : dbContext.Factions.findByDB([newState.selectedDbName]);
+                    : dbContext.Factions.findByDB([newState.selectedCollection]);
 
             newState.edit = false;
             newState.create = false;
@@ -204,9 +204,9 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
             };
 
             newState.factions =
-                newState.selectedDbName === null
+                newState.selectedCollection === null
                     ? dbContext.Factions.findAll()
-                    : dbContext.Factions.findByDB([newState.selectedDbName]);
+                    : dbContext.Factions.findByDB([newState.selectedCollection]);
 
             newState.edit = false;
             newState.create = false;
@@ -229,17 +229,17 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
         this.setState(newState);
     }
 
-    changeDbName(dbnameId: string | number) {
+    changeCollection(collectionId: string | number) {
         const newState = { ...this.state };
 
-        if (IsUndefinedOrNull(dbnameId)) {
-            newState.error = "No dbname to add";
+        if (IsUndefinedOrNull(collectionId)) {
+            newState.error = "No collection to add";
             newState.openError = true;
         } else {
-            const dbnameIdValue = parseInt(dbnameId.toString());
+            const collectionIdValue = parseInt(collectionId.toString());
             if (newState.editingFaction) {
-                newState.editingFaction.dbname =
-                    dbContext.DBNames.findById(dbnameIdValue);
+                newState.editingFaction.collection =
+                    dbContext.Collections.findById(collectionIdValue);
             } else {
                 newState.error = "No faction to edit";
                 newState.openError = true;
@@ -292,29 +292,29 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
         this.setState(newState);
     }
 
-    selectDbName(dbnameId: string | number) {
+    selectCollection(collectionId: string | number) {
         const newState = { ...this.state };
 
-        if (IsUndefinedOrNull(dbnameId)) {
-            newState.selectedDbName = null;
+        if (IsUndefinedOrNull(collectionId)) {
+            newState.selectedCollection = null;
 
             newState.factions = dbContext.Factions.findAll();
         } else {
-            const dbnameIdValue = parseInt(dbnameId.toString());
+            const collectionIdValue = parseInt(collectionId.toString());
 
             try {
-                const selectedDbName =
-                    dbContext.DBNames.findById(dbnameIdValue);
+                const selectedCollection =
+                    dbContext.Collections.findById(collectionIdValue);
 
-                if (selectedDbName) {
-                    newState.selectedDbName = selectedDbName._id;
+                if (selectedCollection) {
+                    newState.selectedCollection = selectedCollection._id;
 
                     newState.factions = dbContext.Factions.findByDB([
-                        newState.selectedDbName,
+                        newState.selectedCollection,
                     ]);
                 }
             } catch (error) {
-                newState.error = "Error selecting a dbname";
+                newState.error = "Error selecting a collection";
                 newState.openError = true;
             }
         }
@@ -348,22 +348,22 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
                             >
                                 <InputLabel>DB Name</InputLabel>
                                 <Select
-                                    label="DBName"
-                                    name="dbname"
-                                    value={this.state.selectedDbName ?? 0}
+                                    label="Collection"
+                                    name="collection"
+                                    value={this.state.selectedCollection ?? 0}
                                     onChange={(event) => {
-                                        this.selectDbName(event.target.value);
+                                        this.selectCollection(event.target.value);
                                     }}
                                 >
                                     <MenuItem value="0" key="0">
                                         <em>None</em>
                                     </MenuItem>
-                                    {this.state.dbnames.map((dbname) => (
+                                    {this.state.collections.map((collection) => (
                                         <MenuItem
-                                            key={dbname._id}
-                                            value={dbname._id}
+                                            key={collection._id}
+                                            value={collection._id}
                                         >
-                                            {dbname.name}
+                                            {collection.name}
                                         </MenuItem>
                                     ))}
                                 </Select>
@@ -484,28 +484,28 @@ class Factions extends React.Component<FactionsProps, FactionsState> {
                                     >
                                         <InputLabel>DB Name</InputLabel>
                                         <Select
-                                            label="DBName"
-                                            name="dbname"
+                                            label="Collection"
+                                            name="collection"
                                             value={
-                                                this.state.editingFaction.dbname
+                                                this.state.editingFaction.collection
                                                     ?._id ?? 0
                                             }
-                                            onChange={(dbname) => {
-                                                this.changeDbName(
-                                                    dbname.target.value
+                                            onChange={(collection) => {
+                                                this.changeCollection(
+                                                    collection.target.value
                                                 );
                                             }}
                                         >
                                             <MenuItem value="0" key="0">
                                                 <em>Undefined</em>
                                             </MenuItem>
-                                            {this.state.dbnames.map(
-                                                (dbname) => (
+                                            {this.state.collections.map(
+                                                (collection) => (
                                                     <MenuItem
-                                                        key={dbname._id}
-                                                        value={dbname._id}
+                                                        key={collection._id}
+                                                        value={collection._id}
                                                     >
-                                                        {dbname.name}
+                                                        {collection.name}
                                                     </MenuItem>
                                                 )
                                             )}

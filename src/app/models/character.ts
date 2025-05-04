@@ -1,4 +1,4 @@
-import { DbName } from "./dbname";
+import { Collection } from "./collection";
 import type { Dto } from "./object_interfaces";
 import { Faction } from "./faction";
 import { Locale } from "./locale";
@@ -10,7 +10,7 @@ export interface Character extends Dto {
     biography: Locale;
     timeline: number;
     factions: Faction[];
-    dbname: DbName;
+    collection: Collection;
 }
 
 export interface DB_Character extends DbObject {
@@ -19,5 +19,5 @@ export interface DB_Character extends DbObject {
     biographyId: number;
     timeline: number;
     factionIds: number[];
-    dbnameId: number;
+    collectionId: number;
 }

@@ -40,7 +40,7 @@ import Locale from "../locales/LocaleView";
 import { Event } from "../../models/event";
 import { Character } from "../../models/character";
 import { Faction } from "../../models/faction";
-import { DbName } from "../../models/dbname";
+import { Collection } from "../../models/collection";
 import dbContext from "../../dbContext/dbContext";
 import { getEmptyLocale } from "../../models/locale";
 import {
@@ -63,9 +63,9 @@ interface EventsState {
     characterAnchor: any | null;
     factionAnchor: any | null;
 
-    dbnames: DbName[];
+    collections: Collection[];
 
-    selectedDbName: number | null;
+    selectedCollection: number | null;
 
     edit: boolean;
     create: boolean;
@@ -88,9 +88,9 @@ class Events extends React.Component<EventsProps, EventsState> {
             characterAnchor: null,
             factionAnchor: null,
 
-            dbnames: [],
+            collections: [],
 
-            selectedDbName: null,
+            selectedCollection: null,
 
             edit: false,
             create: false,
@@ -109,23 +109,23 @@ class Events extends React.Component<EventsProps, EventsState> {
         };
 
         try {
-            if (newState.selectedDbName === null) {
+            if (newState.selectedCollection === null) {
                 newState.characters = dbContext.Characters.findAll();
                 newState.factions = dbContext.Factions.findAll();
                 newState.events = dbContext.Events.findAll();
             } else {
                 newState.characters = dbContext.Characters.findByDB([
-                    newState.selectedDbName,
+                    newState.selectedCollection,
                 ]);
                 newState.factions = dbContext.Factions.findByDB([
-                    newState.selectedDbName,
+                    newState.selectedCollection,
                 ]);
                 newState.events = dbContext.Events.findByDB([
-                    newState.selectedDbName,
+                    newState.selectedCollection,
                 ]);
             }
 
-            newState.dbnames = dbContext.DBNames.findAll();
+            newState.collections = dbContext.Collections.findAll();
         } catch (error) {
             newState.openError = true;
             newState.error = `Error loading data ${error}`;
@@ -172,9 +172,9 @@ class Events extends React.Component<EventsProps, EventsState> {
         };
         try {
             newState.events =
-                newState.selectedDbName === null
+                newState.selectedCollection === null
                     ? dbContext.Events.findAll()
-                    : dbContext.Events.findByDB([newState.selectedDbName]);
+                    : dbContext.Events.findByDB([newState.selectedCollection]);
         } catch (error) {
             newState.openError = true;
             newState.error = "Error loading events";
@@ -207,7 +207,7 @@ class Events extends React.Component<EventsProps, EventsState> {
             label: getEmptyLocale(),
             description: [],
             chapters: [],
-            dbname: { _id: null, name: "" } as DbName,
+            collection: { _id: null, name: "" } as Collection,
             order: 0,
         };
     }
@@ -236,9 +236,9 @@ class Events extends React.Component<EventsProps, EventsState> {
             const newEvent = dbContext.Events.create(eventToEdit);
 
             newState.events =
-                newState.selectedDbName === null
+                newState.selectedCollection === null
                     ? dbContext.Events.findAll()
-                    : dbContext.Events.findByDB([newState.selectedDbName]);
+                    : dbContext.Events.findByDB([newState.selectedCollection]);
 
             newState.edit = false;
             newState.create = false;
@@ -259,9 +259,9 @@ class Events extends React.Component<EventsProps, EventsState> {
             const newEvent = dbContext.Events.update(eventToEdit);
 
             newState.events =
-                newState.selectedDbName === null
+                newState.selectedCollection === null
                     ? dbContext.Events.findAll()
-                    : dbContext.Events.findByDB([newState.selectedDbName]);
+                    : dbContext.Events.findByDB([newState.selectedCollection]);
 
             newState.edit = false;
             newState.create = false;
@@ -273,17 +273,17 @@ class Events extends React.Component<EventsProps, EventsState> {
         }
     }
 
-    changeDbName(dbnameId: string | number) {
+    changeCollection(collectionId: string | number) {
         const newState: EventsState = { ...this.state };
 
-        if (IsUndefinedOrNull(dbnameId)) {
-            newState.error = "No dbname to edit";
+        if (IsUndefinedOrNull(collectionId)) {
+            newState.error = "No collection to edit";
             newState.openError = true;
         } else {
-            const dbnameIdValue = parseInt(dbnameId.toString());
+            const collectionIdValue = parseInt(collectionId.toString());
             if (newState.editingEvent) {
-                newState.editingEvent.dbname =
-                    dbContext.DBNames.findById(dbnameIdValue);
+                newState.editingEvent.collection =
+                    dbContext.Collections.findById(collectionIdValue);
             } else {
                 newState.error = "No event to edit";
                 newState.openError = true;
@@ -584,38 +584,38 @@ class Events extends React.Component<EventsProps, EventsState> {
         this.setState(newState);
     }
 
-    selectDbName(dbnameId: string | number) {
+    selectCollection(collectionId: string | number) {
         const newState = { ...this.state };
 
-        if (IsUndefinedOrNull(dbnameId)) {
-            newState.selectedDbName = null;
+        if (IsUndefinedOrNull(collectionId)) {
+            newState.selectedCollection = null;
 
             newState.events = dbContext.Events.findAll();
             newState.characters = dbContext.Characters.findAll();
             newState.factions = dbContext.Factions.findAll();
         } else {
-            const dbnameIdValue = parseInt(dbnameId.toString());
+            const collectionIdValue = parseInt(collectionId.toString());
 
             try {
-                const selectedDbName =
-                    dbContext.DBNames.findById(dbnameIdValue);
-                if (selectedDbName) {
-                    newState.selectedDbName = selectedDbName._id;
+                const selectedCollection =
+                    dbContext.Collections.findById(collectionIdValue);
+                if (selectedCollection) {
+                    newState.selectedCollection = selectedCollection._id;
 
                     newState.events = dbContext.Events.findByDB([
-                        newState.selectedDbName,
+                        newState.selectedCollection,
                     ]);
 
                     newState.characters = dbContext.Characters.findByDB([
-                        newState.selectedDbName,
+                        newState.selectedCollection,
                     ]);
 
                     newState.factions = dbContext.Factions.findByDB([
-                        newState.selectedDbName,
+                        newState.selectedCollection,
                     ]);
                 }
             } catch (error) {
-                newState.error = "Error selecting a dbname";
+                newState.error = "Error selecting a collection";
                 newState.openError = true;
             }
         }
@@ -635,9 +635,9 @@ class Events extends React.Component<EventsProps, EventsState> {
             }
 
             newState.events =
-                newState.selectedDbName === null
+                newState.selectedCollection === null
                     ? dbContext.Events.findAll()
-                    : dbContext.Events.findByDB([newState.selectedDbName]);
+                    : dbContext.Events.findByDB([newState.selectedCollection]);
         } catch (error) {
             newState.openError = true;
             newState.error = "Error changing event order";
@@ -672,22 +672,22 @@ class Events extends React.Component<EventsProps, EventsState> {
                             >
                                 <InputLabel>DB Name</InputLabel>
                                 <Select
-                                    label="DBName"
-                                    name="dbname"
-                                    value={this.state.selectedDbName ?? 0}
+                                    label="Collection"
+                                    name="collection"
+                                    value={this.state.selectedCollection ?? 0}
                                     onChange={(event) => {
-                                        this.selectDbName(event.target.value);
+                                        this.selectCollection(event.target.value);
                                     }}
                                 >
                                     <MenuItem value="0" key="0">
                                         <em>None</em>
                                     </MenuItem>
-                                    {this.state.dbnames.map((dbname) => (
+                                    {this.state.collections.map((collection) => (
                                         <MenuItem
-                                            key={dbname._id}
-                                            value={dbname._id}
+                                            key={collection._id}
+                                            value={collection._id}
                                         >
-                                            {dbname.name}
+                                            {collection.name}
                                         </MenuItem>
                                     ))}
                                 </Select>
@@ -849,14 +849,14 @@ class Events extends React.Component<EventsProps, EventsState> {
                                     >
                                         <InputLabel>DB Name</InputLabel>
                                         <Select
-                                            label="DBName"
-                                            name="dbname"
+                                            label="Collection"
+                                            name="collection"
                                             value={
-                                                this.state.editingEvent.dbname
+                                                this.state.editingEvent.collection
                                                     ?._id ?? 0
                                             }
                                             onChange={(event) => {
-                                                this.changeDbName(
+                                                this.changeCollection(
                                                     event.target.value
                                                 );
                                             }}
@@ -864,13 +864,13 @@ class Events extends React.Component<EventsProps, EventsState> {
                                             <MenuItem value="0" key="0">
                                                 <em>Undefined</em>
                                             </MenuItem>
-                                            {this.state.dbnames.map(
-                                                (dbname) => (
+                                            {this.state.collections.map(
+                                                (collection) => (
                                                     <MenuItem
-                                                        key={dbname._id}
-                                                        value={dbname._id}
+                                                        key={collection._id}
+                                                        value={collection._id}
                                                     >
-                                                        {dbname.name}
+                                                        {collection.name}
                                                     </MenuItem>
                                                 )
                                             )}
@@ -1093,11 +1093,11 @@ class Events extends React.Component<EventsProps, EventsState> {
                                                 .filter((character) => {
                                                     return (
                                                         this.state.editingEvent
-                                                            .dbname &&
-                                                        character.dbname._id ===
+                                                            .collection &&
+                                                        character.collection._id ===
                                                             this.state
                                                                 .editingEvent
-                                                                .dbname._id
+                                                                .collection._id
                                                     );
                                                 })
                                                 .map((character) => (
@@ -1193,11 +1193,11 @@ class Events extends React.Component<EventsProps, EventsState> {
                                                 .filter((faction) => {
                                                     return (
                                                         this.state.editingEvent
-                                                            .dbname &&
-                                                        faction.dbname._id ===
+                                                            .collection &&
+                                                        faction.collection._id ===
                                                             this.state
                                                                 .editingEvent
-                                                                .dbname._id
+                                                                .collection._id
                                                     );
                                                 })
                                                 .map((faction) => (

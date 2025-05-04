@@ -24,33 +24,33 @@ import CloseIcon from "@mui/icons-material/Close";
 import SaveIcon from "@mui/icons-material/Save";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 
-import { DbName } from "../../models/dbname";
+import { Collection } from "../../models/collection";
 import dbContext from "../../dbContext/dbContext";
 import NavBar from "../NavBar";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface DBNamesProps {}
+interface CollectionsProps {}
 
-interface DBNamesState {
-    dbnames: DbName[];
+interface CollectionsState {
+    collections: Collection[];
 
     edit: boolean;
     create: boolean;
-    editingDbName: DbName | null;
+    editingCollection: Collection | null;
 
     openError: boolean;
     error: string;
 }
 
-class DBNames extends React.Component<DBNamesProps, DBNamesState> {
-    constructor(props: DBNamesProps) {
+class Collections extends React.Component<CollectionsProps, CollectionsState> {
+    constructor(props: CollectionsProps) {
         super(props);
-        const initialState: DBNamesState = {
-            dbnames: [],
+        const initialState: CollectionsState = {
+            collections: [],
 
             edit: false,
             create: false,
-            editingDbName: null,
+            editingCollection: null,
 
             openError: false,
             error: "",
@@ -63,8 +63,8 @@ class DBNames extends React.Component<DBNamesProps, DBNamesState> {
         const newState = { ...this.state };
 
         try {
-            const dbnames = dbContext.DBNames.findAll();
-            newState.dbnames = dbnames;
+            const collections = dbContext.Collections.findAll();
+            newState.collections = collections;
         } catch (error) {
             newState.openError = true;
             newState.error = error.toString();
@@ -78,29 +78,29 @@ class DBNames extends React.Component<DBNamesProps, DBNamesState> {
 
         newState.edit = false;
         newState.create = false;
-        newState.editingDbName = null;
+        newState.editingCollection = null;
 
         this.setState(newState);
     }
 
     showcreate() {
-        const newState: DBNamesState = { ...this.state } as DBNamesState;
+        const newState: CollectionsState = { ...this.state } as CollectionsState;
 
         newState.edit = false;
         newState.create = true;
-        newState.editingDbName = { _id: null, name: "" } as DbName;
+        newState.editingCollection = { _id: null, name: "" } as Collection;
 
         this.setState(newState);
     }
 
-    showedit(dbnameToEdit: DbName) {
-        const newState: DBNamesState = { ...this.state } as DBNamesState;
+    showedit(collectionToEdit: Collection) {
+        const newState: CollectionsState = { ...this.state } as CollectionsState;
 
-        const index = newState.dbnames.findIndex(
-            (dbname) => dbname._id === dbnameToEdit._id
+        const index = newState.collections.findIndex(
+            (collection) => collection._id === collectionToEdit._id
         );
         if (index !== -1) {
-            newState.editingDbName = { ...dbnameToEdit };
+            newState.editingCollection = { ...collectionToEdit };
             newState.edit = true;
             newState.create = false;
         }
@@ -109,10 +109,10 @@ class DBNames extends React.Component<DBNamesProps, DBNamesState> {
     }
 
     changeEditingName(name: string) {
-        const newState: DBNamesState = { ...this.state } as DBNamesState;
+        const newState: CollectionsState = { ...this.state } as CollectionsState;
 
-        if ((newState.edit || newState.create) && newState.editingDbName) {
-            newState.editingDbName.name = name;
+        if ((newState.edit || newState.create) && newState.editingCollection) {
+            newState.editingCollection.name = name;
         } else {
             newState.openError = true;
             newState.error = "Error changing editing value";
@@ -121,16 +121,16 @@ class DBNames extends React.Component<DBNamesProps, DBNamesState> {
         this.setState(newState);
     }
 
-    create(dbnameToSave: DbName) {
-        const newState: DBNamesState = { ...this.state } as DBNamesState;
+    create(collectionToSave: Collection) {
+        const newState: CollectionsState = { ...this.state } as CollectionsState;
         try {
-            dbContext.DBNames.create(dbnameToSave);
+            dbContext.Collections.create(collectionToSave);
 
-            newState.dbnames = dbContext.DBNames.findAll();
+            newState.collections = dbContext.Collections.findAll();
 
             newState.edit = false;
             newState.create = false;
-            newState.editingDbName = null;
+            newState.editingCollection = null;
         } catch (error) {
             newState.openError = true;
             newState.error = error.toString();
@@ -139,16 +139,16 @@ class DBNames extends React.Component<DBNamesProps, DBNamesState> {
         }
     }
 
-    update(dbnameToSave: DbName) {
-        const newState: DBNamesState = { ...this.state } as DBNamesState;
+    update(collectionToSave: Collection) {
+        const newState: CollectionsState = { ...this.state } as CollectionsState;
         try {
-            dbContext.DBNames.update(dbnameToSave);
+            dbContext.Collections.update(collectionToSave);
 
-            newState.dbnames = dbContext.DBNames.findAll();
+            newState.collections = dbContext.Collections.findAll();
 
             newState.edit = false;
             newState.create = false;
-            newState.editingDbName = null;
+            newState.editingCollection = null;
         } catch (error) {
             newState.openError = true;
             newState.error = error.toString();
@@ -158,15 +158,15 @@ class DBNames extends React.Component<DBNamesProps, DBNamesState> {
     }
 
     delete(id: number) {
-        const newState: DBNamesState = { ...this.state } as DBNamesState;
+        const newState: CollectionsState = { ...this.state } as CollectionsState;
         try {
-            dbContext.DBNames.delete(id);
+            dbContext.Collections.delete(id);
 
-            const index = newState.dbnames.findIndex(
-                (dbname) => dbname._id === id
+            const index = newState.collections.findIndex(
+                (collection) => collection._id === id
             );
             if (index !== -1) {
-                newState.dbnames.splice(index, 1);
+                newState.collections.splice(index, 1);
             }
         } catch (error) {
             newState.openError = true;
@@ -177,7 +177,7 @@ class DBNames extends React.Component<DBNamesProps, DBNamesState> {
     }
 
     closeError() {
-        const newState: DBNamesState = { ...this.state };
+        const newState: CollectionsState = { ...this.state };
         newState.openError = false;
         newState.error = "";
         this.setState(newState);
@@ -198,14 +198,14 @@ class DBNames extends React.Component<DBNamesProps, DBNamesState> {
                     <h1>DB names</h1>
 
                     <List>
-                        {this.state.dbnames.map((dbname) => (
-                            <ListItem key={dbname._id}>
+                        {this.state.collections.map((collection) => (
+                            <ListItem key={collection._id}>
                                 <IconButton
                                     aria-label="delete"
                                     size="small"
                                     onClick={(event) => {
                                         event.stopPropagation();
-                                        this.delete(dbname._id);
+                                        this.delete(collection._id);
                                     }}
                                 >
                                     <HighlightOffIcon />
@@ -215,12 +215,12 @@ class DBNames extends React.Component<DBNamesProps, DBNamesState> {
                                     size="small"
                                     onClick={(event) => {
                                         event.stopPropagation();
-                                        this.showedit(dbname);
+                                        this.showedit(collection);
                                     }}
                                 >
                                     <EditIcon />
                                 </IconButton>
-                                <Typography>{dbname.name}</Typography>
+                                <Typography>{collection.name}</Typography>
                             </ListItem>
                         ))}
                     </List>
@@ -253,7 +253,7 @@ class DBNames extends React.Component<DBNamesProps, DBNamesState> {
                     </Alert>
                 </Snackbar>
 
-                {this.state.editingDbName && (
+                {this.state.editingCollection && (
                     <Dialog
                         open={this.state.edit || this.state.create}
                         onClose={() => this.closeDialog()}
@@ -298,11 +298,11 @@ class DBNames extends React.Component<DBNamesProps, DBNamesState> {
                                     onClick={() => {
                                         if (this.state.create) {
                                             this.create(
-                                                this.state.editingDbName
+                                                this.state.editingCollection
                                             );
                                         } else {
                                             this.update(
-                                                this.state.editingDbName
+                                                this.state.editingCollection
                                             );
                                         }
                                     }}
@@ -315,7 +315,7 @@ class DBNames extends React.Component<DBNamesProps, DBNamesState> {
                         <DialogContent>
                             <TextField
                                 label="Name"
-                                value={this.state.editingDbName.name}
+                                value={this.state.editingCollection.name}
                                 onChange={(event) =>
                                     this.changeEditingName(event.target.value)
                                 }
@@ -331,4 +331,4 @@ class DBNames extends React.Component<DBNamesProps, DBNamesState> {
     }
 }
 
-export default DBNames;
+export default Collections;

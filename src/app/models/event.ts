@@ -1,5 +1,5 @@
 import { Character } from "./character";
-import { DbName } from "./dbname";
+import { Collection } from "./collection";
 import { Dto } from "./object_interfaces";
 import { Faction } from "./faction";
 import { Locale } from "./locale";
@@ -18,7 +18,7 @@ export interface Event extends Dto {
     label: Locale;
     description: Locale[];
     chapters: Chapter[];
-    dbname: DbName;
+    collection: Collection;
     order: number;
 }
 
@@ -34,6 +34,6 @@ export interface DB_Event extends DbObject {
     labelId: number;
     descriptionIds: number[];
     chapterIds: number[];
-    dbnameId: number;
+    collectionId: number;
     order: number;
 }

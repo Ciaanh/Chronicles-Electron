@@ -3,7 +3,7 @@ import { Character } from "../../models/character";
 import { Event } from "../../models/event";
 import { Faction } from "../../models/faction";
 import { FileContent } from "../fileContent";
-import { FileGenerationRequest, FormatedDbName } from "../generator";
+import { FileGenerationRequest, FormatedCollection } from "../generator";
 import { LanguageArray } from "../../constants";
 
 interface localeLine {
@@ -24,8 +24,8 @@ export class LocaleService {
         return files;
     }
 
-    private FormatDbName(dbname: string) {
-        return dbname.replace(/\w+/g, function (w) {
+    private FormatCollection(collection: string) {
+        return collection.replace(/\w+/g, function (w) {
             return w[0].toUpperCase() + w.slice(1).toLowerCase();
         });
     }
@@ -36,28 +36,28 @@ export class LocaleService {
 
     private FormatLocaleFileName(
         index: string,
-        dbname: string,
+        collection: string,
         language: string,
         typeName: string
     ) {
-        const lowerName = dbname.toLowerCase();
-        const formatedName = this.FormatDbName(dbname);
+        const lowerName = collection.toLowerCase();
+        const formatedName = this.FormatCollection(collection);
         const lowerTypeName = typeName.toLowerCase();
         return `${index}_${formatedName}\\${lowerName}_${lowerTypeName}s_${language}.lua`;
     }
 
     private CreateLocaleFiles(request: FileGenerationRequest) {
-        const dbLocaleGroups = request.dbnames.map((dbname: FormatedDbName) => {
+        const dbLocaleGroups = request.collections.map((collection: FormatedCollection) => {
             const filteredEvents = request.events.filter(
-                (event: Event) => String(event.dbname._id) == String(dbname._id)
+                (event: Event) => String(event.collection._id) == String(collection._id)
             );
             const filteredFactions = request.factions.filter(
                 (faction: Faction) =>
-                    String(faction.dbname._id) == String(dbname._id)
+                    String(faction.collection._id) == String(collection._id)
             );
             const filteredCharacters = request.characters.filter(
                 (character: Character) =>
-                    String(character.dbname._id) == String(dbname._id)
+                    String(character.collection._id) == String(collection._id)
             );
 
             const localeGroups = LanguageArray.map((language) => {
@@ -65,8 +65,8 @@ export class LocaleService {
 
                 if (filteredEvents.length > 0) {
                     const fileName = this.FormatLocaleFileName(
-                        dbname.index,
-                        dbname.name,
+                        collection.index,
+                        collection.name,
                         language,
                         "Event"
                     );
@@ -83,8 +83,8 @@ export class LocaleService {
                 }
                 if (filteredFactions.length > 0) {
                     const fileName = this.FormatLocaleFileName(
-                        dbname.index,
-                        dbname.name,
+                        collection.index,
+                        collection.name,
                         language,
                         "Faction"
                     );
@@ -101,8 +101,8 @@ export class LocaleService {
                 }
                 if (filteredCharacters.length > 0) {
                     const fileName = this.FormatLocaleFileName(
-                        dbname.index,
-                        dbname.name,
+                        collection.index,
+                        collection.name,
                         language,
                         "Character"
                     );
